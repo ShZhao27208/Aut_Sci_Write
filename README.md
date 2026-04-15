@@ -10,8 +10,8 @@ Inspired by advanced agentic workflows, this project bridges the gap between raw
 
 ### 1. Unified Paper Search (`sci-search`)
 - Search Arxiv and PubMed simultaneously.
-- Intelligent ranking using a decoupled **Journal Database** (`journal_db.json`) providing JCR Tiers, Impact Factors, and publisher info (Nature, Science, Wiley, Elsevier, etc.).
-- Local caching in `library.json` for rapid iterative research.
+- Intelligent ranking using a decoupled **Journal Database** (`scripts/journal_db.json`) providing JCR Tiers, Impact Factors, and publisher info (Nature, Science, Wiley, Elsevier, etc.).
+- Local caching in `library.json` for rapid iterative research, with an opt-out flag when running the CLI directly.
 
 ### 2. Deep Literature Extraction (`sci-extract` & `sci-zotero`)
 - **Core Insights Extraction**: Moves beyond simple summaries to extract experimental parameters, numerical comparisons, and core conclusions.
@@ -68,13 +68,13 @@ In your Claude Code session, prompt:
   - `/sci-figure`: Visual intelligence (from original Sh_Sci_Fig system).
   - `/sci-review`: Refinement references and response templates.
 - `/scripts`: Core Python logic for search, extraction, and sync.
-- `journal_db.json`: Decoupled journal metrics (Easy to update!).
+- `scripts/journal_db.json`: Decoupled journal metrics (Easy to update!).
 - `requirements.txt`: Minimal dependencies for maximum portability.
 
 ---
 
 ## 🤝 Contributing
-Contributions are welcome! Please add new journal metrics to `journal_db.json` or new writing templates to `sci-review/templates`.
+Contributions are welcome! Please add new journal metrics to `scripts/journal_db.json` or new writing templates to `sci-review/templates`.
 
 ## 📄 License
 This project is licensed under the **MIT License**.

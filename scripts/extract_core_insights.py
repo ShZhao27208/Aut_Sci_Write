@@ -9,7 +9,7 @@ Version: 1.0
 import sys
 import json
 import re
-import os
+import csv
 from pathlib import Path
 from datetime import datetime
 import argparse
@@ -20,13 +20,197 @@ if sys.platform == 'win32':
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
-try:
-    import fitz  # PyMuPDF
-    import pdfplumber
-except ImportError:
-    print("Error: Required libraries not installed")
-    print("Install with: pip install PyMuPDF pdfplumber")
-    sys.exit(1)
+OUTPUT_EXTENSIONS = {
+    'json': '.json',
+    'markdown': '.md',
+    'csv': '.csv',
+}
+
+CONFIDENCE_COLUMNS = [
+    ('research_problem', 'Problem_Conf'),
+    ('methodology', 'Method_Conf'),
+    ('key_results', 'Results_Conf'),
+    ('innovation', 'Innovation_Conf'),
+    ('application', 'Application_Conf'),
+    ('limitations', 'Limitations_Conf'),
+]
+
+
+def ensure_pdf_dependencies():
+    """Import heavy PDF dependencies lazily so --help still works."""
+    try:
+        import fitz  # PyMuPDF
+        import pdfplumber
+    except ImportError as exc:
+        raise RuntimeError(
+            "Required libraries not installed. Install with: "
+            "pip install PyMuPDF pdfplumber"
+        ) from exc
+    return fitz, pdfplumber
+
+
+def default_output_path(input_path, output_format):
+    suffix = OUTPUT_EXTENSIONS[output_format]
+    return str(Path(input_path).with_name(f"{Path(input_path).stem}_insights{suffix}"))
+
+
+def stringify_insight(value):
+    """Render insight fields consistently across scalar/list forms."""
+    if isinstance(value, list):
+        return ' | '.join(value)
+    return value
+
+
+def format_result_as_markdown(result):
+    """Render a single extraction result as readable markdown."""
+    meta = result.get('metadata', {})
+    insights = result.get('core_insights', {})
+    scores = result.get('confidence_scores', {})
+
+    lines = [
+        f"# Core Insights: {meta.get('title') or 'Unknown Title'}",
+        "",
+        "## Metadata",
+        f"- **Authors:** {', '.join(meta.get('authors', [])) or 'Unknown'}",
+        f"- **Journal:** {meta.get('journal') or 'Unknown'}",
+        f"- **Year:** {meta.get('year') or 'Unknown'}",
+        f"- **DOI:** {meta.get('doi') or 'N/A'}",
+        f"- **Status:** {result.get('status', 'unknown')}",
+        f"- **Extraction Time:** {result.get('extraction_time', 0)}s",
+        "",
+        "## Core Insights",
+    ]
+
+    labels = {
+        'research_problem': 'Research Problem',
+        'methodology': 'Methodology',
+        'key_results': 'Key Results',
+        'innovation': 'Innovation',
+        'application': 'Application',
+        'limitations': 'Limitations',
+    }
+
+    for key, label in labels.items():
+        value = insights.get(key, 'Not found')
+        if isinstance(value, list):
+            rendered = '\n'.join(f"  - {item}" for item in value)
+        else:
+            rendered = f"  - {value}"
+        lines.append(f"### {label}")
+        lines.append(rendered)
+        lines.append(f"  - Confidence: {scores.get(key, 0.0):.2f}")
+        lines.append("")
+
+    if result.get('status') == 'error':
+        lines.extend([
+            "## Error",
+            f"- **Kind:** {result.get('error_kind', 'unknown')}",
+            f"- **Detail:** {result.get('error_detail', 'N/A')}",
+            f"- **Suggestion:** {result.get('suggestion', 'N/A')}",
+            "",
+        ])
+
+    return '\n'.join(lines).rstrip() + '\n'
+
+
+def write_result_file(result, output_file, output_format):
+    """Persist a single result in the requested format."""
+    path = Path(output_file)
+    if output_format == 'json':
+        with path.open('w', encoding='utf-8') as f:
+            json.dump(result, f, ensure_ascii=False, indent=2)
+        return path
+
+    if output_format == 'markdown':
+        path.write_text(format_result_as_markdown(result), encoding='utf-8')
+        return path
+
+    meta = result.get('metadata', {})
+    scores = result.get('confidence_scores', {})
+    insights = result.get('core_insights', {})
+
+    with path.open('w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow([
+            'Title', 'Authors', 'Journal', 'Year',
+            'Research_Problem', 'Methodology', 'Key_Results',
+            'Innovation', 'Application', 'Limitations',
+            'Problem_Conf', 'Method_Conf', 'Results_Conf',
+            'Innovation_Conf', 'Application_Conf', 'Limitations_Conf',
+            'Status', 'Time(s)'
+        ])
+        writer.writerow([
+            meta.get('title', ''),
+            '; '.join(meta.get('authors', [])),
+            meta.get('journal', ''),
+            meta.get('year', ''),
+            stringify_insight(insights.get('research_problem', '')),
+            stringify_insight(insights.get('methodology', '')),
+            stringify_insight(insights.get('key_results', '')),
+            stringify_insight(insights.get('innovation', '')),
+            stringify_insight(insights.get('application', '')),
+            stringify_insight(insights.get('limitations', '')),
+            f"{scores.get('research_problem', 0):.2f}",
+            f"{scores.get('methodology', 0):.2f}",
+            f"{scores.get('key_results', 0):.2f}",
+            f"{scores.get('innovation', 0):.2f}",
+            f"{scores.get('application', 0):.2f}",
+            f"{scores.get('limitations', 0):.2f}",
+            result.get('status', ''),
+            result.get('extraction_time', 0),
+        ])
+    return path
+
+
+def write_batch_summary(results, output_dir, output_format):
+    """Write a batch summary in the selected format."""
+    output_dir = Path(output_dir)
+    suffix = OUTPUT_EXTENSIONS[output_format]
+    output_file = output_dir / f"summary{suffix}"
+
+    if output_format == 'json':
+        with output_file.open('w', encoding='utf-8') as f:
+            json.dump(results, f, ensure_ascii=False, indent=2)
+        return output_file
+
+    if output_format == 'markdown':
+        lines = ["# Batch Core Insights Summary", ""]
+        for index, result in enumerate(results, 1):
+            meta = result.get('metadata', {})
+            lines.extend([
+                f"## {index}. {meta.get('title') or 'Unknown Title'}",
+                f"- **Status:** {result.get('status', 'unknown')}",
+                f"- **Journal:** {meta.get('journal') or 'Unknown'}",
+                f"- **Year:** {meta.get('year') or 'Unknown'}",
+                f"- **Research Problem:** {stringify_insight(result.get('core_insights', {}).get('research_problem', 'Not found'))}",
+                f"- **Methodology:** {stringify_insight(result.get('core_insights', {}).get('methodology', 'Not found'))}",
+                "",
+            ])
+        output_file.write_text('\n'.join(lines).rstrip() + '\n', encoding='utf-8')
+        return output_file
+
+    with output_file.open('w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow([
+            'Title', 'Authors', 'Journal', 'Year',
+            *[column for _, column in CONFIDENCE_COLUMNS],
+            'Status', 'Time(s)'
+        ])
+
+        for result in results:
+            meta = result.get('metadata', {})
+            scores = result.get('confidence_scores', {})
+            writer.writerow([
+                meta.get('title', ''),
+                '; '.join(meta.get('authors', [])),
+                meta.get('journal', ''),
+                meta.get('year', ''),
+                *[f"{scores.get(key, 0):.2f}" for key, _ in CONFIDENCE_COLUMNS],
+                result.get('status', ''),
+                result.get('extraction_time', 0),
+            ])
+
+    return output_file
 
 
 class CoreInsightsExtractor:
@@ -95,7 +279,9 @@ class CoreInsightsExtractor:
     
     def _extract_text_and_metadata(self, pdf_path):
         """Extract text and metadata from PDF"""
+        doc = None
         try:
+            fitz, pdfplumber = ensure_pdf_dependencies()
             # Use PyMuPDF for metadata
             doc = fitz.open(pdf_path)
             metadata = doc.metadata or {}
@@ -105,9 +291,7 @@ class CoreInsightsExtractor:
             with pdfplumber.open(pdf_path) as pdf:
                 for page in pdf.pages:
                     text += page.extract_text() or ""
-            
-            doc.close()
-            
+
             # Parse metadata
             parsed_metadata = {
                 'title': metadata.get('title', 'Unknown'),
@@ -120,10 +304,15 @@ class CoreInsightsExtractor:
             
             return text, parsed_metadata
             
+        except RuntimeError:
+            raise
         except Exception as e:
             if self.verbose:
                 print(f"Error extracting text: {e}")
-            return "", {}
+            raise
+        finally:
+            if doc is not None:
+                doc.close()
     
     def _extract_authors(self, text):
         """Extract author names from text"""
@@ -382,7 +571,7 @@ class CoreInsightsExtractor:
             'suggestion': suggestions.get(error_kind, suggestions['unknown']),
         }
     
-    def batch_process(self, folder_path, output_dir=None, workers=4):
+    def batch_process(self, folder_path, output_dir=None, workers=4, summary_format='csv'):
         """Process multiple PDFs in parallel using a thread pool.
 
         workers=4 is a safe default: extraction is I/O-bound (disk + PDF
@@ -397,7 +586,7 @@ class CoreInsightsExtractor:
 
         if not pdf_files:
             print(f"No PDF files found in {folder_path}")
-            return
+            return []
 
         if output_dir is None:
             output_dir = folder / 'insights'
@@ -431,48 +620,13 @@ class CoreInsightsExtractor:
                     print(f"  [{completed[0]}/{total}] {name} "
                           f"✓ ({result['extraction_time']}s)")
 
-        # Generate summary CSV after all workers finish.
-        self._generate_summary_csv(results, output_dir / 'summary.csv')
+        summary_path = write_batch_summary(results, output_dir, summary_format)
 
         print(f"\n✓ Processed {total} PDFs")
         print(f"✓ Results saved to {output_dir}")
+        print(f"✓ Summary saved to {summary_path}")
 
         return results
-    
-    def _generate_summary_csv(self, results, output_file):
-        """Generate CSV summary of all results"""
-        import csv
-        
-        with open(output_file, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            
-            # Header
-            writer.writerow([
-                'Title', 'Authors', 'Journal', 'Year',
-                'Problem_Conf', 'Method_Conf', 'Results_Conf',
-                'Innovation_Conf', 'Application_Conf', 'Limitations_Conf',
-                'Status', 'Time(s)'
-            ])
-            
-            # Data rows
-            for result in results:
-                meta = result.get('metadata', {})
-                scores = result.get('confidence_scores', {})
-                
-                writer.writerow([
-                    meta.get('title', ''),
-                    '; '.join(meta.get('authors', [])),
-                    meta.get('journal', ''),
-                    meta.get('year', ''),
-                    f"{scores.get('problem', 0):.2f}",
-                    f"{scores.get('methodology', 0):.2f}",
-                    f"{scores.get('results', 0):.2f}",
-                    f"{scores.get('innovation', 0):.2f}",
-                    f"{scores.get('application', 0):.2f}",
-                    f"{scores.get('limitations', 0):.2f}",
-                    result.get('status', ''),
-                    result.get('extraction_time', 0)
-                ])
 
 
 def main():
@@ -481,15 +635,25 @@ def main():
     parser.add_argument('--batch', action='store_true', help='Process all PDFs in folder')
     parser.add_argument('--output', help='Output directory or file')
     parser.add_argument('--format', choices=['json', 'markdown', 'csv'], default='json', help='Output format')
+    parser.add_argument('--workers', type=int, default=4, help='Parallel workers for batch mode')
     parser.add_argument('--verbose', action='store_true', help='Verbose output')
     
     args = parser.parse_args()
     
+    if args.workers < 1:
+        parser.error('--workers must be >= 1')
+
+    try:
+        ensure_pdf_dependencies()
+    except RuntimeError as exc:
+        print(f"Error: {exc}")
+        sys.exit(1)
+
     extractor = CoreInsightsExtractor(verbose=args.verbose)
     
     if args.batch:
         # Batch processing
-        results = extractor.batch_process(args.input, args.output)
+        extractor.batch_process(args.input, args.output, workers=args.workers, summary_format=args.format)
     else:
         # Single file processing
         result = extractor.extract_from_pdf(args.input)
@@ -498,10 +662,9 @@ def main():
         if args.output:
             output_file = args.output
         else:
-            output_file = Path(args.input).stem + '_insights.json'
-        
-        with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(result, f, ensure_ascii=False, indent=2)
+            output_file = default_output_path(args.input, args.format)
+
+        write_result_file(result, output_file, args.format)
         
         print(f"✓ Insights saved to {output_file}")
         print(f"✓ Status: {result['status']}")

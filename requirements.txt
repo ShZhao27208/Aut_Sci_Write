@@ -1,3 +1,6 @@
 PyMuPDF
 pdfplumber
 numpy
+opencv-python
+Pillow
+pytesseract

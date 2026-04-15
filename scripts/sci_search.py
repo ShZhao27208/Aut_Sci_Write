@@ -26,12 +26,13 @@ if sys.platform == 'win32':
 # Configuration
 _SCRIPT_DIR = Path(__file__).parent
 LIBRARY_PATH = _SCRIPT_DIR.parent / "library.json"
+JOURNAL_DB_PATH = _SCRIPT_DIR / "journal_db.json"
 
 # API rate-limit delay (seconds)
 RATE_LIMIT_DELAY = 1.0
 
-# Journal metrics database (from smart_paper_output.py)
-JOURNAL_DB = {
+# Journal metrics database fallback (overridden by journal_db.json when present)
+DEFAULT_JOURNAL_DB = {
     'Advanced Materials': {
         'jcr_partition': 'Q1',
         'impact_factor': '29.4',
@@ -210,6 +211,55 @@ JOURNAL_DB = {
     }
 }
 
+
+def _normalize_journal_metrics(journal_name: str, metrics: Dict) -> Dict:
+    """Support both legacy JSON schema and richer in-code metrics schema."""
+    normalized = {
+        'jcr_partition': metrics.get('jcr_partition', metrics.get('JCR', 'N/A')),
+        'impact_factor': str(metrics.get('impact_factor', metrics.get('IF', 'N/A'))),
+        '5_year_if': str(metrics.get('5_year_if', metrics.get('IF', 'N/A'))),
+        'chinese_partition': metrics.get('chinese_partition', metrics.get('Partition', 'N/A')),
+        'category': metrics.get('category', ''),
+        'publisher': metrics.get('publisher', metrics.get('Publisher', '')),
+        'is_top_journal': bool(metrics.get('is_top_journal', False)),
+        'is_nature_science_advmat': bool(metrics.get('is_nature_science_advmat', False)),
+        'notes': metrics.get('notes', ''),
+    }
+
+    journal_lower = journal_name.lower()
+    if journal_lower in {'nature', 'science'} or 'advanced materials' in journal_lower:
+        normalized['is_top_journal'] = True
+        normalized['is_nature_science_advmat'] = True
+
+    return normalized
+
+
+def load_journal_db(db_path: Path = JOURNAL_DB_PATH) -> Dict[str, Dict]:
+    """Load journal metrics from disk, falling back to bundled defaults."""
+    database = {
+        name: _normalize_journal_metrics(name, metrics)
+        for name, metrics in DEFAULT_JOURNAL_DB.items()
+    }
+
+    if not db_path.exists():
+        return database
+
+    try:
+        with db_path.open('r', encoding='utf-8') as f:
+            file_metrics = json.load(f)
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"Warning: failed to load journal DB from {db_path}: {exc}")
+        return database
+
+    for name, metrics in file_metrics.items():
+        if isinstance(metrics, dict):
+            database[name] = _normalize_journal_metrics(name, metrics)
+
+    return database
+
+
+JOURNAL_DB = load_journal_db()
+
 def get_journal_metrics(journal_name: str) -> Optional[Dict]:
     if not journal_name:
         return None
@@ -261,18 +311,39 @@ class PaperLibrary:
 
     def _save_library(self):
         data = {'papers': self.papers, 'last_updated': datetime.now().isoformat()}
+        Path(self.library_path).parent.mkdir(parents=True, exist_ok=True)
         with open(self.library_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
+    def _paper_key(self, paper: Dict) -> tuple:
+        return (
+            paper.get('source', ''),
+            paper.get('url', ''),
+            paper.get('doi', ''),
+            paper.get('title', '').strip().lower(),
+        )
+
     def add_paper(self, paper: Dict):
         # Decorate with metrics if available
+        paper = dict(paper)
         if paper.get('journal'):
             metrics = get_journal_metrics(paper['journal'])
             if metrics:
                 paper['journal_metrics'] = metrics
 
+        paper_key = self._paper_key(paper)
+        for index, existing in enumerate(self.papers):
+            if self._paper_key(existing) == paper_key:
+                self.papers[index] = paper
+                self._save_library()
+                return
+
         self.papers.append(paper)
         self._save_library()
+
+    def extend_papers(self, papers: List[Dict]):
+        for paper in papers:
+            self.add_paper(paper)
 
 class ArxivFetcher:
     API_URL = "https://export.arxiv.org/api/query"
@@ -360,12 +431,34 @@ def format_markdown(paper: Dict, index: int) -> str:
 
     return "\n".join(lines)
 
+
+def dedupe_results(results: List[Dict]) -> List[Dict]:
+    """Deduplicate cross-source results while keeping first-seen order."""
+    seen = set()
+    deduped = []
+
+    for paper in results:
+        key = (
+            paper.get('source', ''),
+            paper.get('url', ''),
+            paper.get('doi', ''),
+            paper.get('title', '').strip().lower(),
+        )
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(paper)
+
+    return deduped
+
 def main():
     import argparse
     parser = argparse.ArgumentParser(description='Sci Search Tool')
     parser.add_argument('query', help='Search query')
     parser.add_argument('--limit', type=int, default=5)
     parser.add_argument('--output', help='Output to markdown file')
+    parser.add_argument('--library', default=str(LIBRARY_PATH), help='Path to library cache JSON')
+    parser.add_argument('--no-cache', action='store_true', help='Skip writing search results to library cache')
     args = parser.parse_args()
 
     results = []
@@ -373,10 +466,15 @@ def main():
     results.extend(ArxivFetcher().search(args.query, args.limit))
     time.sleep(RATE_LIMIT_DELAY)
     results.extend(PubmedFetcher().search(args.query, args.limit))
+    results = dedupe_results(results)
 
     if not results:
         print("No results found.")
         return
+
+    if not args.no_cache:
+        PaperLibrary(args.library).extend_papers(results)
+        print(f"Cached {len(results)} result(s) to {args.library}")
 
     md_output = [f"# Search Results: {args.query}\n"]
     for i, p in enumerate(results, 1):
