@@ -1,6 +1,10 @@
 ---
 name: sci-zotero
 description: Interact with your Zotero library to sync references, add citations by DOI/ISBN/PMID, and manage PDFs. Triggers on Zotero-related requests.
+author: Shuo Zhao         
+license: MIT
+copyright: © 2026 Shuo Zhao. All rights reserved. 
+original: This is an original work created by the author. No reproduction or redistribution without permission.  
 triggers:
   - Zotero
   - zotero
@@ -34,3 +38,19 @@ This skill wraps the `zotero.py` standalone CLI tool located in `../../scripts/z
 - `add-doi [DOI]`: Add an item by DOI.
 - `add-isbn [ISBN]`: Add an item by ISBN.
 - `fetch-pdfs`: Automatically find and attach open-access PDFs.
+
+
+
+---
+## © License & Copyright
+**Aut_Sci_Write** — Autonomous Scientific Writer
+
+- **Author**: Shuo Zhao
+- **License**: MIT License
+- **Copyright**: © 2026 Shuo Zhao. All rights reserved.
+- **Original Work**: This is an original work created by the author. No reproduction, redistribution, or commercial use without explicit permission.
+  **Permission is hereby granted**, free of charge, to any person obtaining a copy of this software... (**See the LICENSE file in the root directory for the full MIT terms.**)
+
+---
+*This skill is part of the Aut_Sci_Write suite. For full license terms, see the [LICENSE](../LICENSE) file in the project root.*
+---

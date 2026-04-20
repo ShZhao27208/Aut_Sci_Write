@@ -1,6 +1,10 @@
 ---
 name: sci-ppt
 description: Generate professional academic PowerPoint (PPTX) presentations from paper PDFs, structured outlines, or plain text. Use for thesis defense, seminar reports, literature presentations, and graduate school applications. Supports automatic figure extraction, LaTeX formula rendering, and bilingual (Chinese/English) layouts.
+author: Shuo Zhao         
+license: MIT
+copyright: © 2026 Shuo Zhao. All rights reserved. 
+original: This is an original work created by the author. No reproduction or redistribution without permission.  
 triggers:
   - 生成PPT
   - 做PPT
@@ -62,3 +66,25 @@ output = auto_generate_ppt("paper.pdf", author="张三", advisor="李教授")
 ## Environment Variables
 - `MOONSHOT_API_KEY` (optional): Used for Chinese translation in PDF-to-PPT workflow. If not set, content is kept in original language.
 - Network access required for LaTeX formula rendering (via codecogs.com).
+
+
+
+
+
+---
+
+## © License & Copyright
+
+**Aut_Sci_Write** — Autonomous Scientific Writer
+
+- **Author**: Shuo Zhao
+- **License**: MIT License
+- **Copyright**: © 2026 Shuo Zhao. All rights reserved.
+- **Original Work**: This is an original work created by the author. No reproduction, redistribution, or commercial use without explicit permission.
+  **Permission is hereby granted**, free of charge, to any person obtaining a copy of this software... (**See the LICENSE file in the root directory for the full MIT terms.**)
+
+---
+
+*This skill is part of the Aut_Sci_Write suite. For full license terms, see the [LICENSE](../LICENSE) file in the project root.*
+---
+

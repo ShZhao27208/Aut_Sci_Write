@@ -27,11 +27,11 @@ from aut_sci_ppt import PPTAgent
 
 agent = PPTAgent()
 user_input = """
-主题：材料学科研究生推免汇报
-申请人：赵烁
+主题：材料学科研究生汇报
+申请人：dd
 1. 教育背景
-- 重庆交通大学
-- 绩点: 3.61/4.0
+- dd
+- 绩点: 3.57/4.0
 """
 agent.generate(user_input, "presentation.pptx")
 ```

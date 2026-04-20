@@ -1,6 +1,10 @@
 ---
 name: sci-review
 description: Specialized workflows for drafting, refining, and responding to academic literature reviews and peer review feedback. Triggers on requests like "draft literature review on...", "respond to reviewers", "refine paper rebuttal", or "summarize research gaps". Based on the 4-stage systematic literature review structure and professional rebuttal guides for top-tier CS venues (NeurIPS, ICLR, ICML, etc.).
+author: Shuo Zhao         
+license: MIT
+copyright: © 2026 Shuo Zhao. All rights reserved. 
+original: This is an original work created by the author. No reproduction or redistribution without permission.  
 triggers:
   - 文献综述
   - 综述写作
@@ -55,3 +59,21 @@ When asked to respond to reviewers:
 - **Read First**: Always read the source literature or reviewer comments thoroughly before generating content.
 - **No Fillers**: Remove phrases like "it is worth noting" or "as we all know".
 - **Precision**: Replace "significantly better" with "X% improvement over [Baseline]".
+
+
+
+## © License & Copyright
+
+**Aut_Sci_Write** — Autonomous Scientific Writer
+
+- **Author**: Shuo Zhao
+- **License**: MIT License
+- **Copyright**: © 2026 Shuo Zhao. All rights reserved.
+- **Original Work**: This is an original work created by the author. No reproduction, redistribution, or commercial use without explicit permission.
+  **Permission is hereby granted**, free of charge, to any person obtaining a copy of this software... (**See the LICENSE file in the root directory for the full MIT terms.**)
+
+---
+
+*This skill is part of the Aut_Sci_Write suite. For full license terms, see the [LICENSE](../LICENSE) file in the project root.*
+---
+

@@ -162,7 +162,7 @@ Contributions welcome! Priority areas:
 
 ## 中文说明
 
-**Aut_Sci_Write** 是一套专为科研工作者设计的 **AI Agent Skills 插件集**，将科研写作的各个环节自动化，覆盖从文献发现到成果输出的完整链路。
+**Aut_Sci_Write** 是一套专为科研工作者设计的 **AI Agent Skills 技能包**，将科研写作的各个环节自动化，覆盖从文献发现到成果输出的完整链路。
 
 > 安装一次，随处可用。直接用自然语言和 AI Agent 对话，技能会根据你说的内容自动激活。
 
@@ -298,3 +298,19 @@ Aut_Sci_Write/
 ## 📄 License
 
 MIT License — see [LICENSE](LICENSE)
+
+Copyright (c) 2026 Shuo Zhao
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+版权所有 (c) 2026 赵烁
+
+特此免费授予任何获得本软件及相关文档文件（以下简称“本软件”）副本的人不受限制地处置本软件的权利，包括但不限于使用、复制、修改、合并、发布、分发、再许可及/或销售本软件副本的权利，并允许获得本软件的人享有同等权利，但须遵守以下条件：
+
+上述版权声明和本许可声明应包含在本软件的所有副本或主要部分中。
+
+本软件按“原样”提供，不作任何形式的明示或默示保证，包括但不限于对适销性、特定用途的适用性及非侵权的保证。在任何情况下，作者或版权持有人均不对因本软件或本软件的使用或其他交易而引起的任何索赔、损害或其他责任负责，无论该等责任基于合同、侵权或其他法律理论。

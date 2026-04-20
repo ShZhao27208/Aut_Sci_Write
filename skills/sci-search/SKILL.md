@@ -1,6 +1,10 @@
 ---
 name: sci-search
 description: Academic paper search and metrics analysis. Searches arXiv, PubMed, and Web of Science simultaneously with journal impact factor data. Triggers on requests to search for papers or find literature.
+author: Shuo Zhao         
+license: MIT
+copyright: © 2026 Shuo Zhao. All rights reserved. 
+original: This is an original work created by the author. No reproduction or redistribution without permission.  
 triggers:
   - 搜索文献
   - 查文献
@@ -69,3 +73,20 @@ python skills/sci-search/sci_search.py "solid state electrolyte" --source wos --
 # Export results to markdown
 python skills/sci-search/sci_search.py "graphene battery" --output results.md
 ```
+
+
+
+---
+## © License & Copyright
+**Aut_Sci_Write** — Autonomous Scientific Writer
+
+- **Author**: Shuo Zhao
+- **License**: MIT License
+- **Copyright**: © 2026 Shuo Zhao. All rights reserved.
+- **Original Work**: This is an original work created by the author. No reproduction, redistribution, or commercial use without explicit permission.
+  **Permission is hereby granted**, free of charge, to any person obtaining a copy of this software... (**See the LICENSE file in the root directory for the full MIT terms.**)
+
+---
+*This skill is part of the Aut_Sci_Write suite. For full license terms, see the [LICENSE](../LICENSE) file in the project root.*
+---
+

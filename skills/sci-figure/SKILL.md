@@ -1,6 +1,10 @@
 ---
 name: sci-figure
 description: Extracts figures and sub-figures from academic PDF papers. Supports Fig/Figure, Scheme, Chart, Supplementary Figure, Extended Data Figure (Nature), and Chinese equivalents (图/方案/示意图/附图/补充图). Sub-figure label recognition supports (a)/(A)/a)/(i)/(1)/a. formats. High-quality PNG output at configurable DPI. Use when user asks to "extract figure", "截取文献图片", "提取子图", "get figure from paper", "Scheme", "方案图", "补充图", "Supplementary Figure", or "Extended Data".
+author: Shuo Zhao         
+license: MIT
+copyright: © 2026 Shuo Zhao. All rights reserved. 
+original: This is an original work created by the author. No reproduction or redistribution without permission.  
 ---
 
 # Sci-Figure — Scientific Figure Extractor
@@ -111,3 +115,25 @@ Extracted: figure_2c.png (1920x1080, 600 DPI)
 ## Extension Support
 
 Custom configurations via EXTEND.md. See **Preferences** section for paths and supported options.
+
+
+
+
+
+---
+
+## © License & Copyright
+
+**Aut_Sci_Write** — Autonomous Scientific Writer
+
+- **Author**: Shuo Zhao
+- **License**: MIT License
+- **Copyright**: © 2026 Shuo Zhao. All rights reserved.
+- **Original Work**: This is an original work created by the author. No reproduction, redistribution, or commercial use without explicit permission.
+  **Permission is hereby granted**, free of charge, to any person obtaining a copy of this software... (**See the LICENSE file in the root directory for the full MIT terms.**)
+
+---
+
+*This skill is part of the Aut_Sci_Write suite. For full license terms, see the [LICENSE](../LICENSE) file in the project root.*
+---
+
