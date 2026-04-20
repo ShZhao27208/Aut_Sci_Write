@@ -4,7 +4,6 @@ description: Specialized workflows for drafting, refining, and responding to aca
 author: Shuo Zhao         
 license: MIT
 copyright: © 2026 Shuo Zhao. All rights reserved. 
-original: This is an original work created by the author. No reproduction or redistribution without permission.  
 triggers:
   - 文献综述
   - 综述写作

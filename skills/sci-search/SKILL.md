@@ -4,7 +4,6 @@ description: Academic paper search and metrics analysis. Searches arXiv, PubMed,
 author: Shuo Zhao         
 license: MIT
 copyright: © 2026 Shuo Zhao. All rights reserved. 
-original: This is an original work created by the author. No reproduction or redistribution without permission.  
 triggers:
   - 搜索文献
   - 查文献

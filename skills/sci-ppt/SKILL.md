@@ -3,8 +3,7 @@ name: sci-ppt
 description: Generate professional academic PowerPoint (PPTX) presentations from paper PDFs, structured outlines, or plain text. Use for thesis defense, seminar reports, literature presentations, and graduate school applications. Supports automatic figure extraction, LaTeX formula rendering, and bilingual (Chinese/English) layouts.
 author: Shuo Zhao         
 license: MIT
-copyright: © 2026 Shuo Zhao. All rights reserved. 
-original: This is an original work created by the author. No reproduction or redistribution without permission.  
+copyright: © 2026 Shuo Zhao. All rights reserved.   
 triggers:
   - 生成PPT
   - 做PPT

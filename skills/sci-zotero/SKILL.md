@@ -3,8 +3,7 @@ name: sci-zotero
 description: Interact with your Zotero library to sync references, add citations by DOI/ISBN/PMID, and manage PDFs. Triggers on Zotero-related requests.
 author: Shuo Zhao         
 license: MIT
-copyright: © 2026 Shuo Zhao. All rights reserved. 
-original: This is an original work created by the author. No reproduction or redistribution without permission.  
+copyright: © 2026 Shuo Zhao. All rights reserved.  
 triggers:
   - Zotero
   - zotero
