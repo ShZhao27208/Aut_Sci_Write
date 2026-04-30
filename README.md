@@ -39,6 +39,14 @@
 
 ### 🚀 Installation
 
+**Prerequisites**
+
+Before installation, make sure the following environments are available:
+
+- **Python 3.10+**: required for Python-based skills such as `sci-search`, `sci-extract`, `sci-figure`, `sci-review`, and `sci-ppt`
+- **Node.js 18+**: required for `npx skills add ...` installation and CLI-based skill registration
+- **pip**: used to install Python dependencies from `requirements.txt`
+
 **One-line install** (***Recommended*** — installs all 6 skills globally):
 
 ```bash
@@ -66,10 +74,6 @@ git clone https://github.com/ShZhao27208/Aut_Sci_Write.git
 cd Aut_Sci_Write
 npx skills add . -g -y
 ```
-
-![examles](./examples/examples.png)
-
-
 
 ### ⚙️ Configuration
 
@@ -179,6 +183,14 @@ Contributions welcome! Priority areas:
 
 ### 🚀 安装方法
 
+**安装前提**
+
+安装前请先确保本机已具备以下环境：
+
+- **Python 3.10 及以上**：用于运行 `sci-search`、`sci-extract`、`sci-figure`、`sci-review`、`sci-ppt` 等基于 Python 的技能
+- **Node.js 18 及以上**：用于执行 `npx skills add ...` 安装命令，以及完成 CLI 方式的技能注册
+- **pip**：用于安装 `requirements.txt` 中的 Python 依赖
+
 **一行命令安装**（***推荐***，将全部 6 个技能进行全局安装）：
 
 ```bash
@@ -206,10 +218,6 @@ git clone https://github.com/ShZhao27208/Aut_Sci_Write.git
 cd Aut_Sci_Write
 npx skills add . -g -y
 ```
-
-### ![examles](./examples/examples.png)
-
-
 
 ### ⚙️ 环境变量配置
 
@@ -292,6 +300,8 @@ Aut_Sci_Write/
 - 在 `skills/sci-review/templates/` 中添加新的写作模板
 - 在 `skills/Aut_Sci_PPt/src/aut_sci_ppt/templates/` 中新增 PPT 页面类型
 - 在`issue`中提出自己遇到的问题
+
+![examles](./examples/examples.png)
 
 ---
 
