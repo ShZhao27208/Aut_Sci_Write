@@ -5,3 +5,5 @@ library.json
 .DS_Store
 .vscode/
 .npmrc
+.claude-plugin/**
+*.log

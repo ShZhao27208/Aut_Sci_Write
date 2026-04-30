@@ -7,7 +7,6 @@ Combined logic from paper_fetch.py and smart_paper_output.py
 
 import os
 import sys
-import codecs
 import json
 import time
 import urllib.request
@@ -18,10 +17,19 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Optional
 
-# Fix encoding for Windows console
-if sys.platform == 'win32':
-    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, errors='replace')
-    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, errors='replace')
+def configure_windows_console() -> None:
+    """Avoid import-time stdio mutation; only reconfigure in CLI mode."""
+    if sys.platform != 'win32':
+        return
+
+    for stream_name in ('stdout', 'stderr'):
+        stream = getattr(sys, stream_name, None)
+        if stream is None:
+            continue
+
+        reconfigure = getattr(stream, 'reconfigure', None)
+        if callable(reconfigure):
+            reconfigure(encoding='utf-8', errors='replace')
 
 # Configuration
 _SCRIPT_DIR = Path(__file__).parent
@@ -537,6 +545,7 @@ def dedupe_results(results: List[Dict]) -> List[Dict]:
 
 def main():
     import argparse
+    configure_windows_console()
     parser = argparse.ArgumentParser(description='Sci Search Tool')
     parser.add_argument('query', help='Search query')
     parser.add_argument('--limit', type=int, default=5)
