@@ -3,20 +3,42 @@ name: sci-figure
 description: Extracts figures and sub-figures from academic PDF papers. Supports Fig/Figure, Scheme, Chart, Supplementary Figure, Extended Data Figure (Nature), and Chinese equivalents (图/方案/示意图/附图/补充图). Sub-figure label recognition supports (a)/(A)/a)/(i)/(1)/a. formats. High-quality PNG output at configurable DPI. Use when user asks to "extract figure", "截取文献图片", "提取子图", "get figure from paper", "Scheme", "方案图", "补充图", "Supplementary Figure", or "Extended Data".
 author: Shuo Zhao         
 license: MIT
-copyright: © 2026 Shuo Zhao. All rights reserved.   
+copyright: © 2026 Shuo Zhao. All rights reserved.
+triggers:
+  - 提取图片
+  - 截取文献图片
+  - 提取子图
+  - 提取附图
+  - 补充图
+  - 方案图
+  - 示意图
+  - 图片提取
+  - extract figure
+  - extract subfigure
+  - get figure from paper
+  - Supplementary Figure
+  - Extended Data
+  - Scheme
+  - figure extraction
 ---
 
 # Sci-Figure — Scientific Figure Extractor
 
 Precisely extract figures and sub-figures from academic PDF papers.
 
-## Script Directory
+## Installation
 
-Scripts in `scripts/` subdirectory. Replace `${SKILL_DIR}` with this SKILL.md's directory path.
+Install the package from the skill directory before first use:
 
-| Script | Purpose |
-|--------|---------|
-| `scripts/extract_figure.py` | Main CLI for figure extraction |
+```bash
+cd ${SKILL_DIR}
+pip install -e .
+```
+
+This registers the `sh-sci-fig` CLI command. Requires Tesseract OCR:
+- Windows: `winget install UB-Mannheim.TesseractOCR`
+- Linux: `apt install tesseract-ocr`
+- macOS: `brew install tesseract`
 
 ## Preferences (EXTEND.md)
 
@@ -24,10 +46,10 @@ Use Bash to check EXTEND.md existence (priority order):
 
 ```bash
 # Check project-level first
-test -f .baoyu-skills/Sh_Sci_Fig/EXTEND.md && echo "project"
+test -f .baoyu-skills/sci-figure/EXTEND.md && echo "project"
 
 # Then user-level (cross-platform: $HOME works on macOS/Linux/WSL)
-test -f "$HOME/.baoyu-skills/Sh_Sci_Fig/EXTEND.md" && echo "user"
+test -f "$HOME/.baoyu-skills/sci-figure/EXTEND.md" && echo "user"
 ```
 
 **EXTEND.md Supports**: Default DPI | Default output format | Tesseract path
@@ -35,7 +57,7 @@ test -f "$HOME/.baoyu-skills/Sh_Sci_Fig/EXTEND.md" && echo "user"
 ## Usage
 
 ```bash
-python ${SKILL_DIR}/scripts/extract_figure.py <input.pdf> [options]
+sh-sci-fig <input.pdf> [options]
 ```
 
 ## Options
@@ -49,25 +71,26 @@ python ${SKILL_DIR}/scripts/extract_figure.py <input.pdf> [options]
 | `--dpi` | `-d` | Output resolution | 600 |
 | `--list` | `-l` | List all available figure numbers | false |
 | `--all` | | Extract all figures | false |
-| `--format` | | Output format | png |
+| `--format` | | Output format (png/jpg) | png |
+| `--quiet` | `-q` | Suppress info messages | false |
 
 ## Examples
 
 ```bash
 # Extract Figure 2, sub-figure c
-python ${SKILL_DIR}/scripts/extract_figure.py paper.pdf -f 2 -s c
+sh-sci-fig paper.pdf -f 2 -s c
 
 # Extract entire Figure 3
-python ${SKILL_DIR}/scripts/extract_figure.py paper.pdf -f 3
+sh-sci-fig paper.pdf -f 3
 
 # List all available figures in a PDF
-python ${SKILL_DIR}/scripts/extract_figure.py paper.pdf --list
+sh-sci-fig paper.pdf --list
 
 # Extract all figures
-python ${SKILL_DIR}/scripts/extract_figure.py paper.pdf --all
+sh-sci-fig paper.pdf --all
 
 # Custom output directory and DPI
-python ${SKILL_DIR}/scripts/extract_figure.py paper.pdf -f 2 -s c -o ./output/ -d 300
+sh-sci-fig paper.pdf -f 2 -s c -o ./output/ -d 300
 ```
 
 **Output**:

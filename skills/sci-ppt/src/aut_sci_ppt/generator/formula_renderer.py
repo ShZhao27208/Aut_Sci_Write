@@ -1,44 +1,33 @@
-"""
-formula_renderer.py — LaTeX-level Formula Rendering Engine for Scientific PPTs.
+"""LaTeX formula rendering with local and network fallbacks."""
 
-Features:
-1. Detect local LaTeX environment (pdflatex, pdftoppm).
-2. Fallback chain: Local LaTeX -> Offline Matplotlib -> Online Cloud API.
-3. Automatic hashing and caching of formula images.
+from __future__ import annotations
 
-Original author: ShuoClaw
-Integrated into Aut_Sci_PPt for open-source.
-"""
-
+import hashlib
 import os
 import subprocess
 import tempfile
-import hashlib
-from typing import Optional, List, Tuple, Dict
 from pathlib import Path
+from typing import Optional
+
 import requests
 
+
+def _default_cache_dir() -> str:
+    base = os.environ.get("LOCALAPPDATA") or os.environ.get("XDG_CACHE_HOME") or str(Path.home() / ".cache")
+    return str(Path(base) / "Aut_Sci_Write" / "sci-ppt" / "formulas")
+
+
 class FormulaRenderer:
-    """
-    LaTeX Formula Renderer with multi-stage fallback.
-    """
-
     def __init__(self, dpi: int = 300, output_dir: Optional[str] = None):
-        from ..config import Config
         self.dpi = dpi
-        self.output_dir = output_dir or Config.FORMULA_CACHE_DIR
+        self.output_dir = output_dir or _default_cache_dir()
         self.latex_available = self._check_latex()
-
         os.makedirs(self.output_dir, exist_ok=True)
 
-    def _check_latex(self) -> bool:
-        """Detect if pdflatex is available in the system."""
+    @staticmethod
+    def _check_latex() -> bool:
         try:
-            result = subprocess.run(
-                ["pdflatex", "--version"],
-                capture_output=True,
-                timeout=5
-            )
+            result = subprocess.run(["pdflatex", "--version"], capture_output=True, timeout=5)
             return result.returncode == 0
         except (FileNotFoundError, subprocess.TimeoutExpired):
             return False
@@ -47,52 +36,47 @@ class FormulaRenderer:
         self,
         latex_code: str,
         color: str = "000000",
-        background: str = "FFFFFF"
+        background: str = "FFFFFF",
     ) -> Optional[str]:
-        """
-        Render LaTeX formula to PNG.
-
-        Returns:
-            Absolute path to the PNG image, or None if all methods fail.
-        """
-        # Generate cache filename based on content hash
-        hash_obj = hashlib.mdsafe_hash(f"{latex_code}_{color}_{background}".encode())
-        formula_id = hash_obj.hexdigest()[:12]
-        output_path = os.path.join(self.output_dir, f"formula_{formula_id}.png")
-
+        formula_hash = hashlib.md5(f"{latex_code}_{color}_{background}".encode("utf-8")).hexdigest()[:12]
+        output_path = os.path.join(self.output_dir, f"formula_{formula_hash}.png")
         if os.path.exists(output_path):
             return output_path
 
-        # 1. Local LaTeX (Best Quality)
         if self.latex_available:
-            result = self._render_local(latex_code, output_path, color, background)
-            if result: return result
-
-        # 2. Hybrid/Fallback (Matplotlib for offline safety, API for convenience)
+            rendered = self._render_local(latex_code, output_path, color, background)
+            if rendered:
+                return rendered
         return self._render_fallback(latex_code, output_path, color, background)
 
-    def _render_local(self, latex_code, output_path, color, background) -> Optional[str]:
+    def _render_local(self, latex_code: str, output_path: str, color: str, background: str) -> Optional[str]:
         try:
             with tempfile.TemporaryDirectory() as tmpdir:
                 tex_file = os.path.join(tmpdir, "formula.tex")
                 self._create_tex_file(tex_file, latex_code, color, background)
-
                 subprocess.run(
                     ["pdflatex", "-interaction=nonstopmode", "-output-directory", tmpdir, tex_file],
-                    capture_output=True, timeout=20
+                    capture_output=True,
+                    timeout=20,
+                    check=False,
                 )
-
                 pdf_file = os.path.join(tmpdir, "formula.pdf")
                 if os.path.exists(pdf_file):
-                    # Try pdftoppm (fastest)
-                    cmd = ["pdftoppm", "-png", "-r", str(self.dpi), "-singlefile", pdf_file, output_path.replace(".png", "")]
-                    if subprocess.run(cmd, capture_output=True).returncode == 0:
+                    target_prefix = output_path[:-4] if output_path.endswith(".png") else output_path
+                    result = subprocess.run(
+                        ["pdftoppm", "-png", "-r", str(self.dpi), "-singlefile", pdf_file, target_prefix],
+                        capture_output=True,
+                        timeout=20,
+                        check=False,
+                    )
+                    if result.returncode == 0 and os.path.exists(output_path):
                         return output_path
         except Exception:
-            pass
+            return None
         return None
 
-    def _create_tex_file(self, tex_file, latex_code, color, background):
+    @staticmethod
+    def _create_tex_file(tex_file: str, latex_code: str, color: str, background: str) -> None:
         tex_content = f"""\\documentclass[12pt]{{article}}
 \\usepackage{{amsmath,amssymb,xcolor}}
 \\usepackage[margin=0.1in]{{geometry}}
@@ -102,13 +86,13 @@ class FormulaRenderer:
 \\thispagestyle{{empty}}
 \\[ {latex_code} \\]
 \\end{{document}}"""
-        with open(tex_file, "w", encoding="utf-8") as f:
-            f.write(tex_content)
+        with open(tex_file, "w", encoding="utf-8") as handle:
+            handle.write(tex_content)
 
-    def _render_fallback(self, latex_code, output_path, color, background) -> Optional[str]:
-        # Offline: Matplotlib mathtext
+    def _render_fallback(self, latex_code: str, output_path: str, color: str, background: str) -> Optional[str]:
         try:
             import matplotlib
+
             matplotlib.use("Agg")
             import matplotlib.pyplot as plt
 
@@ -116,18 +100,18 @@ class FormulaRenderer:
             fig.text(0.5, 0.5, f"${latex_code}$", ha="center", va="center", fontsize=18, color=f"#{color}")
             fig.savefig(output_path, bbox_inches="tight", pad_inches=0.05, facecolor=f"#{background}", transparent=True)
             plt.close(fig)
-            if os.path.exists(output_path): return output_path
+            if os.path.exists(output_path):
+                return output_path
         except Exception:
             pass
 
-        # Online: CodeCogs (Last resort)
         try:
             encoded = requests.utils.quote(latex_code)
             url = f"https://latex.codecogs.com/png.image?\\dpi{{300}}\\bg_white\\inline\\color{{black}}{encoded}"
-            resp = requests.get(url, timeout=10)
-            if resp.status_code == 200:
-                with open(output_path, "wb") as f:
-                    f.write(resp.content)
+            response = requests.get(url, timeout=10)
+            if response.status_code == 200:
+                with open(output_path, "wb") as handle:
+                    handle.write(response.content)
                 return output_path
         except Exception:
             pass

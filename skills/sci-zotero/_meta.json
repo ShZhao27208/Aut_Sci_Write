@@ -9,6 +9,6 @@
     "fetch pdfs",
     "search zotero"
   ],
-  "author": "Antigravity",
-  "script_path": "../../scripts/zotero.py"
+  "author": "Shuo Zhao",
+  "script_path": "./zotero.py"
 }

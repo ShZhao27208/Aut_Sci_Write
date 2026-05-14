@@ -1,6 +1,22 @@
-PyMuPDF
-pdfplumber
-numpy
-opencv-python
-Pillow
-pytesseract
+# Aut_Sci_Write runtime dependencies.
+# Install from the repository root with: pip install -r requirements.txt
+
+# Shared PDF and image processing used by sci-extract, sci-figure, and sci-ppt.
+PyMuPDF>=1.24.0
+pdfplumber>=0.10.0
+numpy>=1.24.0
+opencv-python>=4.9.0
+Pillow>=10.0.0
+pytesseract>=0.3.10
+
+# sci-ppt generation, XML layout helpers, formula rendering, and YAML input.
+python-pptx>=0.6.23
+lxml>=4.9.0
+matplotlib>=3.8.0
+PyYAML>=6.0
+
+# HTTP client stack used by sci-ppt formula rendering and web API clients.
+# Keep these ranges explicit to avoid RequestsDependencyWarning from mixed installs.
+requests>=2.34.1,<3.0
+urllib3>=2.7.0,<3.0
+charset-normalizer>=3.4.0,<4.0

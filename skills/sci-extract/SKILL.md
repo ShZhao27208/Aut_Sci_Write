@@ -1,6 +1,6 @@
 ---
 name: sci-extract
-description: Read a research paper end to end ，professional extraction of core insights, figures, and metadata from scientific PDF papers，produce a single Heilmeier-style analysis that doubles as both summary and critique. Use this skill whenever the user shares a research paper (PDF upload, arXiv link, arXiv ID, DOI, or pasted paper text) and asks anything that resembles "read this", "summarize this paper", "what does this paper do", "analyze this paper", "give me a Heilmeier analysis", "review this paper", or simply drops a paper into the chat with little explanation.  Triggers on any request to analyze, extract, digest, summarize, review, or critically assess an academic or scientific paper — even when the user does not explicitly say "Heilmeier." Do NOT use this skill for non-academic articles, blog posts, or news.
+description: Read a research paper end to end, professional extraction of core insights, figures, and metadata from scientific PDF papers，produce a single Heilmeier-style analysis that doubles as both summary and critique. Use this skill whenever the user shares a research paper (PDF upload, arXiv link, arXiv ID, DOI, or pasted paper text) and asks anything that resembles "read this", "summarize this paper", "what does this paper do", "analyze this paper", "give me a Heilmeier analysis", "review this paper", or simply drops a paper into the chat with little explanation.  Triggers on any request to analyze, extract, digest, summarize, review, or critically assess an academic or scientific paper — even when the user does not explicitly say "Heilmeier." Do NOT use this skill for non-academic articles, blog posts, or news.
 author: Shuo Zhao         
 contributor: Zhiyao Zhang
 license: MIT
@@ -38,9 +38,9 @@ Professional extraction of core insights and figures from scientific PDF papers.
 - **Figure Detection**: Locate figure captions and crop the corresponding figure regions from PDF pages.
 - **Metadata Extraction**: Parse title, authors, DOI, journal, and year.
 
-## Steps
+## Steps：
 
-## Step 1: Acquire the paper
+### Step 1: Acquire the paper
 
 Always read the paper fresh. Never rely on memory of the paper, even if the title looks familiar.
 
@@ -53,25 +53,25 @@ Always read the paper fresh. Never rely on memory of the paper, even if the titl
 
 If the paper is long, prioritize: abstract, introduction, method/theory, experiments, conclusion. Skim related work only if useful for question 2.
 
-## Step 2: Answer the modified Heilmeier questions
+### Step 2: Answer the modified Heilmeier questions
 
 Answer each of the seven questions below as a labeled subsection, in order. For each question, the rules differ on (a) whether your own evaluation is allowed and (b) whether external citations are allowed. Read the rules carefully before writing each subsection.
 
-### Question 1. What are you trying to do?
+#### Question 1. What are you trying to do?
 
 Open with a one-sentence statement of the paper's contribution written for a smart non-specialist, with absolutely no jargon. Ban acronyms and any technical term a first-year undergrad would not know. If a term of art is unavoidable, define it parenthetically in plain words. Then add one or two sentences expanding the objective in slightly more technical language.
 
 Opinions allowed: no. Stay faithful to the paper.
 External citations allowed: no.
 
-### Question 2. What is the problem, how is it done today, and what are the limits of current practice?
+#### Question 2. What is the problem, how is it done today, and what are the limits of current practice?
 
 Describe the real-world or scientific problem the paper addresses, then give a brief overview of how the field handles it at the time of the paper, and what the limitations are. This is meant to be a self-contained landscape paragraph, not a literature review. Cover the main competing approaches in plain prose.
 
 Opinions allowed: a small amount, only if it sharpens the framing of the limits.
 External citations allowed: no. Do not search for or cite outside sources here. Just give an overview from the paper and your general knowledge of the field.
 
-### Question 3. What is new in the approach, including core idea, math, and method, and why does the paper claim it will succeed?
+#### Question 3. What is new in the approach, including core idea, math, and method, and why does the paper claim it will succeed?
 
 This is the technical heart of the response and absorbs what would otherwise be a "method" summary. Cover, in this order:
 
@@ -83,28 +83,28 @@ This is the technical heart of the response and absorbs what would otherwise be 
 Opinions allowed: NO. This subsection is strictly about what the paper says and proposes. Save your evaluation for questions 4, 5, and 6.
 External citations allowed: no.
 
-### Question 4. Who cares? If successful, what difference does it make?
+#### Question 4. Who cares? If successful, what difference does it make?
 
 Discuss the impact: which communities benefit, what becomes possible, and whether this paper has actually shifted the field since publication.
 
 Opinions allowed: yes. This is one of the questions where your judgment matters most.
 External citations allowed: yes, and encouraged when assessing post-publication impact (adoption by other groups, follow-up papers, deployment). Every external citation must come from a `web_search` or `web_fetch` you actually ran in this turn.
 
-### Question 5. What are the risks?
+#### Question 5. What are the risks?
 
 Cover both the risks the paper itself acknowledges and the ones you see independently. Be concrete: contamination, reward hacking, failure modes, narrow benchmarks, scaling, reproducibility.
 
 Opinions allowed: yes.
 External citations allowed: yes, when an outside source materially supports a risk claim.
 
-### Question 6. How much will it cost?
+#### Question 6. How much will it cost?
 
 Interpret as compute, data, engineering effort, or deployment cost, depending on the paper. State which interpretation you are using. Pull whatever numbers the paper provides (token counts, batch sizes, GPU hours, data volumes) and translate into a rough sense of "what would it take to reproduce this".
 
 Opinions allowed: yes, especially for the "what would it take to reproduce" framing.
 External citations allowed: yes. Be careful not to conflate this paper's costs with related work by the same authors. If you cite a cost figure, state exactly which paper or model that figure refers to.
 
-### Question 7. What are the experiments and results?
+#### Question 7. What are the experiments and results?
 
 Cover the experimental setup (benchmarks, datasets, baselines, metrics, ablations) and the headline results. This subsection answers "what are the criteria for success and did the paper meet them". Note any conspicuous gap between claims and evidence.
 
@@ -140,13 +140,30 @@ Return everything as a single inline markdown response. Use one top-level header
 
 ## Usage
 
-```bash
-# Core extraction mode
-python scripts/extract_core_insights.py paper.pdf
+This skill has two independent modes:
 
-# Heilmeier analysis mode (via skill trigger)
-# Simply ask: "Give me a Heilmeier analysis of this paper"
+**Mode 1 — Heilmeier Analysis (AI-driven, no script needed)**
+Simply share a paper and ask for analysis. The AI follows the 7-question framework above directly. No local script is required.
+
+**Mode 2 — Core Insights Extractor (Python CLI)**
+A standalone script that extracts 6 structured fields (research problem, methodology, key results, innovation, application, limitations) with confidence scores. Run from the `skills/sci-extract/` directory:
+
+```bash
+# Single PDF — outputs JSON by default
+python extract_core_insights.py paper.pdf
+
+# Choose output format
+python extract_core_insights.py paper.pdf --format markdown
+python extract_core_insights.py paper.pdf --format csv
+
+# Batch process a folder (4 parallel workers)
+python extract_core_insights.py papers/ --batch
+
+# Save to a specific file
+python extract_core_insights.py paper.pdf --output results.json
 ```
+
+The two modes are independent: Mode 1 produces a narrative Heilmeier analysis; Mode 2 produces structured data fields. Use Mode 2 when you need machine-readable output or batch processing.
 
 ## Configuration
 Requires `PyMuPDF`, `pdfplumber`, and `numpy`.
@@ -197,4 +214,3 @@ This is an original collaborative work created by the authors. No reproduction, 
 
 *This skill is part of the Aut_Sci_Write suite. For full license terms, see the [LICENSE](../LICENSE) file in the project root.*
 ---
-

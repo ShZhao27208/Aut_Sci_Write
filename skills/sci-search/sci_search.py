@@ -33,190 +33,44 @@ def configure_windows_console() -> None:
 
 # Configuration
 _SCRIPT_DIR = Path(__file__).parent
-LIBRARY_PATH = _SCRIPT_DIR / "library.json"
 JOURNAL_DB_PATH = _SCRIPT_DIR.parent.parent / "scripts" / "journal_db.json"
+
+
+def default_data_dir() -> Path:
+    """Return a user-writable data directory for sci-search cache files."""
+    override = os.environ.get("AUT_SCI_WRITE_DATA_DIR")
+    if override:
+        return Path(override) / "sci-search"
+    if sys.platform == "win32":
+        base = os.environ.get("LOCALAPPDATA") or str(Path.home() / "AppData" / "Local")
+        return Path(base) / "Aut_Sci_Write" / "sci-search"
+    base = os.environ.get("XDG_DATA_HOME") or str(Path.home() / ".local" / "share")
+    return Path(base) / "aut_sci_write" / "sci-search"
+
+
+LIBRARY_PATH = default_data_dir() / "library.json"
 
 # API rate-limit delay (seconds)
 RATE_LIMIT_DELAY = 1.0
 
 # Journal metrics database fallback (overridden by journal_db.json when present)
 DEFAULT_JOURNAL_DB = {
-    'Advanced Materials': {
-        'jcr_partition': 'Q1',
-        'impact_factor': '29.4',
-        '5_year_if': '28.9',
-        'chinese_partition': '材料科学1区 Top',
-        'category': 'Materials Science, Multidisciplinary',
-        'publisher': 'Wiley',
-        'is_top_journal': True,
-        'is_nature_science_advmat': True,
-        'notes': '顶刊，Advanced Materials系列，需重点标注'
-    },
-    'Nature': {
-        'jcr_partition': 'Q1',
-        'impact_factor': '64.8',
-        '5_year_if': '59.2',
-        'chinese_partition': '综合性期刊1区 Top',
-        'category': 'Multidisciplinary Sciences',
-        'publisher': 'Springer Nature',
-        'is_top_journal': True,
-        'is_nature_science_advmat': True,
-        'notes': '顶刊，Nature系列，需重点标注'
-    },
-    'Science': {
-        'jcr_partition': 'Q1',
-        'impact_factor': '56.9',
-        '5_year_if': '54.3',
-        'chinese_partition': '综合性期刊1区 Top',
-        'category': 'Multidisciplinary Sciences',
-        'publisher': 'AAAS',
-        'is_top_journal': True,
-        'is_nature_science_advmat': True,
-        'notes': '顶刊，Science系列，需重点标注'
-    },
-    'Nature Photonics': {
-        'jcr_partition': 'Q1',
-        'impact_factor': '35.0',
-        '5_year_if': '32.5',
-        'chinese_partition': '物理与天体物理1区',
-        'category': 'Physics, Applied',
-        'publisher': 'Springer Nature',
-        'is_top_journal': True,
-        'is_nature_science_advmat': True,
-        'notes': 'Nature子刊，需重点标注'
-    },
-    'Nature Physics': {
-        'jcr_partition': 'Q1',
-        'impact_factor': '19.6',
-        '5_year_if': '18.9',
-        'chinese_partition': '物理与天体物理1区',
-        'category': 'Physics, Multidisciplinary',
-        'publisher': 'Springer Nature',
-        'is_top_journal': True,
-        'is_nature_science_advmat': True,
-        'notes': 'Nature子刊，需重点标注'
-    },
-    'Nano Energy': {
-        'jcr_partition': 'Q1',
-        'impact_factor': '16.8',
-        '5_year_if': '16.3',
-        'chinese_partition': '材料科学1区',
-        'category': 'Nanoscience & Nanotechnology',
-        'publisher': 'Elsevier',
-        'is_top_journal': True,
-        'is_nature_science_advmat': False,
-        'notes': '高影响力期刊'
-    },
-    'ACS Omega': {
-        'jcr_partition': 'Q2',
-        'impact_factor': '4.1',
-        '5_year_if': '4.3',
-        'chinese_partition': '化学3区',
-        'category': 'Chemistry, Multidisciplinary',
-        'publisher': 'American Chemical Society',
-        'is_top_journal': False,
-        'is_nature_science_advmat': False,
-        'notes': 'ACS开源期刊'
-    },
-    'Ceramics International': {
-        'jcr_partition': 'Q1',
-        'impact_factor': '5.2',
-        '5_year_if': '5.1',
-        'chinese_partition': '材料科学2区',
-        'category': 'Materials Science, Ceramics',
-        'publisher': 'Elsevier',
-        'is_top_journal': False,
-        'is_nature_science_advmat': False,
-        'notes': '陶瓷材料专业期刊'
-    },
-    'Journal of Luminescence': {
-        'jcr_partition': 'Q2',
-        'impact_factor': '3.6',
-        '5_year_if': '3.5',
-        'chinese_partition': '物理3区',
-        'category': 'Optics',
-        'publisher': 'Elsevier',
-        'is_top_journal': False,
-        'is_nature_science_advmat': False,
-        'notes': '发光专业期刊'
-    },
-    'CrystEngComm': {
-        'jcr_partition': 'Q2',
-        'impact_factor': '3.1',
-        '5_year_if': '3.2',
-        'chinese_partition': '化学3区',
-        'category': 'Chemistry, Multidisciplinary',
-        'publisher': 'Royal Society of Chemistry',
-        'is_top_journal': False,
-        'is_nature_science_advmat': False,
-        'notes': '晶体工程期刊'
-    },
-    'Colloids and Surfaces A: Physicochemical and Engineering Aspects': {
-        'jcr_partition': 'Q2',
-        'impact_factor': '5.2',
-        '5_year_if': '5.0',
-        'chinese_partition': '化学2区',
-        'category': 'Chemistry, Physical',
-        'publisher': 'Elsevier',
-        'is_top_journal': False,
-        'is_nature_science_advmat': False,
-        'notes': '胶体与表面科学期刊'
-    },
-    'The Journal of Physical Chemistry Letters': {
-        'jcr_partition': 'Q1',
-        'impact_factor': '6.4',
-        '5_year_if': '6.2',
-        'chinese_partition': '化学2区',
-        'category': 'Chemistry, Physical',
-        'publisher': 'American Chemical Society',
-        'is_top_journal': False,
-        'is_nature_science_advmat': False,
-        'notes': '物理化学快报'
-    },
-    'Journal of the American Ceramic Society': {
-        'jcr_partition': 'Q2',
-        'impact_factor': '3.9',
-        '5_year_if': '3.8',
-        'chinese_partition': '材料科学3区',
-        'category': 'Materials Science, Ceramics',
-        'publisher': 'Wiley',
-        'is_top_journal': False,
-        'is_nature_science_advmat': False,
-        'notes': '美国陶瓷学会会刊'
-    },
-    'Optical Materials': {
-        'jcr_partition': 'Q2',
-        'impact_factor': '3.9',
-        '5_year_if': '3.8',
-        'chinese_partition': '材料科学3区',
-        'category': 'Materials Science, Coatings & Films',
-        'publisher': 'Elsevier',
-        'is_top_journal': False,
-        'is_nature_science_advmat': False,
-        'notes': '光学材料期刊'
-    },
-    'Laser & Photonics Reviews': {
-        'jcr_partition': 'Q1',
-        'impact_factor': '11.0',
-        '5_year_if': '10.5',
-        'chinese_partition': '物理与天体物理1区',
-        'category': 'Optics',
-        'publisher': 'Wiley',
-        'is_top_journal': True,
-        'is_nature_science_advmat': False,
-        'notes': '激光与光子学评论'
-    },
-    'Advanced Optical Materials': {
-        'jcr_partition': 'Q1',
-        'impact_factor': '9.0',
-        '5_year_if': '8.7',
-        'chinese_partition': '材料科学2区',
-        'category': 'Materials Science, Multidisciplinary',
-        'publisher': 'Wiley',
-        'is_top_journal': True,
-        'is_nature_science_advmat': True,
-        'notes': 'Advanced Materials子刊，需重点标注'
-    }
+    'Advanced Materials': {'jcr_partition': 'Q1', 'impact_factor': '29.4', '5_year_if': '28.9', 'chinese_partition': 'CAS Q1 Top', 'category': 'Materials Science, Multidisciplinary', 'publisher': 'Wiley', 'is_top_journal': True, 'is_nature_science_advmat': True, 'notes': 'Flagship materials science journal.'},
+    'Nature': {'jcr_partition': 'Q1', 'impact_factor': '64.8', '5_year_if': '59.2', 'chinese_partition': 'CAS Q1 Top', 'category': 'Multidisciplinary Sciences', 'publisher': 'Springer Nature', 'is_top_journal': True, 'is_nature_science_advmat': True, 'notes': 'Flagship multidisciplinary science journal.'},
+    'Science': {'jcr_partition': 'Q1', 'impact_factor': '56.9', '5_year_if': '54.3', 'chinese_partition': 'CAS Q1 Top', 'category': 'Multidisciplinary Sciences', 'publisher': 'AAAS', 'is_top_journal': True, 'is_nature_science_advmat': True, 'notes': 'Flagship multidisciplinary science journal.'},
+    'Nature Photonics': {'jcr_partition': 'Q1', 'impact_factor': '35.0', '5_year_if': '32.5', 'chinese_partition': 'CAS partition unavailable', 'category': 'Physics, Applied', 'publisher': 'Springer Nature', 'is_top_journal': True, 'is_nature_science_advmat': True, 'notes': 'Nature portfolio journal in photonics.'},
+    'Nature Physics': {'jcr_partition': 'Q1', 'impact_factor': '19.6', '5_year_if': '18.9', 'chinese_partition': 'CAS partition unavailable', 'category': 'Physics, Multidisciplinary', 'publisher': 'Springer Nature', 'is_top_journal': True, 'is_nature_science_advmat': True, 'notes': 'Nature portfolio journal in physics.'},
+    'Nano Energy': {'jcr_partition': 'Q1', 'impact_factor': '16.8', '5_year_if': '16.3', 'chinese_partition': 'CAS partition unavailable', 'category': 'Nanoscience & Nanotechnology', 'publisher': 'Elsevier', 'is_top_journal': True, 'is_nature_science_advmat': False, 'notes': 'High-impact energy materials journal.'},
+    'ACS Omega': {'jcr_partition': 'Q2', 'impact_factor': '4.1', '5_year_if': '4.3', 'chinese_partition': 'CAS partition unavailable', 'category': 'Chemistry, Multidisciplinary', 'publisher': 'American Chemical Society', 'is_top_journal': False, 'is_nature_science_advmat': False, 'notes': 'Journal note unavailable'},
+    'Ceramics International': {'jcr_partition': 'Q1', 'impact_factor': '5.2', '5_year_if': '5.1', 'chinese_partition': 'CAS partition unavailable', 'category': 'Materials Science, Ceramics', 'publisher': 'Elsevier', 'is_top_journal': False, 'is_nature_science_advmat': False, 'notes': 'Ceramics and materials processing journal.'},
+    'Journal of Luminescence': {'jcr_partition': 'Q2', 'impact_factor': '3.6', '5_year_if': '3.5', 'chinese_partition': 'CAS partition unavailable', 'category': 'Optics', 'publisher': 'Elsevier', 'is_top_journal': False, 'is_nature_science_advmat': False, 'notes': 'Luminescence and optical materials journal.'},
+    'CrystEngComm': {'jcr_partition': 'Q2', 'impact_factor': '3.1', '5_year_if': '3.2', 'chinese_partition': 'CAS partition unavailable', 'category': 'Chemistry, Multidisciplinary', 'publisher': 'Royal Society of Chemistry', 'is_top_journal': False, 'is_nature_science_advmat': False, 'notes': 'Crystal engineering journal.'},
+    'Colloids and Surfaces A: Physicochemical and Engineering Aspects': {'jcr_partition': 'Q2', 'impact_factor': '5.2', '5_year_if': '5.0', 'chinese_partition': 'CAS partition unavailable', 'category': 'Chemistry, Physical', 'publisher': 'Elsevier', 'is_top_journal': False, 'is_nature_science_advmat': False, 'notes': 'Journal note unavailable'},
+    'The Journal of Physical Chemistry Letters': {'jcr_partition': 'Q1', 'impact_factor': '6.4', '5_year_if': '6.2', 'chinese_partition': 'CAS partition unavailable', 'category': 'Chemistry, Physical', 'publisher': 'American Chemical Society', 'is_top_journal': False, 'is_nature_science_advmat': False, 'notes': 'Physical chemistry letters journal.'},
+    'Journal of the American Ceramic Society': {'jcr_partition': 'Q2', 'impact_factor': '3.9', '5_year_if': '3.8', 'chinese_partition': 'CAS partition unavailable', 'category': 'Materials Science, Ceramics', 'publisher': 'Wiley', 'is_top_journal': False, 'is_nature_science_advmat': False, 'notes': 'Ceramic science journal.'},
+    'Optical Materials': {'jcr_partition': 'Q2', 'impact_factor': '3.9', '5_year_if': '3.8', 'chinese_partition': 'CAS partition unavailable', 'category': 'Materials Science, Coatings & Films', 'publisher': 'Elsevier', 'is_top_journal': False, 'is_nature_science_advmat': False, 'notes': 'Optical materials journal.'},
+    'Laser & Photonics Reviews': {'jcr_partition': 'Q1', 'impact_factor': '11.0', '5_year_if': '10.5', 'chinese_partition': 'CAS partition unavailable', 'category': 'Optics', 'publisher': 'Wiley', 'is_top_journal': True, 'is_nature_science_advmat': False, 'notes': 'Journal note unavailable'},
+    'Advanced Optical Materials': {'jcr_partition': 'Q1', 'impact_factor': '9.0', '5_year_if': '8.7', 'chinese_partition': 'CAS partition unavailable', 'category': 'Materials Science, Multidisciplinary', 'publisher': 'Wiley', 'is_top_journal': True, 'is_nature_science_advmat': True, 'notes': 'Advanced Materials family journal in optical materials.'}
 }
 
 
@@ -267,6 +121,34 @@ def load_journal_db(db_path: Path = JOURNAL_DB_PATH) -> Dict[str, Dict]:
 
 
 JOURNAL_DB = load_journal_db()
+
+def load_local_env() -> Dict[str, str]:
+    """Load simple KEY=VALUE pairs from a skill-local .env file."""
+    env_path = _SCRIPT_DIR / ".env"
+    if not env_path.exists():
+        return {}
+
+    values = {}
+    try:
+        with env_path.open("r", encoding="utf-8") as f:
+            for raw_line in f:
+                line = raw_line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, value = line.split("=", 1)
+                values[key.strip()] = value.strip().strip('"').strip("'")
+    except OSError as exc:
+        print(f"Warning: failed to load local env from {env_path}: {exc}")
+
+    return values
+
+
+LOCAL_ENV = load_local_env()
+
+
+def get_config_value(name: str, default: str = "") -> str:
+    return LOCAL_ENV.get(name) or os.environ.get(name, default)
+
 
 def get_journal_metrics(journal_name: str) -> Optional[Dict]:
     if not journal_name:
@@ -361,7 +243,7 @@ class ArxivFetcher:
         params = {'search_query': f'all:{query}', 'max_results': max_results}
         url = f"{self.API_URL}?{urllib.parse.urlencode(params)}"
         try:
-            with urllib.request.urlopen(url) as resp:
+            with urllib.request.urlopen(url, timeout=15) as resp:
                 content = resp.read().decode('utf-8')
             root = ET.fromstring(content)
             papers = []
@@ -383,14 +265,14 @@ class ArxivFetcher:
 class WoSFetcher:
     """Web of Science Starter API fetcher.
 
-    Requires WOS_API_KEY environment variable.
+    Requires WOS_API_KEY in the skill-local .env file.
     Apply for a free API key at: https://developer.clarivate.com/apis/wos-starter
     Authentication: X-ApiKey header (no subscription required for Starter tier).
     """
     API_URL = "https://api.clarivate.com/apis/wos-starter/v1/documents"
 
     def __init__(self):
-        self.api_key = os.environ.get("WOS_API_KEY", "")
+        self.api_key = get_config_value("WOS_API_KEY")
 
     def is_available(self) -> bool:
         return bool(self.api_key)
@@ -458,33 +340,154 @@ class WoSFetcher:
 
 
 class PubmedFetcher:
+    """NCBI PubMed E-utilities fetcher.
+
+    Optional skill-local .env values:
+    - NCBI_API_KEY: increases E-utilities rate limits.
+    - NCBI_EMAIL: identifies the caller per NCBI guidance.
+    - NCBI_TOOL: custom tool name shown to NCBI; defaults to sci-search.
+    """
     ESEARCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
-    ESUMMARY_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
+    EFETCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
+
+    def __init__(self):
+        self.api_key = get_config_value("NCBI_API_KEY")
+        self.email = get_config_value("NCBI_EMAIL")
+        self.tool = get_config_value("NCBI_TOOL", "sci-search")
+
+    def _request(self, url: str, params: Dict, timeout: int = 20) -> bytes:
+        payload = dict(params)
+        payload["tool"] = self.tool
+        if self.email:
+            payload["email"] = self.email
+        if self.api_key:
+            payload["api_key"] = self.api_key
+
+        req = urllib.request.Request(
+            f"{url}?{urllib.parse.urlencode(payload)}",
+            headers={"User-Agent": f"{self.tool}/1.0"},
+        )
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return resp.read()
+
+    @staticmethod
+    def _text(node: Optional[ET.Element]) -> str:
+        if node is None or node.text is None:
+            return ""
+        return " ".join(node.text.split())
+
+    @classmethod
+    def _collect_text(cls, node: Optional[ET.Element]) -> str:
+        if node is None:
+            return ""
+        return " ".join(" ".join(node.itertext()).split())
+
+    @classmethod
+    def _parse_article(cls, article: ET.Element, pmid: str) -> Dict:
+        medline = article.find("MedlineCitation")
+        pubmed_data = article.find("PubmedData")
+        article_node = medline.find("Article") if medline is not None else None
+        journal_node = article_node.find("Journal") if article_node is not None else None
+        journal_issue = journal_node.find("JournalIssue") if journal_node is not None else None
+        pub_date = journal_issue.find("PubDate") if journal_issue is not None else None
+
+        title = cls._collect_text(article_node.find("ArticleTitle") if article_node is not None else None)
+        journal = cls._text(journal_node.find("Title") if journal_node is not None else None)
+        if not journal:
+            journal = cls._text(journal_node.find("ISOAbbreviation") if journal_node is not None else None)
+
+        year = cls._text(pub_date.find("Year") if pub_date is not None else None)
+        if not year:
+            medline_date = cls._text(pub_date.find("MedlineDate") if pub_date is not None else None)
+            match = re.search(r"\d{4}", medline_date)
+            year = match.group(0) if match else ""
+
+        authors = []
+        author_list = article_node.find("AuthorList") if article_node is not None else None
+        if author_list is not None:
+            for author in author_list.findall("Author"):
+                collective = cls._text(author.find("CollectiveName"))
+                if collective:
+                    authors.append(collective)
+                    continue
+                last_name = cls._text(author.find("LastName"))
+                initials = cls._text(author.find("Initials"))
+                fore_name = cls._text(author.find("ForeName"))
+                if last_name and initials:
+                    authors.append(f"{last_name} {initials}")
+                elif fore_name or last_name:
+                    authors.append(" ".join(part for part in (fore_name, last_name) if part))
+
+        abstracts = []
+        abstract_node = article_node.find("Abstract") if article_node is not None else None
+        if abstract_node is not None:
+            for abstract_text in abstract_node.findall("AbstractText"):
+                label = abstract_text.attrib.get("Label", "")
+                text = cls._collect_text(abstract_text)
+                if text:
+                    abstracts.append(f"{label}: {text}" if label else text)
+
+        doi = ""
+        if pubmed_data is not None:
+            article_ids = pubmed_data.find("ArticleIdList")
+            if article_ids is not None:
+                for article_id in article_ids.findall("ArticleId"):
+                    if article_id.attrib.get("IdType", "").lower() == "doi":
+                        doi = cls._text(article_id)
+                        break
+
+        mesh_terms = []
+        mesh_heading_list = medline.find("MeshHeadingList") if medline is not None else None
+        if mesh_heading_list is not None:
+            for heading in mesh_heading_list.findall("MeshHeading"):
+                descriptor = cls._text(heading.find("DescriptorName"))
+                if descriptor:
+                    mesh_terms.append(descriptor)
+
+        return {
+            "source": "pubmed",
+            "title": title or "Unknown",
+            "authors": authors,
+            "year": year,
+            "journal": journal,
+            "url": f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/",
+            "doi": doi,
+            "pmid": pmid,
+            "abstract": " ".join(abstracts),
+            "mesh_terms": mesh_terms,
+        }
 
     def search(self, query: str, max_results: int = 5) -> List[Dict]:
-        params = {'db': 'pubmed', 'term': query, 'retmode': 'json', 'retmax': max_results}
+        params = {
+            "db": "pubmed",
+            "term": query,
+            "retmode": "json",
+            "retmax": max_results,
+            "sort": "relevance",
+        }
         try:
-            with urllib.request.urlopen(f"{self.ESEARCH_URL}?{urllib.parse.urlencode(params)}") as resp:
-                ids = json.loads(resp.read().decode('utf-8'))['esearchresult'].get('idlist', [])
-            if not ids: return []
+            search_data = json.loads(self._request(self.ESEARCH_URL, params).decode("utf-8"))
+            ids = search_data.get("esearchresult", {}).get("idlist", [])
+            if not ids:
+                return []
 
-            with urllib.request.urlopen(f"{self.ESUMMARY_URL}?db=pubmed&id={','.join(ids)}&retmode=json") as resp:
-                results = json.loads(resp.read().decode('utf-8'))['result']
+            fetch_xml = self._request(
+                self.EFETCH_URL,
+                {
+                    "db": "pubmed",
+                    "id": ",".join(ids),
+                    "retmode": "xml",
+                },
+            ).decode("utf-8")
+            root = ET.fromstring(fetch_xml)
 
             papers = []
-            for pmid in ids:
-                if pmid not in results: continue
-                doc = results[pmid]
-                paper = {
-                    'source': 'pubmed',
-                    'title': doc.get('title', 'Unknown'),
-                    'authors': [a.get('name', '') for a in doc.get('authors', [])],
-                    'year': (doc.get('pubdate') or '')[:4],
-                    'journal': doc.get('source', ''),
-                    'url': f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/",
-                    'doi': doc.get('elocationid', '').replace('doi: ', '')
-                }
-                papers.append(paper)
+            for article in root.findall("PubmedArticle"):
+                medline = article.find("MedlineCitation")
+                pmid = self._text(medline.find("PMID") if medline is not None else None)
+                if pmid:
+                    papers.append(self._parse_article(article, pmid))
+
             return papers
         except Exception as e:
             print(f"PubMed error: {e}")
@@ -495,8 +498,8 @@ def format_markdown(paper: Dict, index: int) -> str:
 
     status_icon = ""
     if metrics:
-        if metrics.get('is_nature_science_advmat'): status_icon = " **🚨重点标注🚨**"
-        elif metrics.get('is_top_journal'): status_icon = " **⭐高影响力⭐**"
+        if metrics.get('is_nature_science_advmat'): status_icon = " **Priority journal**"
+        elif metrics.get('is_top_journal'): status_icon = " **High-impact journal**"
 
     source_label = paper['source'].upper()
     if paper['source'] == 'wos':
@@ -562,24 +565,24 @@ def main():
     print(f"Searching for: {args.query}...")
 
     if args.source in ('all', 'arxiv'):
-        print("  → arXiv...")
+        print("  閳?arXiv...")
         results.extend(ArxivFetcher().search(args.query, args.limit))
         time.sleep(RATE_LIMIT_DELAY)
 
     if args.source in ('all', 'pubmed'):
-        print("  → PubMed...")
+        print("  閳?PubMed...")
         results.extend(PubmedFetcher().search(args.query, args.limit))
         time.sleep(RATE_LIMIT_DELAY)
 
     if args.source in ('all', 'wos'):
         if wos.is_available():
-            print("  → Web of Science...")
+            print("  閳?Web of Science...")
             results.extend(wos.search(args.query, args.limit))
         elif args.source == 'wos':
-            print("  ✗ WOS_API_KEY not set. Get a free key at: https://developer.clarivate.com/apis/wos-starter")
+            print("  WOS_API_KEY is not configured in skills/sci-search/.env. Get a free key at: https://developer.clarivate.com/apis/wos-starter")
             return
         else:
-            print("  ⚠ Web of Science skipped (WOS_API_KEY not set)")
+            print("  Web of Science skipped (WOS_API_KEY is not configured in skills/sci-search/.env)")
 
     results = dedupe_results(results)
 
@@ -607,3 +610,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

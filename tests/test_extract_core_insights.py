@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MODULE_PATH = ROOT / "scripts" / "extract_core_insights.py"
+MODULE_PATH = ROOT / "skills" / "sci-extract" / "extract_core_insights.py"
 
 
 def load_module():

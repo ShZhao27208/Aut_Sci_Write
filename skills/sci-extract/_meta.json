@@ -2,7 +2,8 @@
   "name": "sci-extract",
   "version": "1.0.0",
   "description": "Scientific paper insight and figure extraction",
-  "author": "Antigravity",
+  "author": "Shuo Zhao",       
+  "contributor": "Zhiyao Zhang",
   "dependencies": {
     "python": ">=3.10",
     "pip": ["pymupdf", "pdfplumber", "numpy"]

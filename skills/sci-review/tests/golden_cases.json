@@ -1,0 +1,32 @@
+[
+  {
+    "id": "literature-review-core-structure",
+    "case": "literature-review",
+    "prompt": "Draft a literature review section on polymer electrolyte membranes for fuel cells.",
+    "expected_features": [
+      "Contains Introduction, Methodology, Challenges, and Conclusion sections",
+      "Challenges use a phenomenon, cause, direction framing",
+      "Avoids filler phrases and unsupported superiority claims"
+    ]
+  },
+  {
+    "id": "rebuttal-professional-tone",
+    "case": "rebuttal",
+    "prompt": "Rewrite this reviewer response: reviewer misunderstood our method and is wrong about the baseline.",
+    "expected_features": [
+      "Accurately restates the reviewer concern",
+      "Commits to a concrete manuscript revision",
+      "Avoids adversarial phrasing"
+    ]
+  },
+  {
+    "id": "rebuttal-missing-experiment",
+    "case": "rebuttal",
+    "prompt": "Respond to a reviewer asking for an additional ablation experiment.",
+    "expected_features": [
+      "Separates the concern from the response",
+      "States whether the experiment will be added or explains a constraint",
+      "Uses specific section, table, or appendix revision language"
+    ]
+  }
+]

@@ -62,7 +62,7 @@ from aut_sci_ppt import auto_generate_ppt
 output = auto_generate_ppt("paper.pdf", author="张三", advisor="李教授")
 ```
 
-## Environment Variables
+## Skill-local `.env` values
 - `MOONSHOT_API_KEY` (optional): Used for Chinese translation in PDF-to-PPT workflow. If not set, content is kept in original language.
 - Network access required for LaTeX formula rendering (via codecogs.com).
 

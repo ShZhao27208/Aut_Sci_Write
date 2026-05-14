@@ -25,9 +25,9 @@ Interact with your Zotero library to sync references, add citations by DOI/ISBN/
 - "search zotero for [query]"
 
 ## Usage
-This skill wraps the `zotero.py` standalone CLI tool located in `../../scripts/zotero.py`.
+This skill wraps the local `zotero.py` CLI located in the same skill directory.
 
-### Environment Variables
+### Skill-local `.env` values
 - `ZOTERO_API_KEY`: Your Zotero API key.
 - `ZOTERO_USER_ID`: Your Zotero User ID (for personal libraries).
 - `ZOTERO_GROUP_ID`: Your Zotero Group ID (for group libraries).

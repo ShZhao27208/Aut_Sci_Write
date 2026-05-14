@@ -6,6 +6,7 @@ from .models import ParsedData, Page
 from .parser.text_parser import TextParser, parse_user_input
 from .paginator.smart_paginator import SmartPaginator, smart_paginate
 from .generator.pptx_generator import PPTXGenerator, generate_ppt
+from .enhanced_agent import EnhancedPPTAgent, create_enhanced_ppt, create_enhanced_ppt_from_pdf
 
 __all__ = [
     'auto_generate_ppt',
@@ -21,4 +22,7 @@ __all__ = [
     'smart_paginate',
     'PPTXGenerator',
     'generate_ppt',
+    'EnhancedPPTAgent',
+    'create_enhanced_ppt',
+    'create_enhanced_ppt_from_pdf',
 ]

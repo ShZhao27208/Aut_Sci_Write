@@ -6,6 +6,7 @@ AI 解析层 - 将自然语言输入转换为结构化数据
 import os
 import json
 from typing import Dict, Any, List
+from ..config import get_config_value
 from ..models import (
     ParsedData,
     CoverData,
@@ -57,10 +58,12 @@ SYSTEM_PROMPT = """你是一个PPT内容结构化助手。
 def _call_ai(prompt: str) -> str:
     import urllib.request
 
-    api_key = os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("OPENAI_API_KEY")
+    anthropic_api_key = get_config_value("ANTHROPIC_API_KEY")
+    openai_api_key = get_config_value("OPENAI_API_KEY")
+    api_key = anthropic_api_key or openai_api_key
     if not api_key:
         raise ValueError("未配置 AI API Key")
-    if os.environ.get("ANTHROPIC_API_KEY"):
+    if anthropic_api_key:
         payload = json.dumps(
             {
                 "model": "claude-3-5-sonnet-20241022",

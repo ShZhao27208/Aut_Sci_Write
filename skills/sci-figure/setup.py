@@ -24,7 +24,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'sh-sci-fig=scripts.extract_figure:main',
+            'sh-sci-fig=src.cli:main',
         ],
     },
     classifiers=[

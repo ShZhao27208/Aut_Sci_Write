@@ -77,23 +77,24 @@ npx skills add . -g -y
 
 ### ⚙️ Configuration
 
-Set environment variables as needed:
+Run `aut-sci-write-init-env` after installation, then put keys in each skill's `.env` file.
+Do not store API keys in system environment variables unless you intentionally want a machine-wide fallback.
 
 ```bash
 # For sci-zotero (optional)
-export ZOTERO_API_KEY=your_personal_api_key
-export ZOTERO_USER_ID=your_numeric_user_id
+ZOTERO_API_KEY=your_personal_api_key
+ZOTERO_USER_ID=your_numeric_user_id
 
 # For sci-search — Web of Science (optional but recommended)
 # Apply for a free key at: https://developer.clarivate.com/apis/wos-starter
-export WOS_API_KEY=your_wos_api_key
+WOS_API_KEY=your_wos_api_key
 
 # For sci-ppt PDF workflow (choose one)
-export ANTHROPIC_API_KEY=sk-ant-...    # Claude API
-export MOONSHOT_API_KEY=sk-...         # Moonshot API
+ANTHROPIC_API_KEY=sk-ant-...    # Claude API
+MOONSHOT_API_KEY=sk-...         # Moonshot API
 
 # For sci-figure subfigure OCR (optional, Windows example)
-export TESSERACT_CMD="C:\Program Files\Tesseract-OCR\tesseract.exe"
+TESSERACT_CMD="C:\Program Files\Tesseract-OCR\tesseract.exe"
 ```
 
 > Get your Zotero API key at: https://www.zotero.org/settings/keys
@@ -219,26 +220,26 @@ cd Aut_Sci_Write
 npx skills add . -g -y
 ```
 
-### ⚙️ 环境变量配置
+### Skill-local `.env` configuration
 
-按需配置以下环境变量：
+Run `aut-sci-write-init-env` after installation, then put keys in each skill-local `.env` file:
 
 ```bash
 # sci-zotero 文献管理（可选）
-export ZOTERO_API_KEY=你的个人API密钥
-export ZOTERO_USER_ID=你的Zotero数字用户ID
+ZOTERO_API_KEY=你的个人API密钥
+ZOTERO_USER_ID=你的Zotero数字用户ID
 
 # sci-search Web of Science 检索（可选，强烈推荐）
 # 免费申请地址：https://developer.clarivate.com/apis/wos-starter
-export WOS_API_KEY=你的WoS_API密钥
+WOS_API_KEY=你的WoS_API密钥
 
 # sci-ppt 论文工作流（选择其一）
-export ANTHROPIC_API_KEY=sk-ant-...    # Claude API
-export MOONSHOT_API_KEY=sk-...         # Moonshot API（国内推荐）
+ANTHROPIC_API_KEY=sk-ant-...    # Claude API
+MOONSHOT_API_KEY=sk-...         # Moonshot API（国内推荐）
 
 # sci-figure 子图 OCR 识别（可选）
 # Windows 示例：
-export TESSERACT_CMD="C:\Program Files\Tesseract-OCR\tesseract.exe"
+TESSERACT_CMD="C:\Program Files\Tesseract-OCR\tesseract.exe"
 ```
 
 > Zotero API Key 获取地址：https://www.zotero.org/settings/keys
@@ -320,4 +321,3 @@ MIT License — see [LICENSE](LICENSE)
    <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=ShZhao27208/Aut_Sci_Write&type=date&legend=top-left" />
  </picture>
 </a>
-

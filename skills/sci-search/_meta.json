@@ -2,7 +2,7 @@
   "name": "sci-search",
   "version": "1.0.0",
   "description": "Academic paper retrieval and journal metrics enrichment",
-  "author": "Antigravity",
+  "author": "Shuo Zhao",
   "capabilities": ["search", "formatting"],
   "scripts": {
     "search": "python ./sci_search.py"

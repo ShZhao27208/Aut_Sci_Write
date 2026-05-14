@@ -2,6 +2,7 @@
 skills/sci-figure/output/
 skills/sci-figure/tests/
 examples/
+docs/
 
 # Python cache
 **/__pycache__/
@@ -15,4 +16,6 @@ examples/
 # Dev files
 *.log
 .claude-plugin/
-scripts/
+.env
+**/.env
+**/.env.*

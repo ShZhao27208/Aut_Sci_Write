@@ -9,6 +9,7 @@ import fitz
 import os
 import re
 from typing import List, Dict, Optional, Tuple
+from .config import get_config_value
 from .pdf_extractor import PDFFigureExtractor, ExtractedFigure
 from .models import (
     FigurePlaceholder,
@@ -27,11 +28,11 @@ def _call_llm(prompt: str) -> str:
     """通过 Moonshot API 调用 LLM"""
     import json, urllib.request
 
-    api_key = os.environ.get("MOONSHOT_API_KEY", "")
+    api_key = get_config_value("MOONSHOT_API_KEY")
     if not api_key:
         raise ValueError(
-            "未配置 MOONSHOT_API_KEY 环境变量，无法翻译。"
-            "设置方法：set MOONSHOT_API_KEY=sk-xxx"
+            "MOONSHOT_API_KEY is not configured. Add it to skills/sci-ppt/.env "
+            "to enable translation."
         )
     payload = json.dumps(
         {

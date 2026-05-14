@@ -46,15 +46,18 @@ Academic paper search and metrics analysis tool for scientific research workflow
 ## Configuration
 
 ### Web of Science API (Recommended for SCI literature)
-Set the `WOS_API_KEY` environment variable to enable Web of Science search:
+Add `WOS_API_KEY` to the skill-local `.env` file to enable Web of Science search:
 ```bash
-export WOS_API_KEY=your_wos_api_key
+WOS_API_KEY=your_wos_api_key
 ```
 Apply for a free API key at: https://developer.clarivate.com/apis/wos-starter
 
 The **WoS Starter API** is free to apply for and provides access to the Web of Science Core Collection — the most authoritative index of SCI/SSCI journals.
 
-### Other optional variables
+### Other optional `.env` values
+- `NCBI_API_KEY` - optional PubMed/NCBI E-utilities API key for higher rate limits
+- `NCBI_EMAIL` - optional contact email sent to NCBI E-utilities
+- `NCBI_TOOL` - optional NCBI tool name; defaults to `sci-search`
 - `ZOTERO_USER_ID` — for Zotero integration
 - `ZOTERO_API_KEY` — for Zotero integration
 
@@ -68,6 +71,9 @@ python skills/sci-search/sci_search.py "perovskite solar cells" --limit 5
 
 # Search Web of Science only
 python skills/sci-search/sci_search.py "solid state electrolyte" --source wos --limit 10
+
+# Search PubMed only with NCBI E-utilities
+python skills/sci-search/sci_search.py "cancer immunotherapy" --source pubmed --limit 10
 
 # Export results to markdown
 python skills/sci-search/sci_search.py "graphene battery" --output results.md
@@ -88,4 +94,3 @@ python skills/sci-search/sci_search.py "graphene battery" --output results.md
 ---
 *This skill is part of the Aut_Sci_Write suite. For full license terms, see the [LICENSE](../LICENSE) file in the project root.*
 ---
-

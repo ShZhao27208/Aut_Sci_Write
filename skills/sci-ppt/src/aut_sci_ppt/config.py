@@ -2,8 +2,38 @@
 PPT Agent 配置管理模块 - 基于参考 PPT 提取的真实风格
 """
 import logging
+import os
 from pathlib import Path
 from typing import Dict, Any
+
+SKILL_DIR = Path(__file__).resolve().parents[2]
+ROOT_DIR = SKILL_DIR.parent.parent
+
+
+def _load_env_file(path: Path) -> Dict[str, str]:
+    values: Dict[str, str] = {}
+    if not path.exists():
+        return values
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            for raw_line in f:
+                line = raw_line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, value = line.split("=", 1)
+                values[key.strip()] = value.strip().strip('"').strip("'")
+    except OSError as exc:
+        logging.getLogger("aut_sci_ppt").warning("failed to load local env from %s: %s", path, exc)
+    return values
+
+
+LOCAL_ENV: Dict[str, str] = {}
+for _env_path in (ROOT_DIR / ".env", SKILL_DIR / ".env"):
+    LOCAL_ENV.update(_load_env_file(_env_path))
+
+
+def get_config_value(name: str, default: str = "") -> str:
+    return LOCAL_ENV.get(name) or os.environ.get(name, default)
 
 def setup_logging(level: str = "INFO") -> logging.Logger:
     logger = logging.getLogger("aut_sci_ppt")
