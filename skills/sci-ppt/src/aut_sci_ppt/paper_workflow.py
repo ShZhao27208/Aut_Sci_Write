@@ -110,7 +110,7 @@ def _translate_sections(sections: List[Dict]) -> List[Dict]:
 # ══════════════════════════════════════════════
 
 
-def generate_outline(pdf_path: str, output_dir: str = None) -> str:
+def generate_outline(pdf_path: str, output_dir: str = None, translate: bool = False) -> str:
     """
     读取 PDF，提取全文关键信息，同步提取所有图片，
     生成标准提纲 Markdown 文件（含图片预览）。
@@ -188,8 +188,10 @@ def generate_outline(pdf_path: str, output_dir: str = None) -> str:
     sections = _detect_paper_sections(full_text, page_texts)
 
     # ── 4.5 翻译章节标题和要点为中文 ─────────────────
-    print("  🌐 翻译内容为中文...")
-    sections = _translate_sections(sections)
+    # Optional translation is disabled by default so PDF-to-PPT does not require an API key.
+    if translate:
+        print("  Translating outline content to Chinese...")
+        sections = _translate_sections(sections)
 
     # ── 5. 将图片分配到各章节 ─────────────────────────
     _assign_figures_to_sections(sections, fig_page_map, len(doc))
@@ -534,6 +536,7 @@ def auto_generate_ppt(
     advisor: str = "",
     date: str = "",
     direction: str = "",
+    translate: bool = False,
 ) -> str:
     """
     全自动：PDF → PPT，跳过用户编辑提纲步骤。
@@ -557,7 +560,7 @@ def auto_generate_ppt(
 
     # Step 1: 生成提纲（自动提取内容+图片+翻译）
     print(f"  ⏳ Step 1/3: 从 PDF 提取内容和图片...")
-    md_path = generate_outline(pdf_path)
+    md_path = generate_outline(pdf_path, translate=translate)
     print(f"  ✅ 提纲已生成: {md_path}")
 
     # Step 2: 读取提纲并补充用户信息（不等用户编辑）

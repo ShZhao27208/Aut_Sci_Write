@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sci-html"
+version = "0.1.0"
+description = "Generate academic presentation-style HTML slide decks."
+license = {text = "MIT"}
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+paper = [
+    "PyMuPDF>=1.24.0",
+    "pdfplumber>=0.10.0",
+    "numpy>=1.24.0",
+    "opencv-python>=4.9.0",
+    "Pillow>=10.0.0",
+    "pytesseract>=0.3.10",
+]
+dev = [
+    "pytest>=7.0",
+]
+
+[project.scripts]
+sci-html = "sci_html.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

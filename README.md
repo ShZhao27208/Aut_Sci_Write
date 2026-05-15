@@ -36,6 +36,7 @@
 | `sci-review` | Draft literature reviews and professional peer-review rebuttals (NeurIPS/ICLR standard) | /sci-figure *Write a literature review on GNNs for drug discovery* |
 | `sci-zotero` | Sync Zotero library, add citations by DOI/ISBN/PMID, fetch open-access PDFs | /sci-zotero *Connect to my Zotero database* |
 | `sci-ppt` | Generate professional academic PPTX from paper PDFs or structured text, with LaTeX formula rendering | /sci-zotero *Turn this paper into a seminar presentation* |
+| `sci-html` | Convert PDFs, Markdown, outlines, or summaries into interactive academic HTML slide decks and browser reports. | /sci-html Turn this paper into an interactive HTML report |
 
 ### 🚀 Installation
 
@@ -77,7 +78,13 @@ npx skills add . -g -y
 
 ### ⚙️ Configuration
 
-Run `aut-sci-write-init-env` after installation, then put keys in each skill's `.env` file.
+Run the initializer after installation:
+
+```bash
+aut-sci-write-init-env
+```
+
+Then fill the generated skill-local `.env` files where needed. Do not commit or publish `.env` files.
 Do not store API keys in system environment variables unless you intentionally want a machine-wide fallback.
 
 ```bash
@@ -114,9 +121,6 @@ Once installed, just type naturally in AI Agent — no commands to memorize:
 # Figure extraction
 "/sci-figure Extract Figure 3 from paper.pdf and split subfigures a, b, c"
 
-# PPT generation
-"/sci-ppt Convert paper.pdf into a group meeting presentation, save as seminar.pptx"
-
 # Literature review
 "/sci-review Write a literature review on graph neural networks in drug discovery"
 
@@ -125,6 +129,12 @@ Once installed, just type naturally in AI Agent — no commands to memorize:
 
 # Zotero sync
 "/sci-zotero List the paper items from my Zotero 'Materials' collection"
+
+# PPT generation
+"/sci-ppt Convert paper.pdf into a group meeting presentation, save as seminar.pptx"
+
+# HTML report generation
+"/sci-html Convert paper.pdf into an interactive browser-based academic report"
 ```
 
 ### 📁 Repository Structure
@@ -132,12 +142,13 @@ Once installed, just type naturally in AI Agent — no commands to memorize:
 ```
 Aut_Sci_Write/
 ├── skills/
-│   ├── Aut_Sci_PPt/          # PPT generation engine (templates, layout, parser)
-│   ├── sci-extract/          # PDF core content extraction
-│   ├── sci-figure/           # Figure detection and cropping
-│   ├── sci-review/           # Literature review & rebuttal writing
-│   ├── sci-search/           # Paper search with journal metrics
-│   └── sci-zotero/           # Zotero library integration
+│   ├── sci-search/     # Literature search with journal metrics
+│   ├── sci-extract/    # Paper analysis and structured insight extraction
+│   ├── sci-figure/     # PDF figure and subfigure extraction
+│   ├── sci-review/     # Literature review and rebuttal writing
+│   ├── sci-ppt/        # Academic PPTX generation 
+│   ├── sci-html/       # Interactive HTML reports and browser slide decks
+│   └── sci-zotero/     # Zotero library integration
 ├── scripts/
 │   ├── sci-search/
 │   │   └── sci_search.py     # Search core logic
@@ -146,7 +157,9 @@ Aut_Sci_Write/
 │   └── journal_db.json       # Journal metrics database (independently updatable)
 ├── examples/                 # Sample outputs (PDF + Markdown + PPT)
 ├── docs/                     # GitHub Pages site
-└── requirements.txt
+├── init-env.js         # Per-skill .env initializer
+├── skills-cli.js       # Local skill discovery helper
+└── requirements.txt    # Shared Python dependencies
 ```
 
 ### 🤝 Contributing
@@ -181,6 +194,7 @@ Contributions welcome! Priority areas:
 | `sci-review` | 文献综述写作 + 专业审稿回复，对标 NeurIPS/ICLR 标准 | /sci-review *帮我写图神经网络在药物发现中的综述* |
 | `sci-zotero` | Zotero 文献库同步，支持 DOI/ISBN/PMID 添加引用，自动获取 PDF | /sci-zotero *连接我的zotero数据库* |
 | `sci-ppt` | 从论文 PDF 或结构化文本一键生成学术 PPT，支持 LaTeX 公式渲染 | /sci-ppt *把这篇文献做成组会汇报PPT* |
+| `sci-html` | 将论文 PDF、Markdown、大纲或总结转换为可交互的 HTML 学术报告或浏览器幻灯片。 | /sci-html 把这篇论文做成网页版交互报告 |
 
 ### 🚀 安装方法
 
@@ -259,9 +273,6 @@ TESSERACT_CMD="C:\Program Files\Tesseract-OCR\tesseract.exe"
 # 图表提取
 "/sci-figure 从 paper.pdf 中提取 Figure 3 并拆分子图 a、b、c"
 
-# 生成 PPT
-"/sci-ppt 把 paper.pdf 做成组会汇报PPT，输出到 seminar.pptx"
-
 # 文献综述
 "/sci-review 帮我写一篇关于图神经网络在药物发现中应用的文献综述"
 
@@ -270,6 +281,12 @@ TESSERACT_CMD="C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 # Zotero 同步
 "/sci-zotero 列出我 Zotero 中 Materials 文件夹的文献条目"
+
+# 生成 PPT
+"/sci-ppt 把 paper.pdf 做成组会汇报PPT，输出到 seminar.pptx"
+
+# 生成 HTML汇报
+"/sci-html 将 paper.pdf 转换成交互式 HTML 学术报告"
 ```
 
 ### 📁 项目结构
@@ -277,11 +294,12 @@ TESSERACT_CMD="C:\Program Files\Tesseract-OCR\tesseract.exe"
 ```
 Aut_Sci_Write/
 ├── skills/
-│   ├── Aut_Sci_PPt/          # PPT 生成引擎（模板、布局、解析器）
-│   ├── sci-extract/          # PDF 核心内容提取
+│   ├── sci-search/           # 文献检索与期刊指标
+│   ├── sci-extract/          # 文献核心内容提取
 │   ├── sci-figure/           # 论文图表检测与裁剪
 │   ├── sci-review/           # 综述写作与审稿回复
-│   ├── sci-search/           # 文献检索与期刊指标
+│   ├── sci-ppt/              # PPT 生成引擎（模板、布局、解析器）
+│   ├── sci-html/             # html交互式报告生成
 │   └── sci-zotero/           # Zotero 文献库集成
 ├── scripts/
 │   ├── sci-search/
@@ -291,7 +309,9 @@ Aut_Sci_Write/
 │   └── journal_db.json       # 期刊指标数据库（可独立更新）
 ├── examples/                 # 示例输出（PDF + Markdown + PPT）
 ├── docs/                     # GitHub Pages 展示页
-└── requirements.txt
+├── init-env.js               # 按技能划分的.env 初始化器
+├── skills-cli.js             # 本地技能发现助手
+└── requirements.txt        
 ```
 
 ### 🤝 贡献指南

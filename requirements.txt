@@ -1,7 +1,7 @@
 # Aut_Sci_Write runtime dependencies.
 # Install from the repository root with: pip install -r requirements.txt
 
-# Shared PDF and image processing used by sci-extract, sci-figure, and sci-ppt.
+# Shared PDF and image processing used by sci-extract, sci-figure, sci-html, and sci-ppt.
 PyMuPDF>=1.24.0
 pdfplumber>=0.10.0
 numpy>=1.24.0

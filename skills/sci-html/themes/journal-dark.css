@@ -1,0 +1,34 @@
+﻿:root{--bg:#070b12;--ink:#f8fafc;--muted:#a9b4c7;--primary:#8ec5ff;--primary-soft:rgba(142,197,255,.12);--accent:#ffcf5a;--rule:rgba(255,255,255,.14);--shadow:0 24px 90px rgba(0,0,0,.5);--font-title:'Aptos Display','Segoe UI',sans-serif;--font-body:'Aptos','Segoe UI',sans-serif}*{box-sizing:border-box}html,body{margin:0;height:100%;background:radial-gradient(circle at 80% 20%,rgba(35,86,140,.45),transparent 35%),var(--bg);color:var(--ink);font-family:var(--font-body);overflow:hidden}.deck{position:relative;width:100vw;height:100vh}.slide{position:absolute;inset:0;display:none;padding:6vh 7vw;background:linear-gradient(135deg,rgba(13,19,32,.98),rgba(7,11,18,.98))}.slide.active{display:grid;grid-template-rows:auto 1fr;animation:dark-in 220ms ease-out}.slide:after{content:'';position:absolute;inset:2rem;border:1px solid var(--rule);border-radius:1.4rem;pointer-events:none}.slide-header p,.eyebrow{margin:0 0 .6rem;color:var(--accent);text-transform:uppercase;letter-spacing:.18em;font-weight:800}h1,h2{color:var(--primary);margin:0;line-height:1.02}h1{font-size:clamp(3rem,7vw,6.6rem);max-width:13ch}h2{font-size:clamp(2.2rem,5vw,5rem);max-width:16ch}.subtitle{color:var(--muted);font-size:clamp(1.1rem,2vw,2rem)}.cover-shell,.section-shell,.ending-shell{align-self:center;max-width:90rem}.section-shell p{color:var(--accent);font-weight:800;letter-spacing:.16em;text-transform:uppercase}.bullet-list{list-style:none;padding:0;margin:5vh 0 0;display:grid;gap:1rem;max-width:76rem}.bullet-list li{font-size:clamp(1.2rem,2.1vw,2.05rem);line-height:1.35;padding:1rem 1.2rem;border:1px solid var(--rule);border-radius:1rem;background:rgba(255,255,255,.045)}.toc-list{list-style:none;padding:0;margin:4vh 0 0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem 2rem}.toc-list li{font-size:clamp(1.1rem,2vw,1.8rem);padding:1.1rem;background:var(--primary-soft);border-radius:1rem}.toc-list span{color:var(--accent);font-weight:900;margin-right:.8rem}.figure-grid,.split-grid{display:grid;grid-template-columns:.9fr 1.25fr;gap:4vw;align-items:center;min-height:60vh}figure{margin:0;background:rgba(255,255,255,.05);padding:1rem;border:1px solid var(--rule);border-radius:1.2rem;box-shadow:var(--shadow)}figure img{display:block;width:100%;max-height:62vh;object-fit:contain}figcaption{color:var(--muted);font-size:.95rem;margin-top:.8rem}.summary-card{margin-top:4vh;padding:2rem;border-radius:1.4rem;background:rgba(142,197,255,.10)}.deck-progress{position:fixed;left:0;right:0;bottom:0;height:.38rem;background:rgba(255,255,255,.12)}.deck-progress span{display:block;height:100%;background:var(--accent);transition:width 160ms ease}.deck-counter{position:fixed;right:1.2rem;bottom:.8rem;color:var(--muted);font-size:.9rem}.notes{display:none}@keyframes dark-in{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}@media print{html,body{overflow:visible;background:white}.slide{position:relative;display:block!important;page-break-after:always;height:100vh;color:#111;background:white}.deck-progress,.deck-counter{display:none}}
+
+/* Robust presentation controls and overflow guards. */
+.slide { overflow: hidden; }
+.slide.active { grid-template-rows: auto minmax(0, 1fr); }
+.slide-header { min-width: 0; }
+.slide-header h2 { max-width: 22ch; font-size: clamp(1.8rem, 4.2vw, 4.4rem); }
+.cover-meta { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-top: 3rem; max-width: 72rem; }
+.cover-meta div { padding: 1rem 1.15rem; border: 1px solid var(--rule); border-radius: 1rem; background: rgba(255,255,255,.06); }
+.cover-meta span { display: block; color: var(--muted); font-size: .82rem; text-transform: uppercase; letter-spacing: .12em; margin-bottom: .35rem; }
+.cover-meta strong { display: block; font-size: clamp(1rem, 1.5vw, 1.45rem); color: var(--ink); overflow-wrap: anywhere; }
+.bullet-list { max-height: 58vh; align-content: start; }
+.bullet-list li { font-size: clamp(1rem, 1.75vw, 1.75rem); padding: .78rem 1rem; overflow-wrap: anywhere; }
+.figure-grid, .split-grid { min-height: 0; height: 100%; }
+.deck-controls { position: fixed; left: 1rem; bottom: .85rem; display: flex; gap: .55rem; z-index: 10; }
+.deck-controls button { border: 1px solid var(--rule); border-radius: 999px; padding: .45rem .8rem; background: rgba(13,19,32,.72); color: var(--primary); font: 700 .82rem var(--font-body); cursor: pointer; backdrop-filter: blur(10px); }
+.deck-controls button:hover { background: rgba(255,255,255,.10); }
+@media (max-width: 760px) { .slide { padding: 5vh 6vw; } .toc-list, .figure-grid, .split-grid, .cover-meta { grid-template-columns: 1fr; } .cover-meta { margin-top: 1.5rem; } }
+@media print { .deck-controls { display: none; } }
+
+/* Long-title fitting mirrors the light theme so generated paper titles do not overflow. */
+h1, h2 { overflow-wrap: anywhere; hyphens: auto; }
+.title-fit-long h1 { max-width: 17ch; font-size: clamp(2.35rem, 5.2vw, 5.2rem); line-height: 1.06; }
+.title-fit-xlong h1 { max-width: 22ch; font-size: clamp(1.95rem, 4.1vw, 4.2rem); line-height: 1.1; }
+.title-fit-xxlong h1 { max-width: 28ch; font-size: clamp(1.55rem, 3.2vw, 3.3rem); line-height: 1.16; }
+.title-fit-long h2 { max-width: 24ch; font-size: clamp(1.8rem, 3.7vw, 3.8rem); line-height: 1.08; }
+.title-fit-xlong h2 { max-width: 32ch; font-size: clamp(1.5rem, 2.95vw, 3rem); line-height: 1.12; }
+.title-fit-xxlong h2 { max-width: 40ch; font-size: clamp(1.3rem, 2.35vw, 2.45rem); line-height: 1.18; }
+.bullet-list-plain li { padding-left: 1rem; }
+.bullet-list-plain li::before { display: none; }
+@media (max-width: 760px) {
+  .title-fit-long h1, .title-fit-xlong h1, .title-fit-xxlong h1 { font-size: clamp(1.6rem, 8.5vw, 3rem); max-width: 100%; }
+  .title-fit-long h2, .title-fit-xlong h2, .title-fit-xxlong h2 { font-size: clamp(1.35rem, 6.8vw, 2.45rem); max-width: 100%; }
+}

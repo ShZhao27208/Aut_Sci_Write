@@ -28,6 +28,7 @@ def build_parser() -> argparse.ArgumentParser:
     pdf.add_argument("--advisor", default="", help="Advisor name.")
     pdf.add_argument("--date", default="", help="Presentation date.")
     pdf.add_argument("--direction", default="", help="Research direction.")
+    pdf.add_argument("--translate", action="store_true", help="Translate extracted outline content to Chinese if MOONSHOT_API_KEY is configured.")
 
     enhanced = subparsers.add_parser("enhanced-from-pdf", help="Generate PPTX from PDF with academic parsing.")
     enhanced.add_argument("pdf", help="Input PDF path.")
@@ -52,6 +53,7 @@ def run_from_pdf(args: argparse.Namespace) -> str:
         advisor=args.advisor,
         date=args.date,
         direction=args.direction,
+        translate=args.translate,
     )
 
 

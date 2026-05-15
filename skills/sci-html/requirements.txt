@@ -1,0 +1,12 @@
+# Core deck generation uses only the Python standard library.
+# The integrated `paper` workflow needs the PDF and figure extraction stack below.
+PyMuPDF>=1.24.0
+pdfplumber>=0.10.0
+numpy>=1.24.0
+opencv-python>=4.9.0
+Pillow>=10.0.0
+pytesseract>=0.3.10
+
+# Optional future dependencies:
+# Jinja2>=3.1.0,<4.0
+# markdown-it-py>=3.0.0,<4.0

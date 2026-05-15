@@ -295,10 +295,10 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
-      padding: 28px 20px;
-      min-width: 140px;
+      padding: 24px 14px;
+      min-width: 120px;
       flex: 1;
-      max-width: 170px;
+      max-width: 150px;
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -336,25 +336,36 @@
     .wf-connector {
       display: flex;
       align-items: center;
-      padding: 0 6px;
+      padding: 0 4px;
       color: var(--gold-dim);
-      font-size: 1.1rem;
+      font-size: 1rem;
       flex-shrink: 0;
     }
 
-    /* ── Skills Grid ── */
+    /* ── Skills List ── */
     .skills-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 24px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    /* When odd number of items, last one centers */
+    .skills-grid .skill-card:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+      max-width: 460px;
+      justify-self: center;
     }
     .skill-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 32px 28px;
+      padding: 28px 24px;
       position: relative;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
       transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
       opacity: 0;
       transform: translateY(24px);
@@ -376,28 +387,17 @@
     .skill-card:hover {
       border-color: var(--border-h);
       box-shadow: 0 8px 48px rgba(232,179,57,0.1), 0 0 0 1px rgba(232,179,57,0.08);
-      transform: translateY(-4px);
+      transform: translateY(-2px);
     }
     .skill-card:hover::before { opacity: 1; }
 
-    /* Glow orb behind icon */
-    .skill-card::after {
-      content: '';
-      position: absolute;
-      top: -40px; right: -40px;
-      width: 120px; height: 120px;
-      border-radius: 50%;
-      background: var(--gold-glow);
-      filter: blur(40px);
-      opacity: 0;
-      transition: opacity 0.4s;
-    }
-    .skill-card:hover::after { opacity: 1; }
-
     .card-icon {
-      font-size: 2.2rem;
-      margin-bottom: 16px;
-      display: block;
+      font-size: 2rem;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
     .card-slug {
       font-family: var(--mono);
@@ -409,25 +409,27 @@
       display: inline-block;
       padding: 3px 10px;
       border-radius: 4px;
-      margin-bottom: 12px;
       letter-spacing: 0.04em;
     }
     .card-title {
       font-family: 'Playfair Display', serif;
-      font-size: 1.15rem;
+      font-size: 1.05rem;
       font-weight: 700;
       color: var(--text);
-      margin-bottom: 10px;
       line-height: 1.3;
     }
     .card-desc {
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       color: var(--text-muted);
       line-height: 1.6;
-      margin-bottom: 20px;
       font-weight: 300;
     }
-    .trigger-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .trigger-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
     .trigger {
       font-family: var(--mono);
       font-size: 0.72rem;
@@ -441,6 +443,15 @@
     .skill-card:hover .trigger {
       color: var(--text);
       border-color: rgba(255,255,255,0.18);
+    }
+
+    @media (max-width: 768px) {
+      .skills-grid {
+        grid-template-columns: 1fr;
+      }
+      .skills-grid .skill-card:last-child:nth-child(odd) {
+        max-width: 100%;
+      }
     }
 
     /* ── Install ── */
@@ -610,7 +621,7 @@
     <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#E8B339;opacity:0.7;letter-spacing:0.15em;text-align:center;">SHUO · ZHAO</div>
   </div>
 
-  <div class="hero-eyebrow">Claude Code Skills &nbsp;·&nbsp; 6 Modules</div>
+  <div class="hero-eyebrow">Claude Code Skills &nbsp;·&nbsp; 7 Modules</div>
   <h1>Aut_Sci_<span class="accent">Write</span></h1>
   <p class="hero-sub">面向科研工作者的全链路 AI 写作Skills集<br>从文献检索到 PPT 生成，一套技能覆盖全流程</p>
 
@@ -634,7 +645,7 @@
     <div class="section-label">Research Pipeline</div>
     <h2 class="section-title">科研写作全流程</h2>
     <div class="gold-line" style="margin-bottom: 16px;"></div>
-    <p class="section-sub">六个技能模块覆盖从文献发现到成果输出的完整链路</p>
+    <p class="section-sub">七个技能模块覆盖从文献发现到成果输出的完整链路</p>
 
     <div class="workflow-track">
       <div class="wf-node">
@@ -674,6 +685,13 @@
       <div class="wf-connector">→</div>
       <div class="wf-node">
         <div class="step-num">06</div>
+        <div class="wf-icon">🌐</div>
+        <div class="wf-label">HTML 报告</div>
+        <div class="wf-skill">sci-html</div>
+      </div>
+      <div class="wf-connector">→</div>
+      <div class="wf-node">
+        <div class="step-num">07</div>
         <div class="wf-icon">📊</div>
         <div class="wf-label">PPT 生成</div>
         <div class="wf-skill">sci-ppt</div>
@@ -686,7 +704,7 @@
 <section id="skills">
   <div class="container">
     <div class="section-label">Skill Modules</div>
-    <h2 class="section-title">六大技能详情</h2>
+    <h2 class="section-title">七大技能详情</h2>
     <div class="gold-line" style="margin-bottom: 16px;"></div>
     <p class="section-sub">每个技能独立可用，也可组合成完整科研工作流</p>
 
@@ -694,8 +712,10 @@
 
       <div class="skill-card">
         <span class="card-icon">🔍</span>
-        <span class="card-slug">sci-search</span>
-        <div class="card-title">文献检索与期刊指标</div>
+        <div class="card-header">
+          <span class="card-slug">sci-search</span>
+          <span class="card-title">文献检索与期刊指标</span>
+        </div>
         <div class="card-desc">支持检索 arXiv、PubMed 与 Web of Science 三大数据源，自动附加 JCR 分区、影响因子，高亮 Nature / Science 等顶刊结果。</div>
         <div class="trigger-list">
           <span class="trigger">搜索文献</span>
@@ -707,8 +727,10 @@
 
       <div class="skill-card">
         <span class="card-icon">📄</span>
-        <span class="card-slug">sci-extract</span>
-        <div class="card-title">论文核心内容提取</div>
+        <div class="card-header">
+          <span class="card-slug">sci-extract</span>
+          <span class="card-title">论文核心内容提取</span>
+        </div>
         <div class="card-desc">采用Heilmeier范式，从 PDF 中深度提取研究问题、方法论、关键结论、实验参数与数值对比，超越简单摘要，输出结构化结果。</div>
         <div class="trigger-list">
           <span class="trigger">分析论文</span>
@@ -720,8 +742,10 @@
 
       <div class="skill-card">
         <span class="card-icon">🖼️</span>
-        <span class="card-slug">sci-figure</span>
-        <div class="card-title">论文图表智能提取</div>
+        <div class="card-header">
+          <span class="card-slug">sci-figure</span>
+          <span class="card-title">论文图表智能提取</span>
+        </div>
         <div class="card-desc">自动检测 PDF 中的图表位置，高精度裁剪，支持复合图拆分为独立子图，保留出版级分辨率（600 DPI）。</div>
         <div class="trigger-list">
           <span class="trigger">提取图片</span>
@@ -732,8 +756,10 @@
 
       <div class="skill-card">
         <span class="card-icon">✍️</span>
-        <span class="card-slug">sci-review</span>
-        <div class="card-title">综述写作与审稿回复</div>
+        <div class="card-header">
+          <span class="card-slug">sci-review</span>
+          <span class="card-title">综述写作与审稿回复</span>
+        </div>
         <div class="card-desc">基于 4 阶段系统综述结构辅助撰写文献综述；专业审稿回复模板，对标 NeurIPS / ICLR 标准，逐条精准回应。</div>
         <div class="trigger-list">
           <span class="trigger">文献综述</span>
@@ -745,8 +771,10 @@
 
       <div class="skill-card">
         <span class="card-icon">📚</span>
-        <span class="card-slug">sci-zotero</span>
-        <div class="card-title">Zotero 文献库集成</div>
+        <div class="card-header">
+          <span class="card-slug">sci-zotero</span>
+          <span class="card-title">Zotero 文献库集成</span>
+        </div>
         <div class="card-desc">同步 Zotero 远程文献库，支持通过 DOI / ISBN / PMID 添加引用，自动获取开放获取 PDF，无缝融入写作流程。</div>
         <div class="trigger-list">
           <span class="trigger">同步文献</span>
@@ -756,9 +784,26 @@
       </div>
 
       <div class="skill-card">
+        <span class="card-icon">🌐</span>
+        <div class="card-header">
+          <span class="card-slug">sci-html</span>
+          <span class="card-title">交互式 HTML 学术报告</span>
+        </div>
+        <div class="card-desc">从论文 PDF、Markdown 或结构化大纲一键生成浏览器端交互式幻灯片，支持键盘导航、图表嵌入、主题切换，适合在线分享与文献汇报。</div>
+        <div class="trigger-list">
+          <span class="trigger">HTML报告</span>
+          <span class="trigger">网页演示</span>
+          <span class="trigger">paper to html</span>
+          <span class="trigger">交互式幻灯片</span>
+        </div>
+      </div>
+
+      <div class="skill-card">
         <span class="card-icon">📊</span>
-        <span class="card-slug">sci-ppt</span>
-        <div class="card-title">学术 PPT 自动生成</div>
+        <div class="card-header">
+          <span class="card-slug">sci-ppt</span>
+          <span class="card-title">学术 PPT 自动生成</span>
+        </div>
         <div class="card-desc">从论文 PDF 或结构化文本一键生成专业学术 PPT，支持 LaTeX 公式渲染、图片嵌入、中英双语布局，适配组会与答辩场景。</div>
         <div class="trigger-list">
           <span class="trigger">生成PPT</span>

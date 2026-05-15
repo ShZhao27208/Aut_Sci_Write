@@ -1,11 +1,13 @@
 # Test outputs and examples
-skills/sci-figure/output/
-skills/sci-figure/tests/
+skills/*/out/
+skills/*/output/
+skills/*/tests/
 examples/
 docs/
 
 # Python cache
 **/__pycache__/
+**/.pytest_cache/
 **/*.pyc
 **/*.pyo
 

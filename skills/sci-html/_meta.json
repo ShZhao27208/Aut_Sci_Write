@@ -1,0 +1,8 @@
+{
+  "name": "sci-html",
+  "version": "0.1.0",
+  "description": "Aut_Sci_Write skill for academic HTML slide decks, interactive paper reports, and browser-based presentations.",
+  "entry": "scripts/generate_html_deck.py",
+  "license": "MIT",
+  "author": "Shuo Zhao"
+}

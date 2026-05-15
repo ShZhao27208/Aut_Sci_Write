@@ -1,0 +1,10 @@
+[
+  {
+    "id": "structured-outline",
+    "description": "Structured academic outline should generate cover, toc, section, content, ending slides."
+  },
+  {
+    "id": "markdown-slides",
+    "description": "Markdown with frontmatter and --- separators should preserve title and theme."
+  }
+]
