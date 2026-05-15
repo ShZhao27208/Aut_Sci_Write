@@ -7,10 +7,15 @@
 
 *A modular Claude Code Skills suite for the full academic research lifecycle*
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-1.4.0-2563eb.svg)](package.json)
+[![Skills](https://img.shields.io/badge/skills-7-0f766e.svg)](#-what-it-does)
+[![Academic Workflow](https://img.shields.io/badge/workflow-search%20%E2%86%92%20extract%20%E2%86%92%20review%20%E2%86%92%20slides-c2410c.svg)](#-what-it-does)
+[![Paper Types](https://img.shields.io/badge/papers-research%20%7C%20review%20%7C%20meta--analysis-7c3aed.svg)](#-what-it-does)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Claude Code](https://img.shields.io/badge/Claude%20Code-Skills-blueviolet?logo=anthropic)](https://claude.ai/code)
-[![oh-my-claudecode](https://img.shields.io/badge/oh--my--claudecode-compatible-22c55e)](https://github.com/omc-dev/oh-my-claudecode)
+[![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![PPTX + HTML](https://img.shields.io/badge/output-PPTX%20%2B%20HTML-0ea5e9.svg)](#-what-it-does)
+[![Zotero](https://img.shields.io/badge/reference-Zotero-b91c1c.svg)](#-what-it-does)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Stars](https://img.shields.io/github/stars/ShZhao27208/Aut_Sci_Write?style=social)](https://github.com/ShZhao27208/Aut_Sci_Write)
 
 [🌐 Live Demo](https://shzhao27208.github.io/Aut_Sci_Write/) · [📦 Install](#-installation) · [📖 中文说明](#中文说明)
