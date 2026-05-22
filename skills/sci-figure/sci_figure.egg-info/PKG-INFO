@@ -1,3 +1,42 @@
+Metadata-Version: 2.4
+Name: sci-figure
+Version: 2.0.0
+Summary: Scientific figure extractor for academic PDF papers — three-engine fusion
+Home-page: https://github.com/xssjqx/Sh_Sci_Fig
+Author: ShClaw
+License: AGPL-3.0-or-later
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Scientific/Engineering
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: pdfplumber>=0.10.0
+Requires-Dist: PyMuPDF>=1.24.0
+Requires-Dist: opencv-python>=4.9.0
+Requires-Dist: Pillow>=10.0.0
+Requires-Dist: pytesseract>=0.3.10
+Requires-Dist: numpy>=1.24.0
+Provides-Extra: ocr
+Requires-Dist: easyocr>=1.7.0; extra == "ocr"
+Dynamic: author
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license
+Dynamic: license-file
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
 # Sh_Sci_Fig — Scientific Figure Extractor
 
 Precisely extract figures and sub-figures from academic PDF papers.

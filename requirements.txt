@@ -9,6 +9,10 @@ opencv-python>=4.9.0
 Pillow>=10.0.0
 pytesseract>=0.3.10
 
+# Optional: EasyOCR for improved sub-figure label detection in sci-figure.
+# Install with: pip install sci-figure[ocr]  (or: pip install easyocr>=1.7.0)
+# easyocr>=1.7.0
+
 # sci-ppt generation, XML layout helpers, formula rendering, and YAML input.
 python-pptx>=0.6.23
 lxml>=4.9.0

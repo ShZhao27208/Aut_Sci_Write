@@ -91,7 +91,7 @@ class ExtractCoreInsightsTests(unittest.TestCase):
             (pdf_dir / "paper1.pdf").write_bytes(b"%PDF-1.4")
 
             extractor = self.module.CoreInsightsExtractor()
-            extractor.extract_from_pdf = lambda _path: self.sample_result()
+            extractor.extract_from_pdf = lambda _path, **_kw: self.sample_result()
             with contextlib.redirect_stdout(io.StringIO()):
                 results = extractor.batch_process(
                     pdf_dir,

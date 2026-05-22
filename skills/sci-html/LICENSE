@@ -22,13 +22,13 @@ SOFTWARE.
 
 ---
 
-## Bundled Components
+## Runtime Dependencies
 
-The `src/sci_html/integrations/figure/` directory contains code derived from
-the `sci-figure` project, which is licensed under AGPL-3.0-or-later. When
-distributing this package with the figure extraction integration included,
-the AGPL-3.0 terms apply to the combined work.
+This package depends on the `sci-figure` package (installed separately) for
+figure extraction. `sci-figure` is licensed under AGPL-3.0-or-later. When
+distributing this package alongside `sci-figure`, the AGPL-3.0 terms may
+apply to the combined work.
 
 If you wish to use only the core deck generation (parser, renderer, templates)
-without the figure extraction integration, those components are available under
+without the figure extraction dependency, those components are available under
 the MIT license above.

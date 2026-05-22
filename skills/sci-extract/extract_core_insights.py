@@ -184,13 +184,15 @@ def write_result_file(result, output_file, output_format):
     insights = result.get('core_insights', {})
     paper_type = result.get('paper_type', 'research')
     insight_keys = REVIEW_INSIGHT_KEYS if paper_type == 'review' else RESEARCH_INSIGHT_KEYS
+    conf_columns = REVIEW_CONFIDENCE_COLUMNS if paper_type == 'review' else CONFIDENCE_COLUMNS
+    conf_headers = [col_name for _, col_name in conf_columns]
 
     with path.open('w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerow([
             'Title', 'Authors', 'Journal', 'Year', 'Paper_Type',
             *[key.title().replace('_', '_') for key in insight_keys],
-            *[f"{key}_Conf" for key in insight_keys],
+            *conf_headers,
             'Status', 'Time(s)'
         ])
         writer.writerow([

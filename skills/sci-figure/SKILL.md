@@ -72,6 +72,13 @@ sh-sci-fig <input.pdf> [options]
 | `--list` | `-l` | List all available figure numbers | false |
 | `--all` | | Extract all figures | false |
 | `--format` | | Output format (png/jpg) | png |
+| `--strategy` | | Extraction strategy: hybrid/native/cv | hybrid |
+| `--ocr` | | OCR engine: tesseract/easyocr/none | tesseract |
+| `--render-page` | | Render full page with annotations | false |
+| `--annotate` | | Draw bounding boxes on rendered page | false |
+| `--bbox` | | Manual bbox override (x0,y0,x1,y1 in px) | None |
+| `--no-trim` | | Disable whitespace trimming | false |
+| `--debug` | | Enable debug logging | false |
 | `--quiet` | `-q` | Suppress info messages | false |
 
 ## Examples
@@ -91,6 +98,18 @@ sh-sci-fig paper.pdf --all
 
 # Custom output directory and DPI
 sh-sci-fig paper.pdf -f 2 -s c -o ./output/ -d 300
+
+# Use EasyOCR for sub-figure label detection
+sh-sci-fig paper.pdf --all --ocr easyocr
+
+# CV-only strategy (skip native extraction)
+sh-sci-fig paper.pdf --all --strategy cv
+
+# Render page with annotated bounding boxes (debugging)
+sh-sci-fig paper.pdf -f 1 --render-page --annotate
+
+# Manual bbox extraction (multimodal correction)
+sh-sci-fig paper.pdf -f 1 --bbox 100,200,800,1200
 ```
 
 **Output**:
@@ -111,11 +130,23 @@ Extracted: figure_2c.png (1920x1080, 600 DPI)
 
 | Library | Role |
 |---------|------|
-| pdfplumber | Text + coordinate extraction (locate "Figure X" labels) |
-| PyMuPDF (fitz) | PDF → high-quality image rendering (600 DPI) |
-| opencv-python | Boundary detection, contour analysis |
+| pdfplumber | Text + coordinate extraction (caption detection) |
+| PyMuPDF (fitz) | Native image extraction + high-quality page rendering |
+| opencv-python | CV region detection, connected-component analysis, content validation |
 | Pillow | Final cropping, format conversion |
-| pytesseract | OCR for sub-figure label recognition |
+| pytesseract | OCR for sub-figure label recognition (default) |
+| easyocr | Alternative OCR engine (optional, `pip install sci-figure[ocr]`) |
+| numpy | Image array operations |
+
+## Extraction Engines (v2)
+
+| Engine | Priority | Best For |
+|--------|----------|----------|
+| Native (PyMuPDF) | 1st | Raster images embedded in PDF |
+| CV (connected-component) | 2nd | Vector graphics, colored plots |
+| Caption-anchored | 3rd | Fallback when above engines fail |
+
+The `hybrid` strategy (default) tries all three in order and validates results.
 
 ## Detected Figure Fields
 

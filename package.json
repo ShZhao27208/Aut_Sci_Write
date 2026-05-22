@@ -1,6 +1,6 @@
 {
   "name": "shuozhao-academic-skills",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Academic research enhancement skills for Claude Code: literature search, paper extraction, figure processing, HTML reports, PPT generation, review writing, and Zotero integration",
   "main": "index.js",
   "type": "module",
@@ -31,7 +31,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "python -m unittest discover -s tests -p test_*.py",
     "postinstall": "node init-env.js",
     "prepare": "node init-env.js",
     "prepack": "node init-env.js",

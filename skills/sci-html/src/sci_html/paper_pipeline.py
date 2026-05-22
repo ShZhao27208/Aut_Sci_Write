@@ -6,9 +6,6 @@ from pathlib import Path
 from typing import Any
 
 from .integrations.extract.core_insights import CoreInsightsExtractor
-from .integrations.figure.figure_detector import FigureDetector
-from .integrations.figure.image_processor import ImageProcessor
-from .integrations.figure.pdf_parser import PDFParser
 from .models import Deck
 from .parser import parse_deck
 from .renderer import render_deck
@@ -97,28 +94,28 @@ def extract_paper_figures(
     dpi: int = 300,
     max_figures: int = 6,
 ) -> list[dict[str, Any]]:
-    """Extract detected figures using the integrated sci-figure modules."""
+    """Extract detected figures using the installed sci-figure package (v2)."""
+    from sci_figure.figure_extractor import FigureExtractor
+    from sci_figure.image_processor import ImageProcessor
+
     output = Path(output_dir)
     output.mkdir(parents=True, exist_ok=True)
-    parser = PDFParser(str(pdf_path), dpi=dpi)
-    try:
-        detector = FigureDetector(parser)
+
+    with FigureExtractor(str(pdf_path), dpi=dpi) as extractor:
+        figures = extractor.detect_all()
         processor = ImageProcessor(output_dir=str(output), fmt="png")
-        figures = detector.detect_all_figures()
         manifest: list[dict[str, Any]] = []
         for fig in figures[:max_figures]:
             image_path = processor.save_figure(fig["image"], fig["number"])
             manifest.append({
                 "number": fig.get("number"),
                 "page": fig.get("page"),
-                "caption": fig.get("caption_full") or fig.get("caption", ""),
+                "caption": fig.get("caption_text", ""),
                 "image_path": image_path,
                 "figure_type": fig.get("figure_type", "figure"),
                 "sublabels": fig.get("sublabels", []),
             })
         return manifest
-    finally:
-        parser.close()
 
 
 def build_paper_deck_markdown(

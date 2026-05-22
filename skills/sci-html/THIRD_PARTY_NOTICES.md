@@ -8,9 +8,9 @@ If future versions copy substantial source code from those projects, preserve th
 
 ## Bundled Aut_Sci_Write Components
 
-This skill now bundles local copies of two Aut_Sci_Write skills so `sci-html` can run as a standalone paper-to-HTML workflow:
+This skill bundles a local copy of one Aut_Sci_Write skill and depends on another at runtime:
 
 - `sci-extract`, copied under `src/sci_html/integrations/extract/`, for structured PDF insight extraction.
-- `sci-figure`, copied under `src/sci_html/integrations/figure/`, for PDF figure detection and image export.
+- `sci-figure`, installed as a runtime dependency (not bundled), for PDF figure detection and image export.
 
-Keep their original copyright and license obligations when redistributing this standalone skill. In particular, the source `sci-figure` package declares AGPL-3.0-or-later in its setup metadata, so distribution may impose AGPL obligations on the combined package.
+Keep their original copyright and license obligations when redistributing. The `sci-figure` package declares AGPL-3.0-or-later in its setup metadata, so distribution may impose AGPL obligations on the combined package.

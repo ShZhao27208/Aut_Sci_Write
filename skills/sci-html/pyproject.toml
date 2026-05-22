@@ -12,12 +12,7 @@ dependencies = []
 
 [project.optional-dependencies]
 paper = [
-    "PyMuPDF>=1.24.0",
-    "pdfplumber>=0.10.0",
-    "numpy>=1.24.0",
-    "opencv-python>=4.9.0",
-    "Pillow>=10.0.0",
-    "pytesseract>=0.3.10",
+    "sci-figure>=2.0.0",
 ]
 dev = [
     "pytest>=7.0",

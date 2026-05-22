@@ -1,15 +1,17 @@
 # Test outputs and examples
+tests/
 skills/*/out/
 skills/*/output/
 skills/*/tests/
 examples/
 docs/
 
-# Python cache
+# Python cache and build artifacts
 **/__pycache__/
 **/.pytest_cache/
 **/*.pyc
 **/*.pyo
+**/*.egg-info/
 
 # Git
 .git/

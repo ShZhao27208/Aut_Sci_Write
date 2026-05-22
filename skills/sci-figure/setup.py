@@ -5,15 +5,15 @@ with open('README.md', 'r', encoding='utf-8') as fh:
 
 setup(
     name='sci-figure',
-    version='0.1.0',
-    description='Scientific figure extractor for academic PDF papers',
+    version='2.0.0',
+    description='Scientific figure extractor for academic PDF papers — three-engine fusion',
     long_description=long_description,
     long_description_content_type='text/markdown',
     author='ShClaw',
     url='https://github.com/xssjqx/Sh_Sci_Fig',
     license='AGPL-3.0-or-later',
     packages=find_packages(),
-    python_requires='>=3.9',
+    python_requires='>=3.10',
     install_requires=[
         'pdfplumber>=0.10.0',
         'PyMuPDF>=1.24.0',
@@ -22,20 +22,23 @@ setup(
         'pytesseract>=0.3.10',
         'numpy>=1.24.0',
     ],
+    extras_require={
+        'ocr': ['easyocr>=1.7.0'],
+    },
     entry_points={
         'console_scripts': [
-            'sh-sci-fig=src.cli:main',
+            'sh-sci-fig=sci_figure.cli:main',
         ],
     },
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
         'Topic :: Scientific/Engineering',
     ],
 )
