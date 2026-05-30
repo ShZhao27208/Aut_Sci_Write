@@ -150,21 +150,37 @@ def get_config_value(name: str, default: str = "") -> str:
     return LOCAL_ENV.get(name) or os.environ.get(name, default)
 
 
+def _normalize_journal_name(name: str) -> str:
+    """Normalize a journal name for safe matching.
+
+    Lowercase, strip punctuation to spaces, and collapse whitespace so that
+    only genuinely equivalent names compare equal. This avoids the substring
+    trap where 'Nature Communications' would otherwise match 'Nature'.
+    """
+    lowered = name.lower()
+    no_punct = re.sub(r'[^a-z0-9]+', ' ', lowered)
+    return re.sub(r'\s+', ' ', no_punct).strip()
+
+
 def get_journal_metrics(journal_name: str) -> Optional[Dict]:
     if not journal_name:
         return None
 
-    # Exact match
+    # Exact match (raw)
     if journal_name in JOURNAL_DB:
         return JOURNAL_DB[journal_name]
 
-    # Partial match
-    journal_lower = journal_name.lower()
+    query_norm = _normalize_journal_name(journal_name)
+    if not query_norm:
+        return None
+
+    # Exact normalized match against DB entries.
     for db_journal, metrics in JOURNAL_DB.items():
-        if db_journal.lower() in journal_lower or journal_lower in db_journal.lower():
+        if _normalize_journal_name(db_journal) == query_norm:
             return metrics
 
-    # Abbreviations
+    # Known abbreviations: only accept when the normalized query EQUALS a
+    # known abbreviation, never a substring of it (that was the bug).
     abbrev_map = {
         'adv mater': 'Advanced Materials',
         'nat photonics': 'Nature Photonics',
@@ -181,8 +197,10 @@ def get_journal_metrics(journal_name: str) -> Optional[Dict]:
         'nano energy': 'Nano Energy',
     }
     for abbrev, full_name in abbrev_map.items():
-        if abbrev in journal_lower:
+        if _normalize_journal_name(abbrev) == query_norm:
             return JOURNAL_DB.get(full_name)
+
+    # No confident match: return None rather than fabricate metrics.
     return None
 
 class PaperLibrary:
@@ -196,7 +214,7 @@ class PaperLibrary:
                 with open(self.library_path, 'r', encoding='utf-8') as f:
                     data = json.load(f)
                     return data.get('papers', [])
-            except: return []
+            except Exception: return []
         return []
 
     def _save_library(self):
@@ -457,6 +475,11 @@ class PubmedFetcher:
             "mesh_terms": mesh_terms,
         }
 
+    @staticmethod
+    def _scrub_api_key(message: str) -> str:
+        """Redact api_key query params so keys never leak via printed errors."""
+        return re.sub(r'(api_key=)[^&\s]+', r'\1[REDACTED]', message)
+
     def search(self, query: str, max_results: int = 5) -> List[Dict]:
         params = {
             "db": "pubmed",
@@ -490,7 +513,7 @@ class PubmedFetcher:
 
             return papers
         except Exception as e:
-            print(f"PubMed error: {e}")
+            print(f"PubMed error: {self._scrub_api_key(str(e))}")
             return []
 
 def format_markdown(paper: Dict, index: int) -> str:
@@ -565,18 +588,18 @@ def main():
     print(f"Searching for: {args.query}...")
 
     if args.source in ('all', 'arxiv'):
-        print("  閳?arXiv...")
+        print("  - arXiv...")
         results.extend(ArxivFetcher().search(args.query, args.limit))
         time.sleep(RATE_LIMIT_DELAY)
 
     if args.source in ('all', 'pubmed'):
-        print("  閳?PubMed...")
+        print("  - PubMed...")
         results.extend(PubmedFetcher().search(args.query, args.limit))
         time.sleep(RATE_LIMIT_DELAY)
 
     if args.source in ('all', 'wos'):
         if wos.is_available():
-            print("  閳?Web of Science...")
+            print("  - Web of Science...")
             results.extend(wos.search(args.query, args.limit))
         elif args.source == 'wos':
             print("  WOS_API_KEY is not configured in skills/sci-search/.env. Get a free key at: https://developer.clarivate.com/apis/wos-starter")

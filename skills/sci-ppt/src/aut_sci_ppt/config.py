@@ -122,7 +122,6 @@ class Config:
         "section":             {"required_fields": ["part_num", "part_title"]},
         "content-list":        {"required_fields": ["title", "items"], "max_items_per_page": 6},
         "content-detail":      {"required_fields": ["title", "points"]},
-        "content-detail-image":{"required_fields": ["title", "points"]},
         "timeline":            {"required_fields": ["title", "events"]},
         "ending":              {"required_fields": ["message", "author"]},
     }

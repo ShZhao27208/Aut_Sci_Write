@@ -149,9 +149,12 @@ class TextParser:
 
         for raw in lines:
             line = raw.strip()
-            if not line or self._split_key_value(line):
+            # Figure comments may contain ':' (e.g. 'fig:' or a Windows path like
+            # 'C:\\...'), so they must bypass the key-value skip below.
+            is_figure = bool(FIG_RE.match(line))
+            if not line or (not is_figure and self._split_key_value(line)):
                 continue
-            if self._is_section_header(line):
+            if not is_figure and self._is_section_header(line):
                 if current_title is not None:
                     section_index += 1
                     self._add_section(section_index, current_title, current_content)

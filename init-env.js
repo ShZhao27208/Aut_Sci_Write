@@ -96,6 +96,7 @@ function ensureIgnoreEntry(filePath, entry) {
 function readInstalledEnvValues(installedSkillNames) {
   const envBySkill = {};
   const valuesByKey = {};
+  const conflicts = [];
 
   for (const skillName of installedSkillNames) {
     const envPath = path.join(SKILLS_DIR, skillName, '.env');
@@ -105,13 +106,22 @@ function readInstalledEnvValues(installedSkillNames) {
     envBySkill[skillName] = values;
 
     for (const [key, value] of Object.entries(values)) {
-      if (value && valuesByKey[key] === undefined) {
+      if (!value) {
+        continue;
+      }
+      if (valuesByKey[key] === undefined) {
         valuesByKey[key] = { value, source: `${skillName}/.env` };
+      } else if (valuesByKey[key].value !== value) {
+        // Same key set to different non-empty values in multiple skills.
+        // The first-seen value wins; warn so the user knows which is used.
+        conflicts.push(
+          `${key}: keeping ${valuesByKey[key].source}, ignoring different value in ${skillName}/.env`
+        );
       }
     }
   }
 
-  return { envBySkill, valuesByKey };
+  return { envBySkill, valuesByKey, conflicts };
 }
 
 export function initializeSkillEnvs() {
@@ -120,6 +130,7 @@ export function initializeSkillEnvs() {
       created: [],
       updated: [],
       synced: [],
+      conflicts: [],
       skipped: true,
       message: '[Aut_Sci_Write] No skills directory found; skipped .env initialization.'
     };
@@ -133,12 +144,13 @@ export function initializeSkillEnvs() {
       created: [],
       updated: [],
       synced: [],
+      conflicts: [],
       skipped: true,
       message: '[Aut_Sci_Write] No configurable skills found; skipped .env initialization.'
     };
   }
 
-  const { envBySkill, valuesByKey } = readInstalledEnvValues(installedSkillNames);
+  const { envBySkill, valuesByKey, conflicts } = readInstalledEnvValues(installedSkillNames);
   const created = [];
   const updated = [];
   const synced = [];
@@ -179,6 +191,7 @@ export function initializeSkillEnvs() {
     created,
     updated,
     synced,
+    conflicts,
     skipped: false,
     message
   };
@@ -194,6 +207,9 @@ function printResult(result) {
   }
   if (result.synced.length) {
     console.log(`  Reused duplicate config: ${result.synced.join('; ')}`);
+  }
+  if (result.conflicts?.length) {
+    console.log(`  Warning: conflicting values for shared keys: ${result.conflicts.join('; ')}`);
   }
   console.log('  Notice: .env files may contain API keys. Do not commit, publish, or redistribute them.');
 }

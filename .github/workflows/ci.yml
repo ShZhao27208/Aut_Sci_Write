@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ruff
+      - run: ruff check --output-format=github .
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install -r requirements.txt
+      - name: Install testable skill packages (editable)
+        run: |
+          pip install -e skills/sci-html
+          pip install -e skills/sci-figure
+      - name: Run top-level tests
+        run: python -m unittest discover -s tests -p test_*.py -v
+      - name: Run sci-html tests
+        run: python -m unittest discover -s skills/sci-html/tests -p test_*.py -v
+      - name: Run sci-figure tests
+        run: python -m unittest discover -s skills/sci-figure/tests -p test_*.py -v

@@ -49,27 +49,27 @@ REVIEW_INSIGHT_KEYS = [
     'key_tables_figures',
 ]
 
-CONFIDENCE_COLUMNS = [
-    ('research_problem', 'Problem_Conf'),
-    ('methodology', 'Method_Conf'),
-    ('key_results', 'Results_Conf'),
-    ('innovation', 'Innovation_Conf'),
-    ('application', 'Application_Conf'),
-    ('limitations', 'Limitations_Conf'),
+COVERAGE_COLUMNS = [
+    ('research_problem', 'Problem_Coverage'),
+    ('methodology', 'Method_Coverage'),
+    ('key_results', 'Results_Coverage'),
+    ('innovation', 'Innovation_Coverage'),
+    ('application', 'Application_Coverage'),
+    ('limitations', 'Limitations_Coverage'),
 ]
 
-REVIEW_CONFIDENCE_COLUMNS = [
-    ('review_scope', 'Scope_Conf'),
-    ('review_type', 'Type_Conf'),
-    ('taxonomy', 'Taxonomy_Conf'),
-    ('literature_selection', 'Selection_Conf'),
-    ('major_themes', 'Themes_Conf'),
-    ('consensus_findings', 'Consensus_Conf'),
-    ('controversies', 'Controversies_Conf'),
-    ('evidence_quality', 'Evidence_Conf'),
-    ('research_gaps', 'Gaps_Conf'),
-    ('future_directions', 'Future_Conf'),
-    ('key_tables_figures', 'Figures_Tables_Conf'),
+REVIEW_COVERAGE_COLUMNS = [
+    ('review_scope', 'Scope_Coverage'),
+    ('review_type', 'Type_Coverage'),
+    ('taxonomy', 'Taxonomy_Coverage'),
+    ('literature_selection', 'Selection_Coverage'),
+    ('major_themes', 'Themes_Coverage'),
+    ('consensus_findings', 'Consensus_Coverage'),
+    ('controversies', 'Controversies_Coverage'),
+    ('evidence_quality', 'Evidence_Coverage'),
+    ('research_gaps', 'Gaps_Coverage'),
+    ('future_directions', 'Future_Coverage'),
+    ('key_tables_figures', 'Figures_Tables_Coverage'),
 ]
 
 
@@ -102,7 +102,7 @@ def format_result_as_markdown(result):
     """Render a single extraction result as readable markdown."""
     meta = result.get('metadata', {})
     insights = result.get('core_insights', {})
-    scores = result.get('confidence_scores', {})
+    scores = result.get('coverage_scores', {})
     paper_type = result.get('paper_type', 'research')
 
     lines = [
@@ -152,7 +152,7 @@ def format_result_as_markdown(result):
             rendered = f"  - {value}"
         lines.append(f"### {label}")
         lines.append(rendered)
-        lines.append(f"  - Confidence: {scores.get(key, 0.0):.2f}")
+        lines.append(f"  - Coverage: {scores.get(key, 0.0):.2f}")
         lines.append("")
 
     if result.get('status') == 'error':
@@ -180,19 +180,19 @@ def write_result_file(result, output_file, output_format):
         return path
 
     meta = result.get('metadata', {})
-    scores = result.get('confidence_scores', {})
+    scores = result.get('coverage_scores', {})
     insights = result.get('core_insights', {})
     paper_type = result.get('paper_type', 'research')
     insight_keys = REVIEW_INSIGHT_KEYS if paper_type == 'review' else RESEARCH_INSIGHT_KEYS
-    conf_columns = REVIEW_CONFIDENCE_COLUMNS if paper_type == 'review' else CONFIDENCE_COLUMNS
-    conf_headers = [col_name for _, col_name in conf_columns]
+    coverage_columns = REVIEW_COVERAGE_COLUMNS if paper_type == 'review' else COVERAGE_COLUMNS
+    coverage_headers = [col_name for _, col_name in coverage_columns]
 
     with path.open('w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerow([
             'Title', 'Authors', 'Journal', 'Year', 'Paper_Type',
-            *[key.title().replace('_', '_') for key in insight_keys],
-            *conf_headers,
+            *[key.replace('_', ' ').title() for key in insight_keys],
+            *coverage_headers,
             'Status', 'Time(s)'
         ])
         writer.writerow([
@@ -240,23 +240,23 @@ def write_batch_summary(results, output_dir, output_format):
 
     with output_file.open('w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
-        all_confidence_columns = CONFIDENCE_COLUMNS + REVIEW_CONFIDENCE_COLUMNS
+        all_coverage_columns = COVERAGE_COLUMNS + REVIEW_COVERAGE_COLUMNS
         writer.writerow([
             'Title', 'Authors', 'Journal', 'Year', 'Paper_Type',
-            *[column for _, column in all_confidence_columns],
+            *[column for _, column in all_coverage_columns],
             'Status', 'Time(s)'
         ])
 
         for result in results:
             meta = result.get('metadata', {})
-            scores = result.get('confidence_scores', {})
+            scores = result.get('coverage_scores', {})
             writer.writerow([
                 meta.get('title', ''),
                 '; '.join(meta.get('authors', [])),
                 meta.get('journal', ''),
                 meta.get('year', ''),
                 result.get('paper_type', 'research'),
-                *[f"{scores.get(key, 0):.2f}" for key, _ in all_confidence_columns],
+                *[f"{scores.get(key, 0):.2f}" for key, _ in all_coverage_columns],
                 result.get('status', ''),
                 result.get('extraction_time', 0),
             ])
@@ -289,7 +289,7 @@ class CoreInsightsExtractor:
             'future': ['future direction', 'future perspective', 'outlook', 'next step', 'should be', 'need to'],
         }
     
-    def extract_from_pdf(self, pdf_path, timeout=120, paper_type='auto'):
+    def extract_from_pdf(self, pdf_path, paper_type='auto'):
         """Extract insights from a single PDF"""
         start_time = datetime.now()
 
@@ -313,22 +313,20 @@ class CoreInsightsExtractor:
                     'application': self._extract_application(sections),
                     'limitations': self._extract_limitations(sections),
                 }
-            confidence_scores = self._calculate_confidence_scores(insights, sections)
+            coverage_scores = self._calculate_coverage_scores(insights, sections)
             elapsed = (datetime.now() - start_time).total_seconds()
 
             return {
                 'metadata': metadata,
                 'paper_type': resolved_type,
                 'core_insights': insights,
-                'confidence_scores': confidence_scores,
+                'coverage_scores': coverage_scores,
                 'extraction_time': int(elapsed),
                 'status': 'success',
             }
 
         except MemoryError:
             return self._error_result("pdf_too_large", "PDF文件过大，超出内存限制，建议分页处理", {}, start_time)
-        except TimeoutError:
-            return self._error_result("timeout", f"处理超时（>{timeout}s），文件可能过大或损坏", {}, start_time)
         except UnicodeDecodeError as e:
             return self._error_result("encoding", f"编码错误：{e}，建议用pdfplumber指定编码重试", {}, start_time)
         except Exception as e:
@@ -705,8 +703,14 @@ class CoreInsightsExtractor:
         sentences = re.split(r'[.!?]\s+', text)
         return '. '.join(sentences[:max_length]) + '.'
     
-    def _calculate_confidence_scores(self, insights, sections):
-        """Calculate confidence scores for each insight"""
+    def _calculate_coverage_scores(self, insights, sections):
+        """Calculate coverage scores for each insight.
+
+        This is a COVERAGE signal, not an accuracy/confidence measure: it
+        reflects whether a field was populated and backed by a detected
+        section, NOT whether the extracted text is correct. Values combine
+        presence, content length, and source-section availability.
+        """
         scores = {}
         
         for key, value in insights.items():
@@ -759,7 +763,6 @@ class CoreInsightsExtractor:
           pdf_corrupt    — file is damaged / invalid format
           pdf_encrypted  — file is password-protected
           pdf_too_large  — out of memory
-          timeout        — processing took too long
           encoding       — unicode / codec failure
           no_text        — text layer absent (scanned PDF, needs OCR)
           unknown        — uncategorised; see error_detail
@@ -767,7 +770,7 @@ class CoreInsightsExtractor:
         The agent uses error_kind to decide next action:
           no_text / pdf_corrupt → route to marker-pdf / OCR skill
           pdf_encrypted        → ask user for password or skip
-          timeout / too_large  → split file and retry
+          pdf_too_large        → split file and retry
         """
         elapsed = (datetime.now() - start_time).total_seconds()
         # Human-readable suggestions keyed by kind
@@ -776,7 +779,6 @@ class CoreInsightsExtractor:
             "pdf_corrupt":   "尝试用 pdfplumber 修复，或重新下载原始文件",
             "pdf_encrypted": "联系论文来源获取密码，或使用解密工具",
             "pdf_too_large": "使用 --pages 参数分批处理",
-            "timeout":       "增加 timeout 参数，或分批处理",
             "encoding":      "以 latin-1 或 gbk 重试提取",
             "unknown":       "查看 error_detail 手动诊断",
         }
@@ -785,7 +787,7 @@ class CoreInsightsExtractor:
             'core_insights': {k: 'Error' for k in
                               ['research_problem', 'methodology', 'key_results',
                                'innovation', 'application', 'limitations']},
-            'confidence_scores': {k: 0.0 for k in
+            'coverage_scores': {k: 0.0 for k in
                                   ['research_problem', 'methodology', 'key_results',
                                    'innovation', 'application', 'limitations']},
             'extraction_time': int(elapsed),

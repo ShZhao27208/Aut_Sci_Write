@@ -10,6 +10,7 @@ Strategy (priority order):
 
 from __future__ import annotations
 
+import os
 import re
 import numpy as np
 import cv2
@@ -27,10 +28,12 @@ class SubfigureSplitter:
         """
         Args:
             ocr_engine: "tesseract", "easyocr", or "none"
-            easyocr_model_dir: path to local EasyOCR model storage
+            easyocr_model_dir: path to local EasyOCR model storage. Falls back to
+                the EASYOCR_MODEL_DIR env var, then to EasyOCR's own default
+                (None lets easyocr manage its own cache).
         """
         self.ocr_engine = ocr_engine
-        self.easyocr_model_dir = easyocr_model_dir or "D:/easyocr-app/models"
+        self.easyocr_model_dir = easyocr_model_dir or os.environ.get("EASYOCR_MODEL_DIR")
 
     def split(
         self,
@@ -156,8 +159,10 @@ class SubfigureSplitter:
             if cw * ch >= min_area and cw > w * 0.1 and ch > h * 0.1:
                 cells.append((x, y, x + cw, y + ch))
 
-        # Sort in reading order (top-to-bottom, left-to-right)
-        cells.sort(key=lambda c: (c[1] // (h // 3), c[0]))
+        # Sort in reading order (top-to-bottom, left-to-right).
+        # Guard against tiny images where h // 3 == 0 would raise ZeroDivisionError.
+        row_band = max(1, h // 3)
+        cells.sort(key=lambda c: (c[1] // row_band, c[0]))
 
         return cells
 
@@ -195,10 +200,11 @@ class SubfigureSplitter:
 
             if score > best_score:
                 best_score = score
-                # Generate cells for this grid
+                # Generate cells for this grid.
+                # Guard against tiny images where h // nr or w // nc == 0.
                 cells = []
-                cell_h = h // nr
-                cell_w = w // nc
+                cell_h = max(1, h // nr)
+                cell_w = max(1, w // nc)
                 for r in range(nr):
                     for c in range(nc):
                         cells.append((
@@ -406,19 +412,19 @@ class SubfigureSplitter:
     def _ocr_tesseract(self, image: np.ndarray, whitelist: list[str] = None) -> list[dict]:
         """Tesseract-based label detection."""
         import pytesseract
-        import platform
 
-        if platform.system() == "Windows":
-            pytesseract.pytesseract.tesseract_cmd = (
-                r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-            )
+        # Honour an explicit binary override (documented as TESSERACT_CMD in
+        # README). When unset, let pytesseract use its own PATH lookup.
+        tess_cmd = os.environ.get("TESSERACT_CMD")
+        if tess_cmd:
+            pytesseract.pytesseract.tesseract_cmd = tess_cmd
 
         img_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         label_re = re.compile(r"\(?([a-zA-Z])\)?")
         candidates = {}
 
         for psm in [6, 11]:
-            config = f"--psm {psm} -c tessedit_char_whitelist=abcdefghijklmnop()"
+            config = f"--psm {psm} -c tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyz()"
             try:
                 data = pytesseract.image_to_data(
                     img_bgr, output_type=pytesseract.Output.DICT, config=config

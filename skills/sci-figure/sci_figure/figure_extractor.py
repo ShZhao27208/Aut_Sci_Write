@@ -161,7 +161,7 @@ class FigureExtractor:
 
         # Engine B: CV region detection
         if bbox_pdf is None and self.strategy in ("hybrid", "cv"):
-            bbox_pdf = self._try_cv(page_img, caption, h_px, col_bounds_px)
+            bbox_pdf = self._try_cv(page_img, caption, h_px, w_px, col_bounds_px)
             if bbox_pdf:
                 engine_used = "cv"
 
@@ -206,7 +206,7 @@ class FigureExtractor:
             )
             # If native/cv failed validation, try next engine
             if engine_used == "native" and self.strategy == "hybrid":
-                bbox_pdf = self._try_cv(page_img, caption, h_px, col_bounds_px)
+                bbox_pdf = self._try_cv(page_img, caption, h_px, w_px, col_bounds_px)
                 if bbox_pdf:
                     bbox_pdf = self._refine_bbox(bbox_pdf, page_w, page_h, col_bounds_pdf)
                     bbox_px = self._parser.pdf_to_pixel(bbox_pdf)
@@ -269,7 +269,7 @@ class FigureExtractor:
             return match["bbox_pdf"], match["xref"]
         return None, None
 
-    def _try_cv(self, page_img, caption, page_height_px, col_bounds_px):
+    def _try_cv(self, page_img, caption, page_height_px, page_width_px, col_bounds_px):
         """Engine B: try CV connected-component region detection."""
         regions = self._region_detector.detect_regions(page_img)
         if not regions:
@@ -277,7 +277,7 @@ class FigureExtractor:
 
         caption_bbox_px = self._parser.pdf_to_pixel(caption["bbox_pdf"])
         match = self._region_detector.match_to_caption(
-            regions, caption_bbox_px, page_height_px, col_bounds_px
+            regions, caption_bbox_px, page_height_px, page_width_px, col_bounds_px
         )
         if match:
             return self._parser.pixel_to_pdf(match["bbox"])

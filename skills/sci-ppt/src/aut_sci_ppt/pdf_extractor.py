@@ -3,7 +3,8 @@ PDF 图片抓取器 - 智能裁切版
 只截取页面中的图表区域，过滤正文文字块
 """
 
-import fitz
+from __future__ import annotations
+
 import os
 from typing import List, Dict, Tuple, Optional
 from dataclasses import dataclass
@@ -19,6 +20,8 @@ class ExtractedFigure:
 
 class PDFFigureExtractor:
     def __init__(self, pdf_path: str, output_dir: str = "figures"):
+        import fitz
+
         self.pdf_path = pdf_path
         self.output_dir = output_dir
         os.makedirs(output_dir, exist_ok=True)
@@ -27,13 +30,15 @@ class PDFFigureExtractor:
     # ─────────────────────────────────────────────
     #  核心：检测页面中图表区域的 bbox
     # ─────────────────────────────────────────────
-    def _detect_figure_bbox(self, page) -> Optional[fitz.Rect]:
+    def _detect_figure_bbox(self, page) -> Optional["fitz.Rect"]:
         """
         策略：
         1. 获取页面所有图片的位置 → 合并为图片区域
         2. 获取页面所有文字块位置 → 识别正文区域
         3. 用图片区域 + 适当 padding，排除正文区域，得到纯图表区域
         """
+        import fitz
+
         page_rect = page.rect  # 页面总矩形
         W, H = page_rect.width, page_rect.height
 
@@ -104,6 +109,8 @@ class PDFFigureExtractor:
         fig_map: {"图1": 4, "图2": 5, ...}  (1-indexed 页码)
         只截取图表区域，不包含正文
         """
+        import fitz
+
         figures = []
         for label, page_1idx in fig_map.items():
             page_0idx = page_1idx - 1
@@ -142,6 +149,8 @@ class PDFFigureExtractor:
     #  整页渲染（备用）
     # ─────────────────────────────────────────────
     def extract_page_as_image(self, page_num: int, dpi: int = 150) -> str:
+        import fitz
+
         page = self.doc[page_num]
         mat = fitz.Matrix(dpi / 72, dpi / 72)
         pix = page.get_pixmap(matrix=mat, alpha=False)
@@ -199,105 +208,34 @@ class PDFFigureExtractor:
 
 
 # ═══════════════════════════════════════════════
-#  图片提取策略选择：优先 Sh_Sci_Fig (600 DPI)
+#  图片提取策略选择：使用内置 PDFFigureExtractor
 # ═══════════════════════════════════════════════
-
-# Sh_Sci_Fig skill 的默认安装位置
-_SH_SCI_FIG_SCRIPT = os.path.join(
-    os.path.expanduser("~"),
-    ".openclaw",
-    "workspace-shclaw-ppt",
-    "skills",
-    "Sh_Sci_Fig",
-    "scripts",
-    "extract_figure.py",
-)
 
 
 def get_figure_extractor(
     pdf_path: str, output_dir: str, use_skill: bool = True, skill_script: str = None
 ) -> List[ExtractedFigure]:
     """
-    统一图片提取入口：优先用 Sh_Sci_Fig skill（600 DPI），
-    失败时降级到内置 PDFFigureExtractor（180 DPI）。
+    统一图片提取入口：使用内置 PDFFigureExtractor (180 DPI)。
 
     Args:
         pdf_path: PDF 文件路径
         output_dir: 图片输出目录
-        use_skill: 是否尝试使用 Sh_Sci_Fig skill
-        skill_script: Sh_Sci_Fig 脚本路径（默认自动检测）
+        use_skill: 已废弃，保留以兼容旧调用签名
+        skill_script: 已废弃，保留以兼容旧调用签名
 
     Returns:
-        提取的 ExtractedFigure 列表
+        提取的 ExtractedFigure 列表（提取失败时返回空列表）
     """
     os.makedirs(output_dir, exist_ok=True)
-    script = skill_script or _SH_SCI_FIG_SCRIPT
 
-    # 策略1: 尝试 Sh_Sci_Fig skill (600 DPI)
-    if use_skill and os.path.exists(script):
-        try:
-            import subprocess, sys
+    try:
+        extractor = PDFFigureExtractor(pdf_path, output_dir)
+        figures = extractor.extract_all_figures(dpi=180)
+    except Exception as exc:
+        print(f"  ⚠️  图片提取失败（{exc}），跳过图片")
+        return []
 
-            result = subprocess.run(
-                [sys.executable, script, pdf_path, "--all", "-o", output_dir],
-                capture_output=True,
-                text=True,
-                timeout=120,
-            )
-            if result.returncode == 0:
-                figures = _collect_skill_figures(output_dir)
-                if figures:
-                    print(f"  ✅ Sh_Sci_Fig 提取成功: {len(figures)} 张图片 (600 DPI)")
-                    return figures
-                print(f"  ⚠️  Sh_Sci_Fig 未提取到图片，降级到内置方案")
-            else:
-                print(
-                    f"  ⚠️  Sh_Sci_Fig 执行失败 (code {result.returncode})，降级到内置方案"
-                )
-        except subprocess.TimeoutExpired:
-            print(f"  ⚠️  Sh_Sci_Fig 超时，降级到内置方案")
-        except Exception as e:
-            print(f"  ⚠️  Sh_Sci_Fig 异常（{e}），降级到内置方案")
-
-    # 策略2: 降级到内置 PDFFigureExtractor (180 DPI)
-    print(f"  📷 使用内置提取器 (180 DPI)...")
-    extractor = PDFFigureExtractor(pdf_path, output_dir)
-    figures = extractor.extract_all_figures(dpi=180)
     print(f"  ✅ 内置提取器完成: {len(figures)} 张图片")
     return figures
 
-
-def _collect_skill_figures(output_dir: str) -> List[ExtractedFigure]:
-    """收集 Sh_Sci_Fig 提取的图片文件，转为 ExtractedFigure 列表"""
-    import re
-
-    figures = []
-    if not os.path.isdir(output_dir):
-        return figures
-
-    # Sh_Sci_Fig 输出格式: figure_1.png, figure_2.png, figure_1a.png 等
-    png_files = sorted(
-        [
-            f
-            for f in os.listdir(output_dir)
-            if f.lower().endswith((".png", ".jpg", ".jpeg")) and f.startswith("figure")
-        ]
-    )
-
-    for i, filename in enumerate(png_files):
-        path = os.path.join(output_dir, filename)
-        # 从文件名提取标签：figure_1.png → 图1, figure_2a.png → 图2a
-        m = re.match(r"figure[_-]?(\d+)([a-z]?)\.", filename, re.IGNORECASE)
-        if m:
-            label = f"图{m.group(1)}{m.group(2)}"
-        else:
-            label = f"图{i + 1}"
-        figures.append(
-            ExtractedFigure(
-                label=label,
-                page=i,  # Sh_Sci_Fig 不返回页码，用索引代替
-                path=path,
-                caption=label,
-            )
-        )
-    return figures

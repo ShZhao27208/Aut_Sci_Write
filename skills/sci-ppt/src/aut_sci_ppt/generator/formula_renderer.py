@@ -55,7 +55,14 @@ class FormulaRenderer:
                 tex_file = os.path.join(tmpdir, "formula.tex")
                 self._create_tex_file(tex_file, latex_code, color, background)
                 subprocess.run(
-                    ["pdflatex", "-interaction=nonstopmode", "-output-directory", tmpdir, tex_file],
+                    [
+                        "pdflatex",
+                        "-interaction=nonstopmode",
+                        "-no-shell-escape",
+                        "-output-directory",
+                        tmpdir,
+                        tex_file,
+                    ],
                     capture_output=True,
                     timeout=20,
                     check=False,
@@ -107,7 +114,12 @@ class FormulaRenderer:
 
         try:
             encoded = requests.utils.quote(latex_code)
-            url = f"https://latex.codecogs.com/png.image?\\dpi{{300}}\\bg_white\\inline\\color{{black}}{encoded}"
+            # Honor the dpi/color args; use a transparent background (codecogs
+            # \bg{transparent}) instead of a hardcoded white background.
+            url = (
+                f"https://latex.codecogs.com/png.image?"
+                f"\\dpi{{{self.dpi}}}\\bg{{transparent}}\\fg{{{color}}}\\inline {encoded}"
+            )
             response = requests.get(url, timeout=10)
             if response.status_code == 200:
                 with open(output_path, "wb") as handle:

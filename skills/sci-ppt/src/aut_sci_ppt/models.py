@@ -124,24 +124,6 @@ class TimelineData:
 
 
 @dataclass
-class ImageItem:
-    path: str = ""
-    position: str = "right"
-    size: Dict[str, float] = field(default_factory=lambda: {"width": 4, "height": 3})
-    caption: str = ""
-
-
-@dataclass
-class ContentDetailImageData:
-    title: str = ""
-    subtitle: str = ""
-    background: str = ""
-    points: List[str] = field(default_factory=list)
-    results: List[str] = field(default_factory=list)
-    images: List[ImageItem] = field(default_factory=list)
-
-
-@dataclass
 class EndingData:
     message: str = "感谢聆听，请批评指正！"
     author: str = ""
@@ -170,6 +152,5 @@ PAGE_TYPE_SECTION           = "section"
 PAGE_TYPE_CONTENT_LIST      = "content-list"
 PAGE_TYPE_CONTENT_DETAIL    = "content-detail"
 PAGE_TYPE_CONTENT_WITH_FIG  = "content-figure"
-PAGE_TYPE_CONTENT_DETAIL_IMAGE = "content-detail-image"
 PAGE_TYPE_TIMELINE          = "timeline"
 PAGE_TYPE_ENDING            = "ending"

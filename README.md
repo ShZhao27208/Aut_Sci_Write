@@ -6,8 +6,7 @@
 **Autonomous Scientific Writer**
 
 *A modular Claude Code Skills suite for the full academic research lifecycle*
-
-[![Version](https://img.shields.io/badge/version-1.4.0-2563eb.svg)](package.json)
+[![Version](https://img.shields.io/badge/version-1.4.1-2563eb.svg)](package.json)
 [![Skills](https://img.shields.io/badge/skills-7-0f766e.svg)](#-what-it-does)
 [![Academic Workflow](https://img.shields.io/badge/workflow-search%20%E2%86%92%20extract%20%E2%86%92%20review%20%E2%86%92%20slides-c2410c.svg)](#-what-it-does)
 [![Paper Types](https://img.shields.io/badge/papers-research%20%7C%20review%20%7C%20meta--analysis-7c3aed.svg)](#-what-it-does)
@@ -53,7 +52,7 @@ Before installation, make sure the following environments are available:
 - **Node.js 18+**: required for `npx skills add ...` installation and CLI-based skill registration
 - **pip**: used to install Python dependencies from `requirements.txt`
 
-**One-line install** (***Recommended*** — installs all 6 skills globally):
+**One-line install** (***Recommended*** — installs all 7 skills globally):
 
 ```bash
 npx skills add ShZhao27208/Aut_Sci_Write -g -y
@@ -91,6 +90,8 @@ aut-sci-write-init-env
 
 Then fill the generated skill-local `.env` files where needed. Do not commit or publish `.env` files.
 Do not store API keys in system environment variables unless you intentionally want a machine-wide fallback.
+
+> **Shared keys:** After filling a key, run `aut-sci-write-init-env` again. The initializer copies any shared key (e.g. `ZOTERO_API_KEY`) into every other skill that declares it, so you only fill it once. If the same key is set to different values in two skills, the first one (by skill order) is kept and a warning is printed.
 
 ```bash
 # For sci-zotero (optional)
@@ -155,11 +156,9 @@ Aut_Sci_Write/
 │   ├── sci-html/       # Interactive HTML reports and browser slide decks
 │   └── sci-zotero/     # Zotero library integration
 ├── scripts/
-│   ├── sci-search/
-│   │   └── sci_search.py     # Search core logic
-│   ├── extract_core_insights.py
-│   ├── zotero.py
-│   └── journal_db.json       # Journal metrics database (independently updatable)
+│   ├── extract_core_insights.py  # Compatibility wrapper for sci-extract CLI
+│   ├── zotero.py                 # Compatibility wrapper for sci-zotero CLI
+│   └── journal_db.json           # Journal metrics database (independently updatable)
 ├── examples/                 # Sample outputs (PDF + Markdown + PPT)
 ├── docs/                     # GitHub Pages site
 ├── init-env.js         # Per-skill .env initializer
@@ -211,7 +210,7 @@ Contributions welcome! Priority areas:
 - **Node.js 18 及以上**：用于执行 `npx skills add ...` 安装命令，以及完成 CLI 方式的技能注册
 - **pip**：用于安装 `requirements.txt` 中的 Python 依赖
 
-**一行命令安装**（***推荐***，将全部 6 个技能进行全局安装）：
+**一行命令安装**（***推荐***，将全部 7 个技能进行全局安装）：
 
 ```bash
 npx skills add ShZhao27208/Aut_Sci_Write -g -y 
@@ -242,6 +241,8 @@ npx skills add . -g -y
 ### Skill-local `.env` configuration
 
 Run `aut-sci-write-init-env` after installation, then put keys in each skill-local `.env` file:
+
+> **共享密钥：** 填好密钥后，请再次运行 `aut-sci-write-init-env`。初始化器会把共享密钥（如 `ZOTERO_API_KEY`）自动复制到所有声明了该密钥的其他 skill，因此只需填一次。若同一密钥在两个 skill 中填了不同的值，将保留靠前的那个（按 skill 顺序）并打印警告。
 
 ```bash
 # sci-zotero 文献管理（可选）
@@ -307,10 +308,8 @@ Aut_Sci_Write/
 │   ├── sci-html/             # html交互式报告生成
 │   └── sci-zotero/           # Zotero 文献库集成
 ├── scripts/
-│   ├── sci-search/
-│   │   └── sci_search.py     # 检索核心逻辑
-│   ├── extract_core_insights.py
-│   ├── zotero.py
+│   ├── extract_core_insights.py  # sci-extract CLI 兼容包装
+│   ├── zotero.py                 # sci-zotero CLI 兼容包装
 │   └── journal_db.json       # 期刊指标数据库（可独立更新）
 ├── examples/                 # 示例输出（PDF + Markdown + PPT）
 ├── docs/                     # GitHub Pages 展示页

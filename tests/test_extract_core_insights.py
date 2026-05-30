@@ -43,7 +43,7 @@ class ExtractCoreInsightsTests(unittest.TestCase):
                 "application": "CLI workflows and batch review.",
                 "limitations": ["OCR-heavy PDFs remain difficult."],
             },
-            "confidence_scores": {
+            "coverage_scores": {
                 "research_problem": 0.90,
                 "methodology": 0.70,
                 "key_results": 0.80,
@@ -67,7 +67,7 @@ class ExtractCoreInsightsTests(unittest.TestCase):
         self.assertIn("--format", result.stdout)
         self.assertIn("--workers", result.stdout)
 
-    def test_write_result_file_csv_uses_real_confidence_keys(self):
+    def test_write_result_file_csv_uses_real_coverage_keys(self):
         with tempfile.TemporaryDirectory() as tmp_dir:
             output_path = Path(tmp_dir) / "paper.csv"
             self.module.write_result_file(
@@ -80,8 +80,8 @@ class ExtractCoreInsightsTests(unittest.TestCase):
                 rows = list(csv.DictReader(f))
 
         self.assertEqual(len(rows), 1)
-        self.assertEqual(rows[0]["Problem_Conf"], "0.90")
-        self.assertEqual(rows[0]["Results_Conf"], "0.80")
+        self.assertEqual(rows[0]["Problem_Coverage"], "0.90")
+        self.assertEqual(rows[0]["Results_Coverage"], "0.80")
 
     def test_batch_process_writes_requested_summary_format(self):
         with tempfile.TemporaryDirectory() as tmp_dir:

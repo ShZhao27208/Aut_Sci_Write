@@ -12,11 +12,12 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "python-pptx",
-    "matplotlib",
-    "requests",
-    "pillow",
-    "pymupdf>=1.23.0",
+    "python-pptx>=0.6.21",
+    "matplotlib>=3.7.0",
+    "requests>=2.31.0",
+    "pillow>=10.0.0",
+    "lxml>=4.9.0",
+    "pymupdf>=1.24.0",
     "pyyaml>=6.0"
 ]
 

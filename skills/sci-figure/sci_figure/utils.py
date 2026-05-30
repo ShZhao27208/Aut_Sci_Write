@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 import os
-import platform
 import shutil
 
 _LOGGER_NAME = "sci_figure"
@@ -39,9 +38,10 @@ def validate_pdf_path(path: str) -> str:
 
 
 def check_tesseract() -> bool:
-    if platform.system() == "Windows":
-        if os.path.isfile(r"C:\Program Files\Tesseract-OCR\tesseract.exe"):
-            return True
+    # Honour an explicit override first (documented as TESSERACT_CMD in README).
+    cmd = os.environ.get("TESSERACT_CMD")
+    if cmd and os.path.isfile(cmd):
+        return True
     return shutil.which("tesseract") is not None
 
 

@@ -11,8 +11,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Optional
 
-import fitz
-
 from .academic_parser import AcademicParser, ContentType
 from .agent import PPTAgent
 from .generator.formula_renderer import FormulaRenderer
@@ -56,6 +54,8 @@ class EnhancedPPTAgent(PPTAgent):
 
     @staticmethod
     def _extract_pdf_text(pdf_path: str) -> str:
+        import fitz
+
         text_parts = []
         with fitz.open(pdf_path) as doc:
             for page in doc:
@@ -79,9 +79,15 @@ class EnhancedPPTAgent(PPTAgent):
         lines = [self.academic_parser.generate_ppt_outline()]
         if rendered_formulas:
             lines.append("")
-            lines.append("Rendered formulas")
+            lines.append("1. Rendered formulas")
             for formula, image_path in rendered_formulas.items():
-                lines.append(f"- {formula} -> {image_path}")
+                # Emit the figure-comment format that TextParser.FIG_RE parses so
+                # the rendered PNG is embedded. Pipes would break the regex groups,
+                # so sanitise the label only.
+                label = formula.replace("|", "/").strip()
+                lines.append(
+                    f"<!-- fig: {label} | path={image_path} | position=full -->"
+                )
         return "\n".join(lines).strip()
 
     def _record_run(self, status: str, pdf_path: str, detail: str) -> None:

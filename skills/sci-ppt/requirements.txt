@@ -2,3 +2,6 @@ python-pptx>=0.6.21
 pyyaml>=6.0
 PyMuPDF>=1.24.0
 Pillow>=10.0.0
+matplotlib>=3.7.0
+requests>=2.31.0
+lxml>=4.9.0

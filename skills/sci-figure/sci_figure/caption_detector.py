@@ -78,14 +78,17 @@ class CaptionDetector:
             page_captions = self._detect_page(page_num)
             all_captions.extend(page_captions)
 
-        # Deduplicate: same figure number → keep the one with longest caption
+        # Deduplicate: same (figure_type, number) → keep the longest caption.
+        # Keying on number alone would collide distinct figures that share a
+        # number (e.g. "Figure 1" vs "Scheme 1", or "Supplementary Figure 1"
+        # vs "Figure 1") and silently drop one.
         unique = {}
         for cap in all_captions:
-            num = cap["number"]
-            if num not in unique or len(cap["caption_text"]) > len(unique[num]["caption_text"]):
-                unique[num] = cap
+            key = (cap["figure_type"], cap["number"])
+            if key not in unique or len(cap["caption_text"]) > len(unique[key]["caption_text"]):
+                unique[key] = cap
 
-        result = sorted(unique.values(), key=lambda c: c["number"])
+        result = sorted(unique.values(), key=lambda c: (c["number"], c["figure_type"]))
         logger.info(f"Detected {len(result)} figure caption(s) total")
         return result
 

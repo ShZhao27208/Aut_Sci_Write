@@ -5,7 +5,6 @@ Step2: 用户修改提纲md文件
 Step3: build_from_outline() - 根据提纲+已提取图片生成最终PPT
 """
 
-import fitz
 import os
 import re
 from typing import List, Dict, Optional, Tuple
@@ -117,6 +116,8 @@ def generate_outline(pdf_path: str, output_dir: str = None, translate: bool = Fa
 
     返回：生成的 .md 文件路径（供用户修改）
     """
+    import fitz
+
     doc = fitz.open(pdf_path)
     pdf_dir = os.path.dirname(os.path.abspath(pdf_path))
     pdf_name = os.path.splitext(os.path.basename(pdf_path))[0]
@@ -316,14 +317,14 @@ def _detect_paper_sections(full_text: str, page_texts: List[str]) -> List[Dict]:
             items = _extract_section_items(full_text, pattern)
             detected.append({"title": label, "items": items, "figures": []})
 
-    # 兜底：如果什么都没检测到，给通用结构
+    # 没有检测到任何章节结构：明确报错，而不是伪造占位章节生成空白 PPT
     if not detected:
-        detected = [
-            {"title": "研究背景与动机", "items": ["（请填写）"], "figures": []},
-            {"title": "研究方法", "items": ["（请填写）"], "figures": []},
-            {"title": "核心结果", "items": ["（请填写）"], "figures": []},
-            {"title": "总结与展望", "items": ["（请填写）"], "figures": []},
-        ]
+        raise ValueError(
+            "could not extract paper structure: 未能从 PDF 中识别出论文章节结构"
+            "（Abstract/Introduction/Methods/Results/Discussion/Conclusion 等）。\n"
+            "该 PDF 可能是扫描件、纯图片或非标准排版。请改用文本输入方式生成 PPT，"
+            "或手动整理提纲后再生成。"
+        )
 
     return detected
 

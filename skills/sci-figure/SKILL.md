@@ -2,7 +2,7 @@
 name: sci-figure
 description: Extracts figures and sub-figures from academic PDF papers. Supports Fig/Figure, Scheme, Chart, Supplementary Figure, Extended Data Figure (Nature), and Chinese equivalents (图/方案/示意图/附图/补充图). Sub-figure label recognition supports (a)/(A)/a)/(i)/(1)/a. formats. High-quality PNG output at configurable DPI. Use when user asks to "extract figure", "截取文献图片", "提取子图", "get figure from paper", "Scheme", "方案图", "补充图", "Supplementary Figure", or "Extended Data".
 author: Shuo Zhao         
-license: MIT
+license: AGPL-3.0-or-later
 copyright: © 2026 Shuo Zhao. All rights reserved.
 triggers:
   - 提取图片
@@ -25,6 +25,8 @@ triggers:
 # Sci-Figure — Scientific Figure Extractor
 
 Precisely extract figures and sub-figures from academic PDF papers.
+
+> **License note**: sci-figure is licensed under **AGPL-3.0-or-later** because it links [PyMuPDF (fitz)](https://pymupdf.readthedocs.io/), which is AGPL-licensed.
 
 ## Installation
 
@@ -150,20 +152,21 @@ The `hybrid` strategy (default) tries all three in order and validates results.
 
 ## Detected Figure Fields
 
+Each figure returned by `FigureExtractor.detect_all()` is a dict with these keys:
+
 | Field | Type | Description |
 |-------|------|-------------|
 | `number` | int | Figure number |
 | `page` | int | Page index (0-based) |
-| `bbox` | tuple | Crop region in pixels |
-| `bbox_pdf` | tuple | Crop region in PDF points |
-| `caption` | str | Caption text (truncated to 200 chars) |
-| `caption_full` | str | Full caption text (no truncation) |
-| `caption_bbox_pdf` | tuple | Caption bounding box in PDF points |
-| `sublabels` | list[str] | Sub-figure labels, e.g. `["a","b","c"]` |
-| `sublabel_details` | list[dict] | Labels with detected format, e.g. `{"label":"a","format":"(a)"}` |
+| `bbox_pdf` | tuple | Crop region in PDF points (x0, y0, x1, y1) |
+| `bbox_px` | tuple | Crop region in pixels (x0, y0, x1, y1) |
+| `caption_text` | str | Full caption text |
 | `figure_type` | str | One of: `figure`, `scheme`, `chart`, `supplementary`, `extended_data` |
-| `is_supplementary` | bool | True for `supplementary` and `extended_data` types |
+| `sublabels` | list[str] | Sub-figure labels, e.g. `["a","b","c"]` |
 | `image` | ndarray | Cropped figure image (numpy array) |
+| `engine_used` | str | Engine that produced the crop: `native`, `cv`, or `fallback` |
+
+`list_figures()` returns the same dicts without the `image` field.
 
 ## Extension Support
 

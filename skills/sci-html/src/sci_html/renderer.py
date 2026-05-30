@@ -38,12 +38,19 @@ def _render_html(deck: Deck, *, assets_prefix: str, embed_assets: bool, output_d
     else:
         css_block = f'<link rel="stylesheet" href="{assets_prefix}style.css">'
         js_block = f'<script src="{assets_prefix}deck.js"></script>'
-    return (template.replace("__TITLE__", escape(deck.title))
-        .replace("__AUTHOR__", escape(deck.author))
-        .replace("__SLIDE_COUNT__", str(len(deck.slides)))
-        .replace("__STYLE_BLOCK__", css_block)
-        .replace("__SLIDES__", slide_html)
-        .replace("__SCRIPT_BLOCK__", js_block))
+    # Single-pass substitution: re.sub scans left-to-right and never re-scans
+    # inserted text, so a value (e.g. the title) containing a literal sentinel
+    # like "__SLIDES__" cannot corrupt a later replacement.
+    replacements = {
+        "__TITLE__": escape(deck.title),
+        "__AUTHOR__": escape(deck.author),
+        "__SLIDE_COUNT__": str(len(deck.slides)),
+        "__STYLE_BLOCK__": css_block,
+        "__SLIDES__": slide_html,
+        "__SCRIPT_BLOCK__": js_block,
+    }
+    pattern = re.compile("|".join(re.escape(token) for token in replacements))
+    return pattern.sub(lambda m: replacements[m.group(0)], template)
 
 
 def _render_slide(deck: Deck, slide: Slide, index: int, output_dir: Path, assets_prefix: str) -> str:

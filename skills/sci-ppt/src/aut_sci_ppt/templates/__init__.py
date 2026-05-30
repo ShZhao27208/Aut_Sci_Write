@@ -7,7 +7,6 @@ from .toc import TOCTemplate
 from .section import SectionTemplate
 from .content_list import ContentListTemplate
 from .content_detail import ContentDetailTemplate
-from .content_detail_image import ContentDetailImageTemplate
 from .timeline import TimelineTemplate
 from .ending import EndingTemplate
 
@@ -18,7 +17,6 @@ TEMPLATE_MAP = {
     'section': SectionTemplate,
     'content-list': ContentListTemplate,
     'content-detail': ContentDetailTemplate,
-    'content-detail-image': ContentDetailImageTemplate,
     'timeline': TimelineTemplate,
     'ending': EndingTemplate,
 }
