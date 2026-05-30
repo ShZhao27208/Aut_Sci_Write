@@ -3,10 +3,7 @@
 - 根据内容量自动调整字号、行间距、内容区高度
 - 确保每页不溢出、重点突出、排版专业
 """
-from pptx.util import Pt, Inches
-from pptx.dml.color import RGBColor
-from pptx.enum.text import PP_ALIGN
-from typing import List, Tuple
+from typing import Tuple
 
 
 # ── 字号自适应规则 ────────────────────────────────────────────

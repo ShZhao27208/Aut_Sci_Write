@@ -6,8 +6,11 @@ PDF 图片抓取器 - 智能裁切版
 from __future__ import annotations
 
 import os
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Optional, TYPE_CHECKING
 from dataclasses import dataclass
+
+if TYPE_CHECKING:
+    import fitz
 
 
 @dataclass

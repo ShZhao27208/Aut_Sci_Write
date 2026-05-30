@@ -223,7 +223,7 @@ def build_paper_deck_markdown(
                 "",
                 f"# Figure {number}",
                 "",
-                f"- **Role**: Visual evidence extracted from the source paper.",
+                "- **Role**: Visual evidence extracted from the source paper.",
                 f"- **Page**: {fig.get('page', 'Unknown')}.",
                 f"- **Caption**: {caption or 'Caption unavailable.'}",
                 "",

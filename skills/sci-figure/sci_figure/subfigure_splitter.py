@@ -349,7 +349,7 @@ class SubfigureSplitter:
         rows: list[list[dict]] = [[sorted_labels[0]]]
 
         for lbl in sorted_labels[1:]:
-            last_row_y = np.mean([l["position"][1] for l in rows[-1]])
+            last_row_y = np.mean([lab["position"][1] for lab in rows[-1]])
             if abs(lbl["position"][1] - last_row_y) > row_threshold:
                 rows.append([lbl])
             else:

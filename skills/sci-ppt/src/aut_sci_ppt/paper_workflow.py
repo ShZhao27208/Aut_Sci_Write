@@ -7,25 +7,15 @@ Step3: build_from_outline() - 根据提纲+已提取图片生成最终PPT
 
 import os
 import re
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Tuple
 from .config import get_config_value
 from .pdf_extractor import PDFFigureExtractor, ExtractedFigure
-from .models import (
-    FigurePlaceholder,
-    ContentWithFigureData,
-    ContentListData,
-    ContentDetailData,
-    ListItem,
-    Page,
-    PAGE_TYPE_CONTENT_WITH_FIG,
-    PAGE_TYPE_CONTENT_LIST,
-    PAGE_TYPE_CONTENT_DETAIL,
-)
 
 
 def _call_llm(prompt: str) -> str:
     """通过 Moonshot API 调用 LLM"""
-    import json, urllib.request
+    import json
+    import urllib.request
 
     api_key = get_config_value("MOONSHOT_API_KEY")
     if not api_key:
@@ -199,22 +189,22 @@ def generate_outline(pdf_path: str, output_dir: str = None, translate: bool = Fa
 
     # ── 6. 生成 Markdown 文本 ─────────────────────────
     md_lines = [
-        f"# 【提纲草稿】请修改后保存，再告诉我生成PPT",
-        f"",
-        f"> ⚠️ 使用说明：",
-        f"> 1. 修改各章节标题和要点内容",
-        f"> 2. 图片已自动提取并嵌入，可删除不需要的图片行",
-        f"> 3. 图片引用格式 `[图N,页P]` 必须保留（PPT生成器使用）",
+        "# 【提纲草稿】请修改后保存，再告诉我生成PPT",
+        "",
+        "> ⚠️ 使用说明：",
+        "> 1. 修改各章节标题和要点内容",
+        "> 2. 图片已自动提取并嵌入，可删除不需要的图片行",
+        "> 3. 图片引用格式 `[图N,页P]` 必须保留（PPT生成器使用）",
         "> 4. 修改完成后保存文件，告诉我「开始生成PPT」",
-        f"",
-        f"## 基本信息",
+        "",
+        "## 基本信息",
         f"- 文章标题：{title}",
-        f"- 汇报人：（请填写）",
-        f"- 导师：（请填写）",
-        f"- 汇报时间：（请填写）",
-        f"",
-        f"## 提纲结构",
-        f"",
+        "- 汇报人：（请填写）",
+        "- 导师：（请填写）",
+        "- 汇报时间：（请填写）",
+        "",
+        "## 提纲结构",
+        "",
     ]
 
     for sec_idx, sec in enumerate(sections, 1):
@@ -229,28 +219,28 @@ def generate_outline(pdf_path: str, output_dir: str = None, translate: bool = Fa
             for item in sec_items:
                 md_lines.append(f"- {item}")
         else:
-            md_lines.append(f"- （请填写要点）")
+            md_lines.append("- （请填写要点）")
 
         # 图片：预览 + 引用标注
         if sec_figures:
-            md_lines.append(f"")
+            md_lines.append("")
             for ef in sec_figures:
                 # 用相对路径，方便markdown预览
                 rel_path = os.path.relpath(ef.path, output_dir).replace("\\", "/")
-                md_lines.append(f"<!-- 图片预览 -->")
+                md_lines.append("<!-- 图片预览 -->")
                 md_lines.append(f"![{ef.label}]({rel_path})")
                 md_lines.append(f"[{ef.label},页{ef.page + 1}]")
                 if ef.caption:
                     md_lines.append(f"*图注：{ef.caption}*")
 
-        md_lines.append(f"")
+        md_lines.append("")
 
     # 附录：全部图片列表
     if all_figures:
         md_lines += [
-            f"---",
-            f"## 附录：所有提取图片（供参考）",
-            f"",
+            "---",
+            "## 附录：所有提取图片（供参考）",
+            "",
         ]
         for ef in all_figures:
             rel_path = os.path.relpath(ef.path, output_dir).replace("\\", "/")
@@ -258,7 +248,7 @@ def generate_outline(pdf_path: str, output_dir: str = None, translate: bool = Fa
                 f"- **{ef.label}**（第{ef.page + 1}页）：`[{ef.label},页{ef.page + 1}]`"
             )
             md_lines.append(f"  ![]({rel_path})")
-            md_lines.append(f"")
+            md_lines.append("")
 
     # ── 7. 保存 .md 文件 ─────────────────────────────
     md_content = "\n".join(md_lines)
@@ -271,7 +261,7 @@ def generate_outline(pdf_path: str, output_dir: str = None, translate: bool = Fa
 
 
 def _extract_title(first_page_text: str) -> str:
-    lines = [l.strip() for l in first_page_text.split("\n") if len(l.strip()) > 10]
+    lines = [ln.strip() for ln in first_page_text.split("\n") if len(ln.strip()) > 10]
     return lines[0] if lines else "（未检测到标题）"
 
 
@@ -403,7 +393,6 @@ def parse_outline_to_ppt_input(
     1. 读取 md 里 ![图N](path) 格式 → 图片已提取，直接用路径，不重复截图
     2. 兜底：遇到 [图N,页P] 且路径不存在时，才从 PDF 重新截图
     """
-    outline_dir = os.path.dirname(os.path.abspath(pdf_path)) if pdf_path else "."
     label_to_path: Dict[str, str] = {}
 
     # ── 1. 优先读取 ![图N](path) 格式（generate_outline 已提取好的图）────
@@ -560,7 +549,7 @@ def auto_generate_ppt(
         raise FileNotFoundError(f"PDF 文件不存在: {pdf_path}")
 
     # Step 1: 生成提纲（自动提取内容+图片+翻译）
-    print(f"  ⏳ Step 1/3: 从 PDF 提取内容和图片...")
+    print("  ⏳ Step 1/3: 从 PDF 提取内容和图片...")
     md_path = generate_outline(pdf_path, translate=translate)
     print(f"  ✅ 提纲已生成: {md_path}")
 
@@ -577,7 +566,7 @@ def auto_generate_ppt(
         outline_text = outline_text.replace("汇报时间：（请填写）", f"汇报时间：{date}")
 
     # Step 3: 解析提纲，关联图片路径
-    print(f"  ⏳ Step 2/3: 解析提纲并关联图片...")
+    print("  ⏳ Step 2/3: 解析提纲并关联图片...")
     outline_dir = os.path.dirname(md_path)
     figures_dir = os.path.join(outline_dir, "figures")
     ppt_text, label_to_path = parse_outline_to_ppt_input(
@@ -602,7 +591,7 @@ def auto_generate_ppt(
         pdf_name = os.path.splitext(os.path.basename(pdf_path))[0]
         output_path = os.path.join(outline_dir, f"{pdf_name}_汇报.pptx")
 
-    print(f"  ⏳ Step 3/3: 生成 PPT...")
+    print("  ⏳ Step 3/3: 生成 PPT...")
     agent = PPTAgent()
     result = agent.generate(ppt_text, output_path)
     print(f"  ✅ PPT 生成完成: {result}")

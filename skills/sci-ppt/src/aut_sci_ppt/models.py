@@ -2,7 +2,7 @@
 PPT Agent 数据模型 - 完整版（含图表支持）
 """
 from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional
+from typing import List, Any, Optional
 
 
 @dataclass

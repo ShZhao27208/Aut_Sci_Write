@@ -1,2 +1,9 @@
 target-version = "py310"
 line-length = 120
+
+[lint]
+# E701/E702: the sci-ppt template modules intentionally use compact
+# single-line statements (e.g. `run = p.add_run(); run.text = title`) for
+# dense python-pptx layout code. This is a deliberate style choice, not a
+# defect, so we don't enforce one-statement-per-line project-wide.
+ignore = ["E701", "E702"]

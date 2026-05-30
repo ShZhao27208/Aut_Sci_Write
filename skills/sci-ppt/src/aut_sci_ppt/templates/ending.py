@@ -1,6 +1,5 @@
 """结尾页 - 整体优化版"""
-from .base import BaseTemplate, hex_to_rgb
-from pptx.util import Inches, Pt
+from .base import BaseTemplate
 from pptx.enum.text import PP_ALIGN
 
 class EndingTemplate(BaseTemplate):

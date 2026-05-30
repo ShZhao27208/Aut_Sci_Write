@@ -4,7 +4,7 @@ PPT Agent 配置管理模块 - 基于参考 PPT 提取的真实风格
 import logging
 import os
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict
 
 SKILL_DIR = Path(__file__).resolve().parents[2]
 ROOT_DIR = SKILL_DIR.parent.parent

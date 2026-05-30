@@ -15,7 +15,6 @@ from __future__ import annotations
 import argparse
 import logging
 import os
-import sys
 import traceback
 
 from sci_figure.figure_extractor import FigureExtractor

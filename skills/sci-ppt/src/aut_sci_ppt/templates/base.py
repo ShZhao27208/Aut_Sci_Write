@@ -6,7 +6,6 @@
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
-from typing import List
 
 
 def hex_to_rgb(hex_color: str) -> RGBColor:

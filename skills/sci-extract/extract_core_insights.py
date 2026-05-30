@@ -635,10 +635,7 @@ class CoreInsightsExtractor:
     def _extract_results(self, sections):
         """Extract key results"""
         text = sections['results']
-        
-        # Extract numerical results
-        numbers = re.findall(r'(\d+\.?\d*)\s*(%|°C|nm|μm|eV|J/mol)?', text)
-        
+
         sentences = self._find_sentences_with_keywords(text, self.keywords['results'])
         
         results = []

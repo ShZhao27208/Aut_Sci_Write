@@ -2,7 +2,7 @@
 时间线页 - 科研汇报风格：横向时间轴 + 节点圆圈 + 内容卡片
 """
 from .base import BaseTemplate, hex_to_rgb
-from pptx.util import Inches, Pt
+from pptx.util import Inches
 from pptx.enum.text import PP_ALIGN
 
 

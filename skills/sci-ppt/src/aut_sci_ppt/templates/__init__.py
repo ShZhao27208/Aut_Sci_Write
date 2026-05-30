@@ -10,6 +10,21 @@ from .content_detail import ContentDetailTemplate
 from .timeline import TimelineTemplate
 from .ending import EndingTemplate
 
+__all__ = [
+    "BaseTemplate",
+    "CoverTemplate",
+    "TOCTemplate",
+    "SectionTemplate",
+    "ContentListTemplate",
+    "ContentDetailTemplate",
+    "TimelineTemplate",
+    "EndingTemplate",
+    "TEMPLATE_MAP",
+    "get_template",
+    "register_template",
+    "list_templates",
+]
+
 # 模板映射
 TEMPLATE_MAP = {
     'cover': CoverTemplate,

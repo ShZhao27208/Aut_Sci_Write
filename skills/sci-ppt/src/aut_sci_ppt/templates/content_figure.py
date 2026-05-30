@@ -6,7 +6,8 @@ from pptx.util import Inches, Pt
 from pptx.oxml.ns import qn
 from pptx.enum.text import PP_ALIGN
 from lxml import etree
-import re, os
+import re
+import os
 
 
 def _set_lnsp(tf, pt_val):
@@ -95,7 +96,6 @@ class ContentFigureTemplate(BaseTemplate):
         n      = len(texts)
 
         # 先给图片分配 55% 高度，文字用剩余
-        img_avail = avail * 0.55 - CAP_H
         txt_avail = avail * 0.45 - 0.12
 
         fs, heights = _calc(texts, txt_avail, cw)

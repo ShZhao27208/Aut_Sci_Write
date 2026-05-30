@@ -5,7 +5,6 @@
 from .base import BaseTemplate, hex_to_rgb
 from pptx.util import Inches, Pt
 from pptx.oxml.ns import qn
-from pptx.enum.text import PP_ALIGN
 from lxml import etree
 import re
 

@@ -3,7 +3,7 @@ PPT Agent 智能分页器 - 终版
 单图页合并：在 parser 阶段就把同章节多张图+文字整合为一页或两页
 """
 
-from typing import List, Optional
+from typing import List
 from ..models import (
     ParsedData,
     Page,
@@ -11,7 +11,6 @@ from ..models import (
     TOCData,
     ContentListData,
     ContentWithFigureData,
-    SectionData,
     EndingData,
     FigurePlaceholder,
     PAGE_TYPE_COVER,
