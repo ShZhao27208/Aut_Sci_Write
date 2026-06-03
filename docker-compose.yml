@@ -1,0 +1,48 @@
+services:
+  aut-sci-write:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: aut-sci-write:latest
+    container_name: aut-sci-write
+
+    # Mount local directories
+    volumes:
+      # Input/output directory
+      - ./data:/data
+      # Persist .env files (API keys)
+      - ./skills/sci-search/.env:/app/skills/sci-search/.env
+      - ./skills/sci-zotero/.env:/app/skills/sci-zotero/.env
+      - ./skills/sci-ppt/.env:/app/skills/sci-ppt/.env
+
+    # Environment variables (can override .env files)
+    environment:
+      - TZ=Asia/Shanghai
+      - ZOTERO_API_KEY=${ZOTERO_API_KEY:-}
+      - ZOTERO_USER_ID=${ZOTERO_USER_ID:-}
+      - WOS_API_KEY=${WOS_API_KEY:-}
+      - NCBI_API_KEY=${NCBI_API_KEY:-}
+      # Uncomment and fill these if you don't want to use .env files:
+      # - ANTHROPIC_API_KEY=your_key_here
+
+    # Keep container running for interactive use
+    stdin_open: true
+    tty: true
+
+    # Resource limits (adjust based on your system)
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 4G
+        reservations:
+          cpus: '2'
+          memory: 2G
+
+    # Network settings
+    networks:
+      - aut-sci-network
+
+networks:
+  aut-sci-network:
+    driver: bridge

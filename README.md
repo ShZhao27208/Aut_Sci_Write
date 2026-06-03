@@ -6,6 +6,7 @@
 **Autonomous Scientific Writer**
 
 *A modular Claude Code Skills suite for the full academic research lifecycle*
+
 [![Version](https://img.shields.io/badge/version-1.4.1-2563eb.svg)](package.json)
 [![Skills](https://img.shields.io/badge/skills-7-0f766e.svg)](#-what-it-does)
 [![Academic Workflow](https://img.shields.io/badge/workflow-search%20%E2%86%92%20extract%20%E2%86%92%20review%20%E2%86%92%20slides-c2410c.svg)](#-what-it-does)
@@ -79,6 +80,17 @@ git clone https://github.com/ShZhao27208/Aut_Sci_Write.git
 cd Aut_Sci_Write
 npx skills add . -g -y
 ```
+
+**Docker install** (***Isolated environment*** — no Python/Node.js required locally):
+
+```bash
+git clone https://github.com/ShZhao27208/Aut_Sci_Write.git
+cd Aut_Sci_Write
+docker-compose build
+docker-compose up -d
+```
+
+See [DOCKER.md](DOCKER.md) for detailed Docker deployment guide.
 
 ### ⚙️ Configuration
 
@@ -237,6 +249,17 @@ git clone https://github.com/ShZhao27208/Aut_Sci_Write.git
 cd Aut_Sci_Write
 npx skills add . -g -y
 ```
+
+**Docker 安装**（***隔离环境*** — 本地无需 Python/Node.js）：
+
+```bash
+git clone https://github.com/ShZhao27208/Aut_Sci_Write.git
+cd Aut_Sci_Write
+docker-compose build
+docker-compose up -d
+```
+
+详细的 Docker 部署指南请参考 [DOCKER.md](DOCKER.md)。
 
 ### Skill-local `.env` configuration
 
