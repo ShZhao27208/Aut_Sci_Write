@@ -12,3 +12,6 @@ library.json
 *.log
 skills/*/out/
 skills/*/output/
+*.swp
+*.swo
+*~

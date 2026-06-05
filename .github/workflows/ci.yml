@@ -32,9 +32,14 @@ jobs:
         run: |
           pip install -e skills/sci-html
           pip install -e skills/sci-figure
+          pip install -e skills/sci-ppt
       - name: Run top-level tests
         run: python -m unittest discover -s tests -p test_*.py -v
       - name: Run sci-html tests
         run: python -m unittest discover -s skills/sci-html/tests -p test_*.py -v
       - name: Run sci-figure tests
         run: python -m unittest discover -s skills/sci-figure/tests -p test_*.py -v
+      - name: Run sci-ppt tests
+        run: python -m unittest discover -s skills/sci-ppt/src/aut_sci_ppt/tests -p test_*.py -v
+      - name: Run sci-review validation
+        run: python skills/sci-review/scripts/validate_review_output.py --list-golden

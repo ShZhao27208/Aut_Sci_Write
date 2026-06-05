@@ -33,7 +33,7 @@ def configure_windows_console() -> None:
 
 # Configuration
 _SCRIPT_DIR = Path(__file__).parent
-JOURNAL_DB_PATH = _SCRIPT_DIR.parent.parent / "scripts" / "journal_db.json"
+JOURNAL_DB_PATH = _SCRIPT_DIR / "journal_db.json"
 
 
 def default_data_dir() -> Path:

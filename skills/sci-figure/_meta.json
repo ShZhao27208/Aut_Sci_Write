@@ -1,6 +1,6 @@
 {
   "name": "sci-figure",
   "slug": "sci-figure",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Extract figures and subfigures from academic PDF papers at 600 DPI with automatic subfigure label recognition"
 }

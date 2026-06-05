@@ -10,6 +10,7 @@ docker-compose.yml
 
 # Documentation
 *.md
+!skills/*/SKILL.md
 docs/
 examples/
 

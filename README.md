@@ -92,6 +92,19 @@ docker-compose up -d
 
 See [DOCKER.md](DOCKER.md) for detailed Docker deployment guide.
 
+> **⚠️ Troubleshooting: PromptScript error**
+>
+> If you see errors like `✗ sci-extract → PromptScript: PromptScript does not support global skill installation` after a recent `skills` CLI update, **don't worry — the installation has already completed successfully**. This error only affects PromptScript (an unsupported target platform) and does not impact Claude Code or other AI agents.
+>
+> To avoid this message, simply remove the `-g` flag:
+> ```bash
+> npx skills add ShZhao27208/Aut_Sci_Write -y
+> ```
+> Or for local installs:
+> ```bash
+> npx skills add . -y
+> ```
+
 ### ⚙️ Configuration
 
 Run the initializer after installation:
@@ -260,6 +273,19 @@ docker-compose up -d
 ```
 
 详细的 Docker 部署指南请参考 [DOCKER.md](DOCKER.md)。
+
+> **⚠️ 常见问题：PromptScript 报错**
+>
+> 如果安装后出现 `✗ sci-extract → PromptScript: PromptScript does not support global skill installation` 等错误，**无需担心，skills 已经安装成功**。此错误仅影响 PromptScript（一个不支持全局安装的目标平台），不影响 Claude Code 或其他 AI Agent 的正常使用。
+>
+> 如需消除此提示，去掉 `-g` 参数即可：
+> ```bash
+> npx skills add ShZhao27208/Aut_Sci_Write -y
+> ```
+> 或本地安装时：
+> ```bash
+> npx skills add . -y
+> ```
 
 ### Skill-local `.env` configuration
 
