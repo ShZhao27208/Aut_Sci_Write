@@ -35,7 +35,7 @@
 
 | Skill | Description | Example Trigger |
 |:------|:------------|:----------------|
-| `sci-search` | Search arXiv + PubMed + **Web of Science** + Springer + Scopus + Semantic Scholar + OpenAlex simultaneously with JCR tier & impact factor data | /sci-search *Find high-IF papers on perovskite solar cells* |
+| `sci-search` | Search arXiv + PubMed + **Web of Science** + **Elsevier** +**Springer** +  Semantic Scholar + OpenAlex simultaneously with JCR tier & impact factor data | /sci-search *Find high-IF papers on perovskite solar cells* |
 | `sci-download` | Download paper PDFs with intelligent DOI routing across 8 sources: Elsevier, Springer, IEEE, arXiv, Unpaywall, Semantic Scholar, PubMed Central, CNKI | /sci-download *Download 10.1038/s41586-023-06600-9* |
 | `sci-extract` | Extract core insights, experimental parameters, and conclusions from PDFs | /sci-extract  *Analyze the key findings of paper.pdf* |
 | `sci-figure` | Auto-detect and crop figures from PDFs at 600 DPI, with subfigure splitting | /sci-figure *Extract Figure 3c from this paper* |
@@ -222,7 +222,7 @@ Contributions welcome! Priority areas:
 
 | 技能 | 功能描述 | 触发词示例 |
 |------|----------|:----------|
-| `sci-search` | arXiv + PubMed + **Web of Science** + Springer + Scopus + Semantic Scholar + OpenAlex 七源检索，自动附加 JCR 分区和影响因子 | /sci-search *搜索钙钛矿太阳能电池最新论文* |
+| `sci-search` | arXiv + PubMed + **Web of Science** + **Elsevier** +**Springer**  + Semantic Scholar + OpenAlex 七源检索，自动附加 JCR 分区和影响因子 | /sci-search *搜索钙钛矿太阳能电池最新论文* |
 | `sci-download` | 论文 PDF 智能下载，根据 DOI 前缀自动路由到 Elsevier、Springer、IEEE、arXiv、Unpaywall、Semantic Scholar、PubMed Central、知网 8 个数据源 | /sci-download *下载 10.1038/s41586-023-06600-9* |
 | `sci-extract` | 从 PDF 提取核心发现、实验参数、数值对比和主要结论 | /sci-extract *分析 paper.pdf 的核心结论* |
 | `sci-figure` | 自动检测并裁剪论文图片（600 DPI），支持复合图拆分为子图 | /sci-figure *提取论文第3张图的子图* |
