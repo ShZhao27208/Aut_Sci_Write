@@ -2,9 +2,14 @@
 
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import os from 'os';
 
-const SKILLS_DIR = path.join(
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const LOCAL_SKILLS_DIR = path.join(__dirname, 'skills');
+const USER_SKILLS_DIR = path.join(
   process.env.HOME || process.env.USERPROFILE || os.homedir(),
   '.claude',
   'skills',
@@ -68,16 +73,24 @@ function readSkillMetadata(skillPath) {
 }
 
 function collectSkills() {
-  if (!fs.existsSync(SKILLS_DIR)) {
-    return { error: `Skills directory not found: ${SKILLS_DIR}`, skills: [] };
+  const skills = [];
+
+  for (const dir of [LOCAL_SKILLS_DIR, USER_SKILLS_DIR]) {
+    if (!fs.existsSync(dir)) {
+      continue;
+    }
+    const entries = fs.readdirSync(dir)
+      .filter((entry) => fs.statSync(path.join(dir, entry)).isDirectory())
+      .map((name) => {
+        const metadata = readSkillMetadata(path.join(dir, name)) || {};
+        return { name, ...metadata };
+      });
+    skills.push(...entries);
   }
 
-  const skills = fs.readdirSync(SKILLS_DIR)
-    .filter((entry) => fs.statSync(path.join(SKILLS_DIR, entry)).isDirectory())
-    .map((name) => {
-      const metadata = readSkillMetadata(path.join(SKILLS_DIR, name)) || {};
-      return { name, ...metadata };
-    });
+  if (skills.length === 0) {
+    return { error: `No skills found in:\n  ${LOCAL_SKILLS_DIR}\n  ${USER_SKILLS_DIR}`, skills: [] };
+  }
 
   return { skills };
 }

@@ -11,6 +11,7 @@ import json
 import time
 import urllib.request
 import urllib.parse
+import urllib.error
 import re
 import xml.etree.ElementTree as ET
 from datetime import datetime
@@ -300,7 +301,7 @@ class WoSFetcher:
             return []
 
         params = {
-            "q": query,
+            "q": f"TS=({query})",
             "db": "WOS",
             "limit": min(max_results, 10),
             "page": 1,
@@ -317,9 +318,9 @@ class WoSFetcher:
             papers = []
             for hit in data.get("hits", []):
                 # Extract authors
-                authors_raw = hit.get("authors", {})
-                if isinstance(authors_raw, dict):
-                    authors = [a.get("displayName", "") for a in authors_raw.get("authors", [])]
+                names_raw = hit.get("names", {})
+                if isinstance(names_raw, dict):
+                    authors = [a.get("displayName", "") for a in names_raw.get("authors", [])]
                 else:
                     authors = []
 
@@ -354,6 +355,379 @@ class WoSFetcher:
             return papers
         except Exception as e:
             print(f"Web of Science error: {e}")
+            return []
+
+
+class SpringerMetaFetcher:
+    """Springer Nature Metadata API fetcher.
+
+    Requires SPRINGER_API_KEY in the skill-local .env file.
+    Apply for a free API key at: https://dev.springernature.com/
+    Endpoint: /meta/v2/json — returns metadata for all Springer Nature content.
+    """
+    API_URL = "https://api.springernature.com/meta/v2/json"
+
+    def __init__(self):
+        self.api_key = get_config_value("SPRINGER_API_KEY")
+
+    def is_available(self) -> bool:
+        return bool(self.api_key)
+
+    def search(self, query: str, max_results: int = 5) -> List[Dict]:
+        if not self.api_key:
+            return []
+
+        params = {
+            "q": f'keyword:"{query}"',
+            "api_key": self.api_key,
+            "p": min(max_results, 25),
+            "s": 1,
+        }
+        url = f"{self.API_URL}?{urllib.parse.urlencode(params)}"
+        req = urllib.request.Request(url, headers={
+            "Accept": "application/json",
+        })
+        try:
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+
+            papers = []
+            for record in data.get("records", []):
+                creators = record.get("creators", [])
+                authors = [c.get("creator", "") for c in creators if c.get("creator")]
+
+                pub_date = record.get("publicationDate", "")
+                year = pub_date[:4] if pub_date else ""
+
+                doi = record.get("doi", "")
+                doi_url = f"https://doi.org/{doi}" if doi else ""
+
+                urls = record.get("url", [])
+                link = ""
+                for u in urls:
+                    if isinstance(u, dict) and u.get("value"):
+                        link = u["value"]
+                        break
+                if not link:
+                    link = doi_url
+
+                paper = {
+                    "source": "springer_meta",
+                    "title": record.get("title", "Unknown"),
+                    "authors": authors,
+                    "year": year,
+                    "journal": record.get("publicationName", ""),
+                    "url": link,
+                    "doi": doi,
+                    "abstract": record.get("abstract", ""),
+                }
+                papers.append(paper)
+            return papers
+        except Exception as e:
+            print(f"Springer Meta error: {self._scrub_api_key(str(e))}")
+            return []
+
+    @staticmethod
+    def _scrub_api_key(message: str) -> str:
+        return re.sub(r'(api_key=)[^&\s]+', r'\1[REDACTED]', message)
+
+
+class SpringerOpenAccessFetcher:
+    """Springer Nature Open Access API fetcher.
+
+    Requires SPRINGER_OA_API_KEY in the skill-local .env file (may differ from Meta key).
+    Falls back to SPRINGER_API_KEY if OA-specific key not set.
+    Apply for access at: https://dev.springernature.com/
+    Endpoint: /openaccess/json — returns OA full-text content (BMC, SpringerOpen, Nature OA).
+    """
+    API_URL = "https://api.springernature.com/openaccess/json"
+
+    def __init__(self):
+        self.api_key = get_config_value("SPRINGER_OA_API_KEY") or get_config_value("SPRINGER_API_KEY")
+
+    def is_available(self) -> bool:
+        return bool(self.api_key)
+
+    def search(self, query: str, max_results: int = 5) -> List[Dict]:
+        if not self.api_key:
+            return []
+
+        params = {
+            "q": f'keyword:"{query}"',
+            "api_key": self.api_key,
+            "p": min(max_results, 25),
+            "s": 1,
+        }
+        url = f"{self.API_URL}?{urllib.parse.urlencode(params)}"
+        req = urllib.request.Request(url, headers={
+            "Accept": "application/json",
+        })
+        try:
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+
+            papers = []
+            for record in data.get("records", []):
+                creators = record.get("creators", [])
+                authors = [c.get("creator", "") for c in creators if c.get("creator")]
+
+                pub_date = record.get("publicationDate", "")
+                year = pub_date[:4] if pub_date else ""
+
+                doi = record.get("doi", "")
+                doi_url = f"https://doi.org/{doi}" if doi else ""
+
+                urls = record.get("url", [])
+                link = ""
+                for u in urls:
+                    if isinstance(u, dict) and u.get("value"):
+                        link = u["value"]
+                        break
+                if not link:
+                    link = doi_url
+
+                abstract_raw = record.get("abstract", "")
+                if isinstance(abstract_raw, dict):
+                    abstract = abstract_raw.get("p", "")
+                    if isinstance(abstract, list):
+                        abstract = " ".join(str(x) for x in abstract)
+                elif isinstance(abstract_raw, str):
+                    abstract = abstract_raw
+                else:
+                    abstract = ""
+
+                paper = {
+                    "source": "springer_oa",
+                    "title": record.get("title", "Unknown"),
+                    "authors": authors,
+                    "year": year,
+                    "journal": record.get("publicationName", ""),
+                    "url": link,
+                    "doi": doi,
+                    "abstract": abstract,
+                    "open_access": True,
+                }
+                papers.append(paper)
+            return papers
+        except urllib.error.HTTPError as e:
+            if e.code == 401:
+                print("Springer OpenAccess error: API key not authorized for Open Access endpoint")
+            else:
+                print(f"Springer OpenAccess error: {self._scrub_api_key(str(e))}")
+            return []
+        except Exception as e:
+            print(f"Springer OpenAccess error: {self._scrub_api_key(str(e))}")
+            return []
+
+    @staticmethod
+    def _scrub_api_key(message: str) -> str:
+        return re.sub(r'(api_key=)[^&\s]+', r'\1[REDACTED]', message)
+
+
+class ScopusFetcher:
+    """Elsevier Scopus Search API fetcher.
+
+    Requires SCOPUS_API_KEY in the skill-local .env file.
+    Apply for a free API key at: https://dev.elsevier.com/
+    """
+    API_URL = "https://api.elsevier.com/content/search/scopus"
+
+    def __init__(self):
+        self.api_key = get_config_value("SCOPUS_API_KEY")
+
+    def is_available(self) -> bool:
+        return bool(self.api_key)
+
+    def search(self, query: str, max_results: int = 5) -> List[Dict]:
+        if not self.api_key:
+            return []
+
+        params = {
+            "query": f'TITLE-ABS-KEY("{query}")',
+            "count": min(max_results, 25),
+            "start": 0,
+            "sort": "-relevancy",
+        }
+        url = f"{self.API_URL}?{urllib.parse.urlencode(params)}"
+        req = urllib.request.Request(url, headers={
+            "X-ELS-APIKey": self.api_key,
+            "Accept": "application/json",
+        })
+        try:
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+
+            results = data.get("search-results", {}).get("entry", [])
+            papers = []
+            for entry in results:
+                if entry.get("@_fa") == "true" or "error" not in entry:
+                    title = entry.get("dc:title", "Unknown")
+                    authors_raw = entry.get("dc:creator", "")
+                    authors = [authors_raw] if authors_raw else []
+
+                    cover_date = entry.get("prism:coverDate", "")
+                    year = cover_date[:4] if cover_date else ""
+
+                    doi = entry.get("prism:doi", "")
+                    doi_url = f"https://doi.org/{doi}" if doi else ""
+
+                    scopus_id = entry.get("dc:identifier", "").replace("SCOPUS_ID:", "")
+                    link = ""
+                    for lk in entry.get("link", []):
+                        if lk.get("@ref") == "scopus":
+                            link = lk.get("@href", "")
+                            break
+                    if not link:
+                        link = doi_url
+
+                    paper = {
+                        "source": "scopus",
+                        "title": title,
+                        "authors": authors,
+                        "year": year,
+                        "journal": entry.get("prism:publicationName", ""),
+                        "url": link,
+                        "doi": doi,
+                        "scopus_id": scopus_id,
+                        "times_cited": entry.get("citedby-count", ""),
+                    }
+                    papers.append(paper)
+            return papers
+        except Exception as e:
+            print(f"Scopus error: {self._scrub_api_key(str(e))}")
+            return []
+
+    @staticmethod
+    def _scrub_api_key(message: str) -> str:
+        return re.sub(r'(apiKey|api_key)=[^&\s]+', r'\1=[REDACTED]', message)
+
+
+class SemanticScholarFetcher:
+    """Semantic Scholar Academic Graph API fetcher.
+
+    No API key required for basic use (rate-limited).
+    Optional SEMANTIC_SCHOLAR_API_KEY for higher rate limits.
+    Request key at: https://www.semanticscholar.org/product/api#api-key
+    """
+    API_URL = "https://api.semanticscholar.org/graph/v1/paper/search"
+
+    def __init__(self):
+        self.api_key = get_config_value("SEMANTIC_SCHOLAR_API_KEY")
+
+    def is_available(self) -> bool:
+        return True
+
+    def search(self, query: str, max_results: int = 5) -> List[Dict]:
+        params = {
+            "query": query,
+            "limit": min(max_results, 100),
+            "fields": "title,authors,year,venue,externalIds,abstract,citationCount,url",
+        }
+        url = f"{self.API_URL}?{urllib.parse.urlencode(params)}"
+        headers = {"Accept": "application/json"}
+        if self.api_key:
+            headers["x-api-key"] = self.api_key
+
+        req = urllib.request.Request(url, headers=headers)
+        try:
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+
+            papers = []
+            for item in data.get("data", []):
+                authors = [a.get("name", "") for a in item.get("authors", []) if a.get("name")]
+
+                ext_ids = item.get("externalIds") or {}
+                doi = ext_ids.get("DOI", "")
+                doi_url = f"https://doi.org/{doi}" if doi else ""
+                s2_url = item.get("url", "")
+
+                paper = {
+                    "source": "semantic_scholar",
+                    "title": item.get("title", "Unknown"),
+                    "authors": authors,
+                    "year": str(item.get("year", "")) if item.get("year") else "",
+                    "journal": item.get("venue", ""),
+                    "url": s2_url or doi_url,
+                    "doi": doi,
+                    "abstract": item.get("abstract") or "",
+                    "times_cited": item.get("citationCount", ""),
+                }
+                papers.append(paper)
+            return papers
+        except Exception as e:
+            print(f"Semantic Scholar error: {e}")
+            return []
+
+
+class OpenAlexFetcher:
+    """OpenAlex API fetcher.
+
+    Completely free, no API key needed.
+    Optional OPENALEX_EMAIL for polite pool (higher rate limits).
+    Docs: https://docs.openalex.org/
+    """
+    API_URL = "https://api.openalex.org/works"
+
+    def __init__(self):
+        self.email = get_config_value("OPENALEX_EMAIL")
+
+    def is_available(self) -> bool:
+        return True
+
+    def search(self, query: str, max_results: int = 5) -> List[Dict]:
+        params = {
+            "search": query,
+            "per_page": min(max_results, 50),
+            "sort": "relevance_score:desc",
+        }
+        if self.email:
+            params["mailto"] = self.email
+
+        url = f"{self.API_URL}?{urllib.parse.urlencode(params)}"
+        req = urllib.request.Request(url, headers={
+            "Accept": "application/json",
+            "User-Agent": "sci-search/1.0",
+        })
+        try:
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+
+            papers = []
+            for work in data.get("results", []):
+                authorships = work.get("authorships", [])
+                authors = []
+                for a in authorships:
+                    author_obj = a.get("author", {})
+                    name = author_obj.get("display_name", "")
+                    if name:
+                        authors.append(name)
+
+                year = str(work.get("publication_year", "")) if work.get("publication_year") else ""
+                doi = (work.get("doi") or "").replace("https://doi.org/", "")
+                doi_url = f"https://doi.org/{doi}" if doi else ""
+
+                primary_location = work.get("primary_location") or {}
+                source = primary_location.get("source") or {}
+                journal = source.get("display_name", "")
+
+                landing_url = primary_location.get("landing_page_url", "")
+
+                paper = {
+                    "source": "openalex",
+                    "title": work.get("title", "Unknown"),
+                    "authors": authors,
+                    "year": year,
+                    "journal": journal,
+                    "url": landing_url or doi_url or work.get("id", ""),
+                    "doi": doi,
+                    "abstract": "",
+                    "times_cited": work.get("cited_by_count", ""),
+                }
+                papers.append(paper)
+            return papers
+        except Exception as e:
+            print(f"OpenAlex error: {e}")
             return []
 
 
@@ -527,6 +901,14 @@ def format_markdown(paper: Dict, index: int) -> str:
     source_label = paper['source'].upper()
     if paper['source'] == 'wos':
         source_label = "Web of Science"
+    elif paper['source'] in ('springer_meta', 'springer_oa'):
+        source_label = "Springer Nature" + (" (OA)" if paper['source'] == 'springer_oa' else "")
+    elif paper['source'] == 'scopus':
+        source_label = "Scopus"
+    elif paper['source'] == 'semantic_scholar':
+        source_label = "Semantic Scholar"
+    elif paper['source'] == 'openalex':
+        source_label = "OpenAlex"
 
     lines = [
         f"### {index}. {paper['title']}{status_icon}",
@@ -576,7 +958,7 @@ def main():
     parser.add_argument('query', help='Search query')
     parser.add_argument('--limit', type=int, default=5)
     parser.add_argument('--output', help='Output to markdown file')
-    parser.add_argument('--source', choices=['all', 'arxiv', 'pubmed', 'wos'], default='all',
+    parser.add_argument('--source', choices=['all', 'arxiv', 'pubmed', 'wos', 'springer', 'springer_meta', 'springer_oa', 'scopus', 'semantic_scholar', 'openalex'], default='all',
                         help='Search source (default: all available)')
     parser.add_argument('--library', default=str(LIBRARY_PATH), help='Path to library cache JSON')
     parser.add_argument('--no-cache', action='store_true', help='Skip writing search results to library cache')
@@ -606,6 +988,52 @@ def main():
             return
         else:
             print("  Web of Science skipped (WOS_API_KEY is not configured in skills/sci-search/.env)")
+
+    if args.source in ('all', 'springer', 'springer_meta'):
+        springer_meta = SpringerMetaFetcher()
+        if springer_meta.is_available():
+            print("  - Springer Nature (Meta)...")
+            results.extend(springer_meta.search(args.query, args.limit))
+            time.sleep(RATE_LIMIT_DELAY)
+        elif args.source in ('springer', 'springer_meta'):
+            print("  SPRINGER_API_KEY is not configured in skills/sci-search/.env. Get a free key at: https://dev.springernature.com/")
+            return
+        else:
+            print("  Springer Meta skipped (SPRINGER_API_KEY is not configured in skills/sci-search/.env)")
+
+    if args.source in ('all', 'springer', 'springer_oa'):
+        springer_oa = SpringerOpenAccessFetcher()
+        if springer_oa.is_available():
+            print("  - Springer Nature (Open Access)...")
+            results.extend(springer_oa.search(args.query, args.limit))
+            time.sleep(RATE_LIMIT_DELAY)
+        elif args.source == 'springer_oa':
+            print("  SPRINGER_OA_API_KEY / SPRINGER_API_KEY is not configured. Get a free key at: https://dev.springernature.com/")
+            return
+        else:
+            print("  Springer OpenAccess skipped (no API key configured)")
+
+    if args.source in ('all', 'scopus'):
+        scopus = ScopusFetcher()
+        if scopus.is_available():
+            print("  - Scopus...")
+            results.extend(scopus.search(args.query, args.limit))
+            time.sleep(RATE_LIMIT_DELAY)
+        elif args.source == 'scopus':
+            print("  SCOPUS_API_KEY is not configured in skills/sci-search/.env. Get a free key at: https://dev.elsevier.com/")
+            return
+        else:
+            print("  Scopus skipped (SCOPUS_API_KEY is not configured in skills/sci-search/.env)")
+
+    if args.source in ('all', 'semantic_scholar'):
+        print("  - Semantic Scholar...")
+        results.extend(SemanticScholarFetcher().search(args.query, args.limit))
+        time.sleep(RATE_LIMIT_DELAY)
+
+    if args.source in ('all', 'openalex'):
+        print("  - OpenAlex...")
+        results.extend(OpenAlexFetcher().search(args.query, args.limit))
+        time.sleep(RATE_LIMIT_DELAY)
 
     results = dedupe_results(results)
 

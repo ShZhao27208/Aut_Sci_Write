@@ -287,18 +287,16 @@
       align-items: stretch;
       justify-content: center;
       gap: 0;
-      overflow-x: auto;
-      padding-bottom: 8px;
+      flex-wrap: wrap;
     }
     .wf-node {
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      padding: 24px 14px;
-      min-width: 120px;
+      padding: 24px 10px;
+      min-width: 100px;
       flex: 1;
-      max-width: 150px;
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -621,7 +619,7 @@
     <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#E8B339;opacity:0.7;letter-spacing:0.15em;text-align:center;">SHUO · ZHAO</div>
   </div>
 
-  <div class="hero-eyebrow">Claude Code Skills &nbsp;·&nbsp; 7 Modules</div>
+  <div class="hero-eyebrow">Claude Code Skills &nbsp;·&nbsp; 8 Modules</div>
   <h1>Aut_Sci_<span class="accent">Write</span></h1>
   <p class="hero-sub">面向科研工作者的全链路 AI 写作Skills集<br>从文献检索到 PPT 生成，一套技能覆盖全流程</p>
 
@@ -645,7 +643,7 @@
     <div class="section-label">Research Pipeline</div>
     <h2 class="section-title">科研写作全流程</h2>
     <div class="gold-line" style="margin-bottom: 16px;"></div>
-    <p class="section-sub">七个技能模块覆盖从文献发现到成果输出的完整链路</p>
+    <p class="section-sub">八个技能模块覆盖从文献发现到成果输出的完整链路</p>
 
     <div class="workflow-track">
       <div class="wf-node">
@@ -657,41 +655,48 @@
       <div class="wf-connector">→</div>
       <div class="wf-node">
         <div class="step-num">02</div>
+        <div class="wf-icon">⬇️</div>
+        <div class="wf-label">论文下载</div>
+        <div class="wf-skill">sci-download</div>
+      </div>
+      <div class="wf-connector">→</div>
+      <div class="wf-node">
+        <div class="step-num">03</div>
         <div class="wf-icon">📄</div>
         <div class="wf-label">论文解析</div>
         <div class="wf-skill">sci-extract</div>
       </div>
       <div class="wf-connector">→</div>
       <div class="wf-node">
-        <div class="step-num">03</div>
+        <div class="step-num">04</div>
         <div class="wf-icon">🖼️</div>
         <div class="wf-label">图表提取</div>
         <div class="wf-skill">sci-figure</div>
       </div>
       <div class="wf-connector">→</div>
       <div class="wf-node">
-        <div class="step-num">04</div>
+        <div class="step-num">05</div>
         <div class="wf-icon">✍️</div>
         <div class="wf-label">综述写作</div>
         <div class="wf-skill">sci-review</div>
       </div>
       <div class="wf-connector">→</div>
       <div class="wf-node">
-        <div class="step-num">05</div>
+        <div class="step-num">06</div>
         <div class="wf-icon">📚</div>
         <div class="wf-label">文献管理</div>
         <div class="wf-skill">sci-zotero</div>
       </div>
       <div class="wf-connector">→</div>
       <div class="wf-node">
-        <div class="step-num">06</div>
+        <div class="step-num">07</div>
         <div class="wf-icon">🌐</div>
         <div class="wf-label">HTML 报告</div>
         <div class="wf-skill">sci-html</div>
       </div>
       <div class="wf-connector">→</div>
       <div class="wf-node">
-        <div class="step-num">07</div>
+        <div class="step-num">08</div>
         <div class="wf-icon">📊</div>
         <div class="wf-label">PPT 生成</div>
         <div class="wf-skill">sci-ppt</div>
@@ -704,7 +709,7 @@
 <section id="skills">
   <div class="container">
     <div class="section-label">Skill Modules</div>
-    <h2 class="section-title">七大技能详情</h2>
+    <h2 class="section-title">八大技能详情</h2>
     <div class="gold-line" style="margin-bottom: 16px;"></div>
     <p class="section-sub">每个技能独立可用，也可组合成完整科研工作流</p>
 
@@ -716,12 +721,27 @@
           <span class="card-slug">sci-search</span>
           <span class="card-title">文献检索与期刊指标</span>
         </div>
-        <div class="card-desc">支持检索 arXiv、PubMed 与 Web of Science 三大数据源，自动附加 JCR 分区、影响因子，高亮 Nature / Science 等顶刊结果。</div>
+        <div class="card-desc">支持检索 arXiv、PubMed、Web of Science、Springer、Scopus、Semantic Scholar、OpenAlex 七大数据源，自动附加 JCR 分区、影响因子，高亮 Nature / Science 等顶刊结果。</div>
         <div class="trigger-list">
           <span class="trigger">搜索文献</span>
           <span class="trigger">查文献</span>
           <span class="trigger">影响因子</span>
           <span class="trigger">find papers</span>
+        </div>
+      </div>
+
+      <div class="skill-card">
+        <span class="card-icon">⬇️</span>
+        <div class="card-header">
+          <span class="card-slug">sci-download</span>
+          <span class="card-title">论文 PDF 智能下载</span>
+        </div>
+        <div class="card-desc">根据 DOI 前缀自动路由到 Elsevier、Springer、IEEE、arXiv、Unpaywall、Semantic Scholar、PubMed Central、知网 8 个数据源，未知 DOI 自动瀑布回退。</div>
+        <div class="trigger-list">
+          <span class="trigger">下载论文</span>
+          <span class="trigger">下载PDF</span>
+          <span class="trigger">download paper</span>
+          <span class="trigger">get PDF</span>
         </div>
       </div>
 
