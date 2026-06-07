@@ -288,7 +288,7 @@ def download_cnki(
     if output_path.exists() and output_path.stat().st_size >= 10_000:
         return {"success": True, "filename": filename, "file": str(output_path), "source": "local_cache"}
 
-    detail_url = f"https://kns.cnki.net/kcms2/article/abstract?v=1&filename={filename}&dbcode={dbcode}"
+    detail_url = f"https://kns.cnki.net/kcms/detail/detail.aspx?dbcode={dbcode}&filename={filename}"
     resolved_detail = _resolve_url(detail_url, config)
 
     try:
@@ -323,12 +323,24 @@ def _find_pdf_in_detail_page(html: str, filename: str, dbcode: str) -> str | Non
 
     for a in soup.find_all("a", href=True):
         href = a["href"]
+        if "bar.cnki.net" in href and "order" in href:
+            text = a.get_text(strip=True).lower()
+            if "pdf" in text:
+                return href
         if "download" in href.lower() and ("pdf" in href.lower() or filename.lower() in href.lower()):
             if href.startswith("/"):
                 return f"https://kns.cnki.net{href}"
             return href
 
-    return f"https://kns.cnki.net/kcms2/article/export?filename={filename}&dbcode={dbcode}&type=PDF"
+    caj_link = soup.select_one("a#cajDown")
+    if caj_link:
+        href = caj_link.get("href", "")
+        if href:
+            if href.startswith("/"):
+                return f"https://kns.cnki.net{href}"
+            return href
+
+    return None
 
 
 def _download_pdf_link(
@@ -340,9 +352,11 @@ def _download_pdf_link(
 ) -> dict[str, Any]:
     """Download PDF from resolved URL."""
     resolved_url = _resolve_url(pdf_url, config)
+    detail_referer = f"https://kns.cnki.net/kcms/detail/detail.aspx?dbcode=CJFD&filename={filename}"
+    headers = {"Referer": detail_referer}
 
     try:
-        resp = session.get(resolved_url, timeout=60, allow_redirects=True, stream=True)
+        resp = session.get(resolved_url, headers=headers, timeout=60, allow_redirects=True, stream=True)
     except requests.RequestException as e:
         return {"success": False, "filename": filename, "source": "CNKI", "error": f"PDF download failed: {e}"}
 

@@ -27,7 +27,7 @@ USER_AGENT = (
 )
 
 MIN_PDF_SIZE = 10_000
-ARXIV_API = "http://export.arxiv.org/api/query"
+ARXIV_API = "https://export.arxiv.org/api/query"
 ARXIV_PDF_BASE = "https://arxiv.org/pdf"
 
 ARXIV_ID_PATTERNS = [
