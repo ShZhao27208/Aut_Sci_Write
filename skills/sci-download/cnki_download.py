@@ -36,11 +36,15 @@ from config import load_config, update_config, resolve_school, DATA_DIR, WEBVPN_
 USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
     "AppleWebKit/537.36 (KHTML, like Gecko) "
-    "Chrome/124.0 Safari/537.36"
+    "Chrome/126.0 Safari/537.36"
 )
 
 CNKI_BASE = "https://kns.cnki.net"
-CNKI_SEARCH_URL = f"{CNKI_BASE}/kns8/DefaultResult/Index"
+CNKI_SEARCH_API = f"{CNKI_BASE}/kns8s/brief/grid"
+CNKI_SEARCH_PAGE = f"{CNKI_BASE}/kns8s/defaultresult/index"
+
+CNKI_DEFAULT_KUAKUCODE = "YSTT4HG0,LSTPFY1C,JUP3MUPD,MPMFIG1A,EMRPGLPA,WQ0UVIAA,BLZOG7CK,PWFIRAGL,NN3FJMUV,NLBO1Z6R"
+CNKI_DEFAULT_PRODUCTSTR = "YSTT4HG0,LSTPFY1C,RMJLXHZ3,JQIRZIYA,JUP3MUPD,1UR4K4HZ,BPBAFJ5S,R79MZMCB,MPMFIG1A,EMRPGLPA,J708GVCE,ML4DRIDX,WQ0UVIAA,NB3BWEHK,XVLO76FD,HR1YT1Z9,BLZOG7CK,PWFIRAGL,NN3FJMUV,NLBO1Z6R,"
 
 FSSO_COOKIE_FILE = DATA_DIR / "fsso_cookies.json"
 WEBVPN_COOKIE_FILE = DATA_DIR / "webvpn_cookies.json"
@@ -137,7 +141,7 @@ def search_cnki(
     limit: int = 10,
     config: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Search CNKI for papers.
+    """Search CNKI for papers via kns8s POST API.
 
     Returns:
         {success: bool, results: [{title, authors, journal, year, filename, dbcode, url}]}
@@ -147,23 +151,79 @@ def search_cnki(
 
     session = _get_session(config)
 
-    params = {
-        "kw": keyword,
-        "korder": "SU",
-        "crossDbcodes": "CJFD,CDMD,CIPD,CCND,CISD,SNAD,CCJD,CJFN",
+    # Step 1: visit search page to establish session cookies
+    search_page_url = _resolve_url(CNKI_SEARCH_PAGE, config)
+    try:
+        session.get(search_page_url, timeout=15, allow_redirects=True)
+    except requests.RequestException:
+        pass
+
+    # Step 2: POST search request with correct kns8s format
+    query_json = {
+        "Platform": "NZKPT",
+        "Resource": "CROSSDB",
+        "Classid": "WD0FTY92",
+        "Products": "",
+        "QNode": {
+            "QGroup": [{
+                "Key": "Subject",
+                "Title": "",
+                "Logic": 0,
+                "Items": [{
+                    "Field": "SU",
+                    "Value": keyword,
+                    "Operator": "TOPRANK",
+                    "Logic": 0,
+                    "Title": "主题",
+                }],
+                "ChildItems": [],
+            }]
+        },
+        "ExScope": 1,
+        "SearchType": 2,
+        "Rlang": "CHINESE",
+        "KuaKuCode": CNKI_DEFAULT_KUAKUCODE,
+        "Expands": {},
+        "View": "changeDBCh",
+        "SearchFrom": 1,
     }
-    search_url = _resolve_url(f"{CNKI_SEARCH_URL}?{urllib.parse.urlencode(params)}", config)
+
+    post_data = {
+        "boolSearch": "true",
+        "QueryJson": json.dumps(query_json, ensure_ascii=False),
+        "pageNum": "1",
+        "pageSize": str(min(limit, 50)),
+        "dstyle": "listmode",
+        "boolSortSearch": "false",
+        "productStr": CNKI_DEFAULT_PRODUCTSTR,
+        "aside": f"(主题：{keyword})",
+        "searchFrom": "资源范围：总库",
+        "subject": "",
+        "turnpage": "",
+        "language": "CHS",
+        "uniplatform": "NZKPT",
+        "CurPage": "1",
+    }
+
+    search_api_url = _resolve_url(CNKI_SEARCH_API, config)
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "Referer": search_page_url,
+        "X-Requested-With": "XMLHttpRequest",
+    }
 
     try:
-        resp = session.get(search_url, timeout=30, allow_redirects=True)
+        resp = session.post(search_api_url, data=post_data, headers=headers, timeout=30)
     except requests.RequestException as e:
         return {"success": False, "error": f"Search request failed: {e}"}
 
     if resp.status_code != 200:
         return {"success": False, "error": f"HTTP {resp.status_code}"}
 
-    if "login" in resp.url.lower() or "fsso" in resp.url.lower() or "cas" in resp.url.lower():
-        return {"success": False, "error": "Session expired — re-login required via browser"}
+    if len(resp.text) < 200 or "no-content" in resp.text:
+        error_match = re.search(r'value="([^"]+)"', resp.text)
+        error_msg = error_match.group(1) if error_match else "Empty response"
+        return {"success": False, "error": f"CNKI returned: {error_msg}"}
 
     soup = BeautifulSoup(resp.text, "html.parser")
     results = _parse_search_results(soup, limit)
@@ -177,7 +237,7 @@ def search_cnki(
 
 
 def _parse_search_results(soup: BeautifulSoup, limit: int) -> list[dict[str, str]]:
-    """Parse CNKI search result page HTML."""
+    """Parse CNKI search result page HTML (kns8s format)."""
     results: list[dict[str, str]] = []
     rows = soup.select("table.result-table-list tbody tr")
     if not rows:
@@ -192,6 +252,8 @@ def _parse_search_results(soup: BeautifulSoup, limit: int) -> list[dict[str, str
 
         title = title_tag.get_text(strip=True)
         href = title_tag.get("href", "")
+        if href and not href.startswith("http"):
+            href = f"{CNKI_BASE}{href}"
 
         authors_tag = row.select_one("td.author")
         authors = authors_tag.get_text(strip=True) if authors_tag else ""
@@ -221,14 +283,17 @@ def _parse_search_results(soup: BeautifulSoup, limit: int) -> list[dict[str, str
 def _try_alternative_parse(html: str, limit: int) -> list[dict[str, str]]:
     """Fallback parser using regex when structured HTML fails."""
     results: list[dict[str, str]] = []
+    # Match both kcms2 and old kcms URL formats
     pattern = re.compile(
-        r'<a[^>]*href="([^"]*kcms2/article/abstract[^"]*)"[^>]*class="fz14"[^>]*>(.*?)</a>',
+        r'<a[^>]*href="([^"]*(?:kcms2/article/abstract|kcms/detail)[^"]*)"[^>]*class="fz14"[^>]*>(.*?)</a>',
         re.DOTALL,
     )
     for match in pattern.finditer(html):
         if len(results) >= limit:
             break
         href = match.group(1)
+        if not href.startswith("http"):
+            href = f"{CNKI_BASE}{href}"
         title = re.sub(r"<[^>]+>", "", match.group(2)).strip()
         if title:
             results.append({
@@ -244,17 +309,21 @@ def _try_alternative_parse(html: str, limit: int) -> list[dict[str, str]]:
 
 
 def _extract_filename(url: str) -> str:
-    m = re.search(r"[?&]filename=([^&]+)", url, re.IGNORECASE)
+    m = re.search(r"[?&](?:filename|FileName)=([^&]+)", url, re.IGNORECASE)
     if m:
         return m.group(1)
-    m = re.search(r"[?&]FileName=([^&]+)", url, re.IGNORECASE)
-    if m:
+    # kcms2 URL: /kcms2/article/abstract?v=xxx&filename=YYY or just v= with no filename
+    m = re.search(r"/kcms2/article/abstract\?v=([^&]+)", url)
+    if m and "filename" not in url.lower():
         return m.group(1)
     return ""
 
 
 def _extract_dbcode(url: str) -> str:
     m = re.search(r"[?&]dbcode=([^&]+)", url, re.IGNORECASE)
+    if m:
+        return m.group(1)
+    m = re.search(r"[?&]dbname=([^&]+)", url, re.IGNORECASE)
     if m:
         return m.group(1)
     return "CJFD"
@@ -266,10 +335,10 @@ def download_cnki(
     output_dir: str | None = None,
     config: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Download a paper from CNKI by filename and dbcode.
+    """Download a paper from CNKI by filename/dbcode or direct kcms2 URL.
 
     Args:
-        filename: CNKI internal filename (e.g. ZGTB202401001)
+        filename: CNKI filename (e.g. ZGTB202401001) or a full kcms2 URL
         dbcode: Database code (CJFD, CDMD, etc.)
         output_dir: Override output directory
         config: Config dict
@@ -283,18 +352,37 @@ def download_cnki(
     session = _get_session(config)
     target_dir = Path(output_dir) if output_dir else Path(config["output_dir"]).expanduser()
     target_dir.mkdir(parents=True, exist_ok=True)
-    output_path = target_dir / f"cnki_{filename}.pdf"
+
+    # Determine if filename is actually a URL
+    is_url = filename.startswith("http") or "kcms2/" in filename
+    safe_name = re.sub(r'[^\w\-.]', '_', filename[:60]) if is_url else filename
+    output_path = target_dir / f"cnki_{safe_name}.pdf"
 
     if output_path.exists() and output_path.stat().st_size >= 10_000:
         return {"success": True, "filename": filename, "file": str(output_path), "source": "local_cache"}
 
-    detail_url = f"https://kns.cnki.net/kcms/detail/detail.aspx?dbcode={dbcode}&filename={filename}"
+    # Build detail page URL
+    if is_url:
+        detail_url = filename if filename.startswith("http") else f"{CNKI_BASE}{filename}"
+    else:
+        # Try kcms2 first, fallback to old kcms
+        detail_url = f"{CNKI_BASE}/kcms2/article/abstract?dbcode={dbcode}&dbname={dbcode}&filename={filename}"
+
     resolved_detail = _resolve_url(detail_url, config)
 
     try:
         resp = session.get(resolved_detail, timeout=20, allow_redirects=True)
     except requests.RequestException as e:
         return {"success": False, "filename": filename, "source": "CNKI", "error": f"Detail page request failed: {e}"}
+
+    # If kcms2 returns 404, try old kcms format
+    if resp.status_code == 404 and not is_url:
+        detail_url = f"{CNKI_BASE}/kcms/detail/detail.aspx?dbcode={dbcode}&filename={filename}"
+        resolved_detail = _resolve_url(detail_url, config)
+        try:
+            resp = session.get(resolved_detail, timeout=20, allow_redirects=True)
+        except requests.RequestException as e:
+            return {"success": False, "filename": filename, "source": "CNKI", "error": f"Detail page request failed: {e}"}
 
     if resp.status_code != 200:
         return {"success": False, "filename": filename, "source": "CNKI", "error": f"Detail page HTTP {resp.status_code}"}
@@ -304,40 +392,62 @@ def download_cnki(
 
     pdf_url = _find_pdf_in_detail_page(resp.text, filename, dbcode)
     if not pdf_url:
-        return {"success": False, "filename": filename, "source": "CNKI", "error": "No PDF download link found on detail page"}
+        return {"success": False, "filename": filename, "source": "CNKI", "error": "No PDF/CAJ download link found on detail page"}
 
     return _download_pdf_link(session, pdf_url, output_path, filename, config)
 
 
 def _find_pdf_in_detail_page(html: str, filename: str, dbcode: str) -> str | None:
-    """Extract PDF download URL from CNKI article detail page."""
+    """Extract PDF/CAJ download URL from CNKI article detail page."""
     soup = BeautifulSoup(html, "html.parser")
 
-    pdf_link = soup.select_one("a#pdfDown, a.btn-dlpdf, a[href*='type=PDF']")
-    if pdf_link:
-        href = pdf_link.get("href", "")
-        if href:
-            if href.startswith("/"):
-                return f"https://kns.cnki.net{href}"
-            return href
-
+    # Priority 1: bar.cnki.net PDF download (most reliable on current CNKI)
     for a in soup.find_all("a", href=True):
         href = a["href"]
         if "bar.cnki.net" in href and "order" in href:
             text = a.get_text(strip=True).lower()
             if "pdf" in text:
                 return href
-        if "download" in href.lower() and ("pdf" in href.lower() or filename.lower() in href.lower()):
+
+    # Priority 2: classic PDF download button
+    pdf_link = soup.select_one("a#pdfDown, a.btn-dlpdf")
+    if pdf_link:
+        href = pdf_link.get("href", "")
+        if href and not href.startswith("javascript") and "ai.cnki.net" not in href:
             if href.startswith("/"):
-                return f"https://kns.cnki.net{href}"
+                return f"{CNKI_BASE}{href}"
             return href
 
+    # Priority 3: operate-btn section
+    for a in soup.select(".operate-btn a[href]"):
+        href = a.get("href", "")
+        text = a.get_text(strip=True).lower()
+        if "pdf" in text and href and not href.startswith("javascript") and "ai.cnki.net" not in href:
+            if href.startswith("/"):
+                return f"{CNKI_BASE}{href}"
+            return href
+
+    # Priority 4: bar.cnki.net CAJ download (fallback)
+    for a in soup.find_all("a", href=True):
+        href = a["href"]
+        if "bar.cnki.net" in href and "order" in href:
+            text = a.get_text(strip=True).lower()
+            if "caj" in text:
+                return href
+
+    # Priority 5: classic CAJ download button
     caj_link = soup.select_one("a#cajDown")
     if caj_link:
         href = caj_link.get("href", "")
-        if href:
+        if href and not href.startswith("javascript") and "ai.cnki.net" not in href:
             if href.startswith("/"):
-                return f"https://kns.cnki.net{href}"
+                return f"{CNKI_BASE}{href}"
+            return href
+
+    # Priority 6: any bar.cnki.net order link
+    for a in soup.find_all("a", href=True):
+        href = a["href"]
+        if "bar.cnki.net" in href and "order" in href:
             return href
 
     return None
@@ -350,10 +460,9 @@ def _download_pdf_link(
     filename: str,
     config: dict[str, Any],
 ) -> dict[str, Any]:
-    """Download PDF from resolved URL."""
+    """Download PDF/CAJ from resolved URL."""
     resolved_url = _resolve_url(pdf_url, config)
-    detail_referer = f"https://kns.cnki.net/kcms/detail/detail.aspx?dbcode=CJFD&filename={filename}"
-    headers = {"Referer": detail_referer}
+    headers = {"Referer": f"{CNKI_BASE}/kcms2/article/abstract?v={filename}"}
 
     try:
         resp = session.get(resolved_url, headers=headers, timeout=60, allow_redirects=True, stream=True)
@@ -364,16 +473,26 @@ def _download_pdf_link(
         return {"success": False, "filename": filename, "source": "CNKI", "error": f"PDF HTTP {resp.status_code}"}
 
     content = resp.content
-    if content[:5] != b"%PDF-":
+
+    # Detect file type
+    is_pdf = content[:5] == b"%PDF-"
+    is_caj = content[:4] in (b"CAJ-", b"\xc8\xaf\xc8\xaf")
+
+    if not is_pdf and not is_caj:
         if b"login" in content[:2000].lower() or b"cas" in content[:2000].lower():
             return {"success": False, "filename": filename, "source": "CNKI", "error": "Session expired — redirected to login"}
-        return {"success": False, "filename": filename, "source": "CNKI", "error": "Response is not a valid PDF (possibly CAJ format or login wall)"}
+        if len(content) < 1000:
+            return {"success": False, "filename": filename, "source": "CNKI", "error": f"Response is not a valid PDF/CAJ ({len(content)} bytes, starts with {content[:20]!r})"}
 
     if len(content) < 10_000:
-        return {"success": False, "filename": filename, "source": "CNKI", "error": f"PDF too small ({len(content)} bytes)"}
+        return {"success": False, "filename": filename, "source": "CNKI", "error": f"File too small ({len(content)} bytes)"}
+
+    # Use correct extension
+    if is_caj:
+        output_path = output_path.with_suffix(".caj")
 
     output_path.write_bytes(content)
-    return {"success": True, "filename": filename, "file": str(output_path), "source": "CNKI", "size_bytes": len(content)}
+    return {"success": True, "filename": filename, "file": str(output_path), "source": "CNKI", "size_bytes": len(content), "format": "CAJ" if is_caj else "PDF"}
 
 
 def set_school(school_name: str) -> dict[str, Any]:
