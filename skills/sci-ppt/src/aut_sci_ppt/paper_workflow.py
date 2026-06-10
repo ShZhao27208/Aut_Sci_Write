@@ -20,7 +20,7 @@ def _call_llm(prompt: str) -> str:
     api_key = get_config_value("MOONSHOT_API_KEY")
     if not api_key:
         raise ValueError(
-            "MOONSHOT_API_KEY is not configured. Add it to skills/sci-ppt/.env "
+            "MOONSHOT_API_KEY is not configured. Add it to ~/.aut_sci_write/.env "
             "to enable translation."
         )
     payload = json.dumps(

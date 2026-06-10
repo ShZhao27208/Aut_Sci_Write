@@ -57,7 +57,7 @@ def search_ieee(
 
     api_key = config.get("ieee_api_key", "")
     if not api_key:
-        return {"success": False, "error": "No API key. Set IEEE_API_KEY in ~/.aut-sci-download/.env"}
+        return {"success": False, "error": "No API key. Set IEEE_API_KEY in ~/.aut_sci_write/.env"}
 
     session = _get_session(config)
     params = {
@@ -123,7 +123,7 @@ def download_ieee(
             "success": False,
             "doi": doi,
             "source": "IEEE_Xplore",
-            "error": "No API key. Set IEEE_API_KEY in ~/.aut-sci-download/.env",
+            "error": "No API key. Set IEEE_API_KEY in ~/.aut_sci_write/.env",
         }
 
     doi = _normalize_doi(doi)

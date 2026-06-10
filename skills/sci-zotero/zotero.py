@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Zotero CLI — interact with Zotero libraries via the Web API v3.
 
-Skill-local .env values:
+~/.aut_sci_write/.env values:
     ZOTERO_API_KEY   — API key (required; create at zotero.org/settings/keys/new)
     ZOTERO_USER_ID   — Numeric user ID for personal library
     ZOTERO_GROUP_ID  — Numeric group ID (use instead of USER_ID for group libraries)
@@ -56,37 +56,34 @@ class ZoteroError(Exception):
     """
 
 
-def _load_env_file(path):
-    values = {}
-    if not path.exists():
-        return values
-    try:
-        with path.open("r", encoding="utf-8") as f:
-            for raw_line in f:
-                line = raw_line.strip()
-                if not line or line.startswith("#") or "=" not in line:
-                    continue
-                key, value = line.split("=", 1)
-                values[key.strip()] = value.strip().strip('"').strip("'")
-    except OSError as exc:
-        print(f"Warning: failed to load local env from {path}: {exc}", file=sys.stderr)
-    return values
+def _init_shared_env():
+    """Import unified env config from _shared module."""
+    import importlib.util
+    shared_path = ROOT_DIR / "skills" / "_shared" / "env_config.py"
+    if not shared_path.exists():
+        shared_path = SCRIPT_DIR.parent / "_shared" / "env_config.py"
+    if shared_path.exists():
+        spec = importlib.util.spec_from_file_location("_shared.env_config", shared_path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+    return None
 
 
-LOCAL_ENV = {}
-for _env_path in (ROOT_DIR / ".env", ROOT_DIR / "skills" / "sci-zotero" / ".env"):
-    LOCAL_ENV.update(_load_env_file(_env_path))
+_ENV_MOD = _init_shared_env()
 
 
 def get_config_value(name: str, default: str = "") -> str:
-    return LOCAL_ENV.get(name) or os.environ.get(name, default)
+    if _ENV_MOD:
+        return _ENV_MOD.get_env_value(name, default)
+    return os.environ.get(name, default)
 
 
 def get_config() -> tuple[str, str]:
     api_key = get_config_value("ZOTERO_API_KEY")
     if not api_key:
         raise ZoteroError(
-            "ZOTERO_API_KEY is not configured in skills/sci-zotero/.env\n"
+            "ZOTERO_API_KEY is not configured in ~/.aut_sci_write/.env\n"
             "Create a key at https://www.zotero.org/settings/keys/new"
         )
 
@@ -546,7 +543,7 @@ def cmd_fetch_pdfs(args) -> None:
     if not unpaywall_email:
         raise ZoteroError(
             "Unpaywall requires a real contact email. Set UNPAYWALL_EMAIL "
-            "(or NCBI_EMAIL) in skills/sci-zotero/.env"
+            "(or NCBI_EMAIL) in ~/.aut_sci_write/.env"
         )
     print("Fetching items without PDF attachments...")
     items = paginate_all(f"{prefix}/items/top", api_key)

@@ -56,7 +56,7 @@ Academic paper search and metrics analysis tool for scientific research workflow
 ## Configuration
 
 ### Web of Science API (Recommended for SCI literature)
-Add `WOS_API_KEY` to the skill-local `.env` file to enable Web of Science search:
+Add `WOS_API_KEY` to the unified `~/.aut_sci_write/.env` file to enable Web of Science search:
 ```bash
 WOS_API_KEY=your_wos_api_key
 ```
@@ -68,13 +68,13 @@ The **WoS Starter API** is free to apply for and provides access to the Web of S
 The Springer Nature API provides two separate endpoints:
 
 **1. Metadata API** (`/meta/v2/json`) — metadata for all Springer Nature content (journals + books).
-Add `SPRINGER_API_KEY` to the skill-local `.env` file:
+Add `SPRINGER_API_KEY` to `~/.aut_sci_write/.env`:
 ```bash
 SPRINGER_API_KEY=your_springer_api_key
 ```
 
 **2. Open Access API** (`/openaccess/json`) — full-text OA content from BMC, SpringerOpen, Nature OA articles.
-Add `SPRINGER_OA_API_KEY` to the skill-local `.env` file (falls back to `SPRINGER_API_KEY` if not set):
+Add `SPRINGER_OA_API_KEY` to `~/.aut_sci_write/.env` (falls back to `SPRINGER_API_KEY` if not set):
 ```bash
 SPRINGER_OA_API_KEY=your_oa_api_key
 ```
@@ -84,7 +84,7 @@ Apply for free API keys at: https://dev.springernature.com/
 Use `--source springer` for both, `--source springer_meta` for metadata only, or `--source springer_oa` for Open Access only.
 
 ### Scopus API (Elsevier — largest abstract database)
-Add `SCOPUS_API_KEY` to the skill-local `.env` file to enable Scopus search:
+Add `SCOPUS_API_KEY` to `~/.aut_sci_write/.env` to enable Scopus search:
 ```bash
 SCOPUS_API_KEY=your_scopus_api_key
 ```
@@ -105,7 +105,7 @@ Works out of the box. For polite pool (faster rate limits), optionally add:
 OPENALEX_EMAIL=your_email@example.com
 ```
 
-### Other optional `.env` values
+### Other optional `.env` values (all in `~/.aut_sci_write/.env`)
 - `SPRINGER_API_KEY` - Springer Nature Metadata API key (see above)
 - `SPRINGER_OA_API_KEY` - Springer Nature Open Access API key (falls back to SPRINGER_API_KEY)
 - `SCOPUS_API_KEY` - Elsevier Scopus API key (see above)

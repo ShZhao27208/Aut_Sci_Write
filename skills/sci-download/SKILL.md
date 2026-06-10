@@ -97,10 +97,12 @@ python skills/sci-download/sci_download.py "2301.07041" --output-dir ./papers
 
 ## Configuration
 
-API keys are stored in `~/.aut-sci-download/.env` (auto-created on first use).
+API keys are stored in the unified `~/.aut_sci_write/.env` (auto-created on first use).
+Non-secret settings (school, output_dir, proxy) are in `~/.aut_sci_write/sci-download/config.json`.
 
 ### Set API Keys
 
+Edit `~/.aut_sci_write/.env` directly or use the config helper:
 ```bash
 cd skills/sci-download
 python -c "from config import update_config; update_config('elsevier_api_key', 'YOUR_KEY')"
@@ -126,7 +128,7 @@ python -c "from config import update_config; update_config('unpaywall_email', 'y
 ```bash
 python skills/sci-download/cnki_download.py set-mode fsso
 python skills/sci-download/cnki_download.py status
-# Login at https://fsso.cnki.net → export cookies → save to ~/.aut-sci-download/fsso_cookies.json
+# Login at https://fsso.cnki.net → export cookies → save to ~/.aut_sci_write/webvpn_cookies.json
 ```
 
 ## Dependencies

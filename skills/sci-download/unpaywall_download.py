@@ -63,7 +63,7 @@ def download_unpaywall(
             "success": False,
             "doi": doi,
             "source": "Unpaywall",
-            "error": "No email configured. Set UNPAYWALL_EMAIL in ~/.aut-sci-download/.env",
+            "error": "No email configured. Set UNPAYWALL_EMAIL in ~/.aut_sci_write/.env",
         }
 
     doi = _normalize_doi(doi)

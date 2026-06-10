@@ -123,32 +123,25 @@ def load_journal_db(db_path: Path = JOURNAL_DB_PATH) -> Dict[str, Dict]:
 
 JOURNAL_DB = load_journal_db()
 
-def load_local_env() -> Dict[str, str]:
-    """Load simple KEY=VALUE pairs from a skill-local .env file."""
-    env_path = _SCRIPT_DIR / ".env"
-    if not env_path.exists():
-        return {}
-
-    values = {}
-    try:
-        with env_path.open("r", encoding="utf-8") as f:
-            for raw_line in f:
-                line = raw_line.strip()
-                if not line or line.startswith("#") or "=" not in line:
-                    continue
-                key, value = line.split("=", 1)
-                values[key.strip()] = value.strip().strip('"').strip("'")
-    except OSError as exc:
-        print(f"Warning: failed to load local env from {env_path}: {exc}")
-
-    return values
+def _init_shared_env():
+    """Import unified env config from _shared module."""
+    import importlib.util
+    shared_path = _SCRIPT_DIR.parent / "_shared" / "env_config.py"
+    if shared_path.exists():
+        spec = importlib.util.spec_from_file_location("_shared.env_config", shared_path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+    return None
 
 
-LOCAL_ENV = load_local_env()
+_ENV_MOD = _init_shared_env()
 
 
 def get_config_value(name: str, default: str = "") -> str:
-    return LOCAL_ENV.get(name) or os.environ.get(name, default)
+    if _ENV_MOD:
+        return _ENV_MOD.get_env_value(name, default)
+    return os.environ.get(name, default)
 
 
 def _normalize_journal_name(name: str) -> str:
@@ -284,7 +277,7 @@ class ArxivFetcher:
 class WoSFetcher:
     """Web of Science Starter API fetcher.
 
-    Requires WOS_API_KEY in the skill-local .env file.
+    Requires WOS_API_KEY in the ~/.aut_sci_write/.env file.
     Apply for a free API key at: https://developer.clarivate.com/apis/wos-starter
     Authentication: X-ApiKey header (no subscription required for Starter tier).
     """
@@ -361,7 +354,7 @@ class WoSFetcher:
 class SpringerMetaFetcher:
     """Springer Nature Metadata API fetcher.
 
-    Requires SPRINGER_API_KEY in the skill-local .env file.
+    Requires SPRINGER_API_KEY in the ~/.aut_sci_write/.env file.
     Apply for a free API key at: https://dev.springernature.com/
     Endpoint: /meta/v2/json — returns metadata for all Springer Nature content.
     """
@@ -435,7 +428,7 @@ class SpringerMetaFetcher:
 class SpringerOpenAccessFetcher:
     """Springer Nature Open Access API fetcher.
 
-    Requires SPRINGER_OA_API_KEY in the skill-local .env file (may differ from Meta key).
+    Requires SPRINGER_OA_API_KEY in the ~/.aut_sci_write/.env file (may differ from Meta key).
     Falls back to SPRINGER_API_KEY if OA-specific key not set.
     Apply for access at: https://dev.springernature.com/
     Endpoint: /openaccess/json — returns OA full-text content (BMC, SpringerOpen, Nature OA).
@@ -527,7 +520,7 @@ class SpringerOpenAccessFetcher:
 class ScopusFetcher:
     """Elsevier Scopus Search API fetcher.
 
-    Requires SCOPUS_API_KEY in the skill-local .env file.
+    Requires SCOPUS_API_KEY in the ~/.aut_sci_write/.env file.
     Apply for a free API key at: https://dev.elsevier.com/
     """
     API_URL = "https://api.elsevier.com/content/search/scopus"
@@ -734,7 +727,7 @@ class OpenAlexFetcher:
 class PubmedFetcher:
     """NCBI PubMed E-utilities fetcher.
 
-    Optional skill-local .env values:
+    Optional ~/.aut_sci_write/.env values:
     - NCBI_API_KEY: increases E-utilities rate limits.
     - NCBI_EMAIL: identifies the caller per NCBI guidance.
     - NCBI_TOOL: custom tool name shown to NCBI; defaults to sci-search.
@@ -984,10 +977,10 @@ def main():
             print("  - Web of Science...")
             results.extend(wos.search(args.query, args.limit))
         elif args.source == 'wos':
-            print("  WOS_API_KEY is not configured in skills/sci-search/.env. Get a free key at: https://developer.clarivate.com/apis/wos-starter")
+            print("  WOS_API_KEY is not configured in ~/.aut_sci_write/.env. Get a free key at: https://developer.clarivate.com/apis/wos-starter")
             return
         else:
-            print("  Web of Science skipped (WOS_API_KEY is not configured in skills/sci-search/.env)")
+            print("  Web of Science skipped (WOS_API_KEY is not configured in ~/.aut_sci_write/.env)")
 
     if args.source in ('all', 'springer', 'springer_meta'):
         springer_meta = SpringerMetaFetcher()
@@ -996,10 +989,10 @@ def main():
             results.extend(springer_meta.search(args.query, args.limit))
             time.sleep(RATE_LIMIT_DELAY)
         elif args.source in ('springer', 'springer_meta'):
-            print("  SPRINGER_API_KEY is not configured in skills/sci-search/.env. Get a free key at: https://dev.springernature.com/")
+            print("  SPRINGER_API_KEY is not configured in ~/.aut_sci_write/.env. Get a free key at: https://dev.springernature.com/")
             return
         else:
-            print("  Springer Meta skipped (SPRINGER_API_KEY is not configured in skills/sci-search/.env)")
+            print("  Springer Meta skipped (SPRINGER_API_KEY is not configured in ~/.aut_sci_write/.env)")
 
     if args.source in ('all', 'springer', 'springer_oa'):
         springer_oa = SpringerOpenAccessFetcher()
@@ -1020,10 +1013,10 @@ def main():
             results.extend(scopus.search(args.query, args.limit))
             time.sleep(RATE_LIMIT_DELAY)
         elif args.source == 'scopus':
-            print("  SCOPUS_API_KEY is not configured in skills/sci-search/.env. Get a free key at: https://dev.elsevier.com/")
+            print("  SCOPUS_API_KEY is not configured in ~/.aut_sci_write/.env. Get a free key at: https://dev.elsevier.com/")
             return
         else:
-            print("  Scopus skipped (SCOPUS_API_KEY is not configured in skills/sci-search/.env)")
+            print("  Scopus skipped (SCOPUS_API_KEY is not configured in ~/.aut_sci_write/.env)")
 
     if args.source in ('all', 'semantic_scholar'):
         print("  - Semantic Scholar...")

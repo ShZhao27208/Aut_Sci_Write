@@ -61,7 +61,7 @@ def download_springer(doi: str, output_dir: str | None = None, config: dict[str,
             "success": False,
             "doi": doi,
             "source": "SpringerNatureAPI",
-            "error": "No API key configured. Set SPRINGER_API_KEY in ~/.aut-sci-download/.env",
+            "error": "No API key configured. Set SPRINGER_API_KEY in ~/.aut_sci_write/.env",
         }
 
     doi = _normalize_doi(doi)

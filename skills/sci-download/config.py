@@ -1,20 +1,37 @@
 """Configuration management for Aut_Sci_Download.
 
-API keys are stored in ~/.aut-sci-download/.env (auto-created on first use).
-Other settings (school, output_dir, proxy) stay in config.json.
+API keys are stored in the unified ~/.aut_sci_write/.env file.
+Other settings (school, output_dir, proxy) stay in config.json under DATA_DIR.
 """
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import os
 import re
 from pathlib import Path
 from typing import Any
 
-DATA_DIR = Path(os.environ.get("AUT_SCI_DATA_DIR", str(Path.home() / ".aut-sci-download")))
-CONFIG_FILE = DATA_DIR / "config.json"
-ENV_FILE = DATA_DIR / ".env"
+_SCRIPT_DIR = Path(__file__).resolve().parent
+
+DATA_DIR = Path(os.environ.get("AUT_SCI_DATA_DIR", str(Path.home() / ".aut_sci_write")))
+CONFIG_FILE = DATA_DIR / "sci-download" / "config.json"
+
+
+def _init_shared_env():
+    """Import unified env config from _shared module."""
+    shared_path = _SCRIPT_DIR.parent / "_shared" / "env_config.py"
+    if shared_path.exists():
+        spec = importlib.util.spec_from_file_location("_shared.env_config", shared_path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+    return None
+
+
+_ENV_MOD = _init_shared_env()
+ENV_FILE = _ENV_MOD.ENV_FILE if _ENV_MOD else DATA_DIR / ".env"
 
 ENV_KEYS = [
     "ELSEVIER_API_KEY",
@@ -88,10 +105,13 @@ def _parse_env(path: Path) -> dict[str, str]:
 
 
 def _ensure_env_file() -> None:
-    """Create .env template if it doesn't exist."""
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-    if not ENV_FILE.exists():
-        ENV_FILE.write_text(ENV_TEMPLATE, encoding="utf-8")
+    """Ensure unified .env exists (delegated to shared module)."""
+    if _ENV_MOD:
+        _ENV_MOD.ensure_env_dir()
+    else:
+        DATA_DIR.mkdir(parents=True, exist_ok=True)
+        if not ENV_FILE.exists():
+            ENV_FILE.write_text(ENV_TEMPLATE, encoding="utf-8")
 
 
 def _write_env_key(key: str, value: str) -> None:
@@ -129,7 +149,7 @@ def load_config() -> dict[str, Any]:
 
 def save_config(config: dict[str, Any]) -> None:
     """Save non-secret config to config.json (API keys go to .env)."""
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    CONFIG_FILE.parent.mkdir(parents=True, exist_ok=True)
     json_config = {k: v for k, v in config.items() if k not in _ENV_TO_CONFIG.values() or not v}
     for env_key, config_key in _ENV_TO_CONFIG.items():
         json_config.pop(config_key, None)

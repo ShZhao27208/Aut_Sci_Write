@@ -10,30 +10,27 @@ SKILL_DIR = Path(__file__).resolve().parents[2]
 ROOT_DIR = SKILL_DIR.parent.parent
 
 
-def _load_env_file(path: Path) -> Dict[str, str]:
-    values: Dict[str, str] = {}
-    if not path.exists():
-        return values
-    try:
-        with path.open("r", encoding="utf-8") as f:
-            for raw_line in f:
-                line = raw_line.strip()
-                if not line or line.startswith("#") or "=" not in line:
-                    continue
-                key, value = line.split("=", 1)
-                values[key.strip()] = value.strip().strip('"').strip("'")
-    except OSError as exc:
-        logging.getLogger("aut_sci_ppt").warning("failed to load local env from %s: %s", path, exc)
-    return values
+def _init_shared_env():
+    """Import unified env config from _shared module."""
+    import importlib.util
+    shared_path = ROOT_DIR / "skills" / "_shared" / "env_config.py"
+    if not shared_path.exists():
+        shared_path = SKILL_DIR.parent / "_shared" / "env_config.py"
+    if shared_path.exists():
+        spec = importlib.util.spec_from_file_location("_shared.env_config", shared_path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+    return None
 
 
-LOCAL_ENV: Dict[str, str] = {}
-for _env_path in (ROOT_DIR / ".env", SKILL_DIR / ".env"):
-    LOCAL_ENV.update(_load_env_file(_env_path))
+_ENV_MOD = _init_shared_env()
 
 
 def get_config_value(name: str, default: str = "") -> str:
-    return LOCAL_ENV.get(name) or os.environ.get(name, default)
+    if _ENV_MOD:
+        return _ENV_MOD.get_env_value(name, default)
+    return os.environ.get(name, default)
 
 def setup_logging(level: str = "INFO") -> logging.Logger:
     logger = logging.getLogger("aut_sci_ppt")

@@ -62,10 +62,10 @@ from aut_sci_ppt import auto_generate_ppt
 output = auto_generate_ppt("paper.pdf", author="张三", advisor="李教授")
 ```
 
-## Translation and `.env` values
+## Translation and API keys
 - No translation API key is required by default. PDF-to-PPT keeps extracted content in the paper's original language.
 - Optional Chinese translation is available only when explicitly requested with `translate=True` in Python or `--translate` in the CLI.
-- `MOONSHOT_API_KEY` is only used for that optional translation path. If translation is not requested, the workflow does not read or require this key.
+- `MOONSHOT_API_KEY` (in `~/.aut_sci_write/.env`) is only used for that optional translation path. If translation is not requested, the workflow does not read or require this key.
 - Network access is still required for LaTeX formula rendering (via codecogs.com).
 
 
