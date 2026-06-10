@@ -44,6 +44,18 @@
 | `sci-ppt` | Generate professional academic PPTX from paper PDFs or structured text, with LaTeX formula rendering | /sci-zotero *Turn this paper into a seminar presentation* |
 | `sci-html` | Convert PDFs, Markdown, outlines, or summaries into interactive academic HTML slide decks and browser reports. | /sci-html Turn this paper into an interactive HTML report |
 
+#### 🔌 API 
+
+| Data Source | API Endpoint | Auth |
+|:------------|:-------------|:-----|
+| Web of Science | `https://developer.clarivate.com/apis/wos` | `WOS_API_KEY` |
+| Springer (Meta) | `https://dev.springernature.com/#api` | `SPRINGER_API_KEY` |
+| Springer (OA) | `https://dev.springernature.com/#api` | `SPRINGER_OA_API_KEY` |
+| Scopus (Elsevier) | `https://api.elsevier.com/content/search/scopus` | `SCOPUS_API_KEY` |
+| Semantic Scholar | `https://www.semanticscholar.org/product/api` | Optional |
+| PubMed (E-utilities) | `https://pmc.ncbi.nlm.nih.gov/tools/developers/` | Optional `NCBI_API_KEY` |
+| Zotero | `https://www.zotero.org/settings/keys` | `ZOTERO_API_KEY` |
+
 ### 🚀 Installation
 
 **Prerequisites**
@@ -135,9 +147,6 @@ MOONSHOT_API_KEY=sk-...         # Moonshot API
 # For sci-figure subfigure OCR (optional, Windows example)
 TESSERACT_CMD="C:\Program Files\Tesseract-OCR\tesseract.exe"
 ```
-
-> Get your Zotero API key at: https://www.zotero.org/settings/keys
-> Get your Web of Science API key at: https://developer.clarivate.com/apis
 
 ### 💬 Usage Examples
 
@@ -231,6 +240,18 @@ Contributions welcome! Priority areas:
 | `sci-ppt` | 从论文 PDF 或结构化文本一键生成学术 PPT，支持 LaTeX 公式渲染 | /sci-ppt *把这篇文献做成组会汇报PPT* |
 | `sci-html` | 将论文 PDF、Markdown、大纲或总结转换为可交互的 HTML 学术报告或浏览器幻灯片。 | /sci-html 把这篇论文做成网页版交互报告 |
 
+#### 🔌 API 
+
+| 数据源               | API 地址                                         | 认证方式                |
+| :------------------- | :----------------------------------------------- | :---------------------- |
+| Web of Science       | `https://developer.clarivate.com/apis/wos`       | `WOS_API_KEY`           |
+| Springer (Meta)      | `https://dev.springernature.com/#api`            | `SPRINGER_API_KEY`      |
+| Springer (OA)        | `https://dev.springernature.com/#api`            | `SPRINGER_OA_API_KEY`   |
+| Scopus (Elsevier)    | `https://api.elsevier.com/content/search/scopus` | `SCOPUS_API_KEY`        |
+| Semantic Scholar     | `https://www.semanticscholar.org/product/api`    | Optional                |
+| PubMed (E-utilities) | `https://pmc.ncbi.nlm.nih.gov/tools/developers/` | Optional `NCBI_API_KEY` |
+| Zotero               | `https://www.zotero.org/settings/keys`           | `ZOTERO_API_KEY`        |
+
 ### 🚀 安装方法
 
 **安装前提**
@@ -316,9 +337,6 @@ MOONSHOT_API_KEY=sk-...         # Moonshot API（国内推荐）
 # Windows 示例：
 TESSERACT_CMD="C:\Program Files\Tesseract-OCR\tesseract.exe"
 ```
-
-> Zotero API Key 获取地址：https://www.zotero.org/settings/keys
-> Web of Science API Key 申请地址：https://developer.clarivate.com/apis
 
 ### 💬 使用示例
 
