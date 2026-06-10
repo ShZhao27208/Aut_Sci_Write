@@ -73,9 +73,31 @@ def _init_shared_env():
 _ENV_MOD = _init_shared_env()
 
 
+def _parse_env_file(path: Path) -> dict:
+    """Parse a .env file into a dict. Fallback when _shared is unavailable."""
+    env = {}
+    if not path.exists():
+        return env
+    try:
+        for line in path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            m = re.match(r"^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)$", line)
+            if m:
+                env[m.group(1)] = m.group(2).strip().strip("\"'")
+    except OSError:
+        pass
+    return env
+
+
 def get_config_value(name: str, default: str = "") -> str:
     if _ENV_MOD:
         return _ENV_MOD.get_env_value(name, default)
+    env_file = Path.home() / ".aut_sci_write" / ".env"
+    val = _parse_env_file(env_file).get(name)
+    if val:
+        return val
     return os.environ.get(name, default)
 
 
