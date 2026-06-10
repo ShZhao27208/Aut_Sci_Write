@@ -66,6 +66,27 @@ Before installation, make sure the following environments are available:
 - **Node.js 18+**: required for `npx skills add ...` installation and CLI-based skill registration
 - **pip**: used to install Python dependencies from `requirements.txt`
 
+### ***Then*** choose **one** of the following methods:
+
+#### Method 1: Claude Code Plugin (Recommended)
+
+No prerequisites needed — the plugin system handles everything.
+
+```bash
+# Add the marketplace (one-time)
+/plugin marketplace add ShZhao27208/Aut_Sci_Write
+
+# Install the plugin
+/plugin install academic-skills@shuozhao
+```
+
+Update to latest version:
+```bash
+/plugin update academic-skills@shuozhao
+```
+
+#### Method 2: npx CLI
+
 **One-line install** (***Recommended*** — installs all 8 skills globally):
 
 ```bash
@@ -78,23 +99,23 @@ npx skills add ShZhao27208/Aut_Sci_Write -g -y
 npx skills add ShZhao27208/Aut_Sci_Write -g -y
 ```
 
-**Manual install** (clone and install Python dependencies):
+> After npx install, you still need Python dependencies for the skills to run:
+> ```bash
+> pip install -r requirements.txt
+> ```
 
-```bash
-git clone https://github.com/ShZhao27208/Aut_Sci_Write.git
-cd Aut_Sci_Write
-pip install -r requirements.txt
-```
-
-**OR**（Download/Clone to local and use the npm command）：
+#### Method 3: Manual Install (Download/Clone to local)
 
 ```bash
 git clone https://github.com/ShZhao27208/Aut_Sci_Write.git
 cd Aut_Sci_Write
 npx skills add . -g -y
+pip install -r requirements.txt
 ```
 
-**Docker install** (***Isolated environment*** — no Python/Node.js required locally):
+#### Method 4: Docker (Isolated Environment)
+
+Requires: **Docker** — no Python/Node.js needed locally.
 
 ```bash
 git clone https://github.com/ShZhao27208/Aut_Sci_Write.git
@@ -110,28 +131,24 @@ See [DOCKER.md](DOCKER.md) for detailed Docker deployment guide.
 > If you see errors like `✗ sci-extract → PromptScript: PromptScript does not support global skill installation` after a recent `skills` CLI update, **don't worry — the installation has already completed successfully**. This error only affects PromptScript (an unsupported target platform) and does not impact Claude Code or other AI agents.
 >
 > To avoid this message, simply remove the `-g` flag:
+>
 > ```bash
 > npx skills add ShZhao27208/Aut_Sci_Write -y
 > ```
+>
 > Or for local installs:
+>
 > ```bash
 > npx skills add . -y
 > ```
 
 ### ⚙️ Configuration
 
-Run the initializer after installation:
+On first use, any skill will automatically create `~/.aut_sci_write/.env` with a template of all supported keys. Open it and fill in the ones you need:
 
 ```bash
-aut-sci-write-init-env
-```
+# ~/.aut_sci_write/.env — unified config for all skills
 
-Then fill the generated skill-local `.env` files where needed. Do not commit or publish `.env` files.
-Do not store API keys in system environment variables unless you intentionally want a machine-wide fallback.
-
-> **Shared keys:** After filling a key, run `aut-sci-write-init-env` again. The initializer copies any shared key (e.g. `ZOTERO_API_KEY`) into every other skill that declares it, so you only fill it once. If the same key is set to different values in two skills, the first one (by skill order) is kept and a warning is printed.
-
-```bash
 # For sci-zotero (optional)
 ZOTERO_API_KEY=your_personal_api_key
 ZOTERO_USER_ID=your_numeric_user_id
@@ -147,6 +164,8 @@ MOONSHOT_API_KEY=sk-...         # Moonshot API
 # For sci-figure subfigure OCR (optional, Windows example)
 TESSERACT_CMD="C:\Program Files\Tesseract-OCR\tesseract.exe"
 ```
+
+All skills share this single `.env` file — fill a key once, every skill that needs it will read from here. Do not commit or publish this file.
 
 ### 💬 Usage Examples
 
@@ -186,6 +205,7 @@ Once installed, just type naturally in AI Agent — no commands to memorize:
 ```
 Aut_Sci_Write/
 ├── skills/
+│   ├── _shared/        # Unified env config module (env_config.py)
 │   ├── sci-search/     # Literature search with journal metrics (7 sources)
 │   ├── sci-download/   # Paper PDF download with intelligent DOI routing (8 sources)
 │   ├── sci-extract/    # Paper analysis and structured insight extraction
@@ -200,7 +220,6 @@ Aut_Sci_Write/
 │   └── journal_db.json           # Journal metrics database (independently updatable)
 ├── examples/                 # Sample outputs (PDF + Markdown + PPT)
 ├── docs/                     # GitHub Pages site
-├── init-env.js         # Per-skill .env initializer
 ├── skills-cli.js       # Local skill discovery helper
 └── requirements.txt    # Shared Python dependencies
 ```
@@ -262,6 +281,27 @@ Contributions welcome! Priority areas:
 - **Node.js 18 及以上**：用于执行 `npx skills add ...` 安装命令，以及完成 CLI 方式的技能注册
 - **pip**：用于安装 `requirements.txt` 中的 Python 依赖
 
+### 随后选择以下 **任一** 方式安装：
+
+#### 方式 1：Claude Code 插件安装（推荐）
+
+无需预装环境，插件系统自动处理依赖。
+
+```bash
+# 添加 marketplace（仅需一次）
+/plugin marketplace add ShZhao27208/Aut_Sci_Write
+
+# 安装插件
+/plugin install academic-skills@shuozhao
+```
+
+更新到最新版本：
+```bash
+/plugin update academic-skills@shuozhao
+```
+
+#### 方式 2：npx 命令安装
+
 **一行命令安装**（***推荐***，将全部 8 个技能进行全局安装）：
 
 ```bash
@@ -274,23 +314,23 @@ npx skills add ShZhao27208/Aut_Sci_Write -g -y
 npx skills add ShZhao27208/Aut_Sci_Write -g -y 
 ```
 
-**手动安装**（克隆仓库并安装 Python 依赖）：
+> npx 安装后仍需安装 Python 依赖才能运行技能：
+> ```bash
+> pip install -r requirements.txt
+> ```
 
-```bash
-git clone https://github.com/ShZhao27208/Aut_Sci_Write.git
-cd Aut_Sci_Write
-pip install -r requirements.txt
-```
-
-**或者**（下载/克隆到本地使用npm命令）：
+#### 方式 3：手动安装（克隆/下载仓库到本地）
 
 ```bash
 git clone https://github.com/ShZhao27208/Aut_Sci_Write.git
 cd Aut_Sci_Write
 npx skills add . -g -y
+pip install -r requirements.txt
 ```
 
-**Docker 安装**（***隔离环境*** — 本地无需 Python/Node.js）：
+#### 方式 4：Docker 安装（隔离环境）
+
+需要：**Docker** — 本地无需 Python/Node.js。
 
 ```bash
 git clone https://github.com/ShZhao27208/Aut_Sci_Write.git
@@ -306,21 +346,24 @@ docker-compose up -d
 > 如果安装后出现 `✗ sci-extract → PromptScript: PromptScript does not support global skill installation` 等错误，**无需担心，skills 已经安装成功**。此错误仅影响 PromptScript（一个不支持全局安装的目标平台），不影响 Claude Code 或其他 AI Agent 的正常使用。
 >
 > 如需消除此提示，去掉 `-g` 参数即可：
+>
 > ```bash
 > npx skills add ShZhao27208/Aut_Sci_Write -y
 > ```
+>
 > 或本地安装时：
+>
 > ```bash
 > npx skills add . -y
 > ```
 
-### Skill-local `.env` configuration
+### ⚙️ 配置说明
 
-Run `aut-sci-write-init-env` after installation, then put keys in each skill-local `.env` file:
-
-> **共享密钥：** 填好密钥后，请再次运行 `aut-sci-write-init-env`。初始化器会把共享密钥（如 `ZOTERO_API_KEY`）自动复制到所有声明了该密钥的其他 skill，因此只需填一次。若同一密钥在两个 skill 中填了不同的值，将保留靠前的那个（按 skill 顺序）并打印警告。
+首次使用任意技能时，会自动创建 `~/.aut_sci_write/.env` 并写入所有支持的 API key 模板。打开该文件，按需填入：
 
 ```bash
+# ~/.aut_sci_write/.env — 所有技能共用的统一配置文件
+
 # sci-zotero 文献管理（可选）
 ZOTERO_API_KEY=你的个人API密钥
 ZOTERO_USER_ID=你的Zotero数字用户ID
@@ -337,6 +380,8 @@ MOONSHOT_API_KEY=sk-...         # Moonshot API（国内推荐）
 # Windows 示例：
 TESSERACT_CMD="C:\Program Files\Tesseract-OCR\tesseract.exe"
 ```
+
+所有技能共享这一个 `.env` 文件 — 填写一次，所有需要该密钥的技能都会自动读取。请勿提交或公开此文件。
 
 ### 💬 使用示例
 
@@ -376,6 +421,7 @@ TESSERACT_CMD="C:\Program Files\Tesseract-OCR\tesseract.exe"
 ```
 Aut_Sci_Write/
 ├── skills/
+│   ├── _shared/              # 统一环境配置模块 (env_config.py)
 │   ├── sci-search/           # 文献检索与期刊指标（7 源）
 │   ├── sci-download/         # 论文 PDF 智能下载（8 源）
 │   ├── sci-extract/          # 文献核心内容提取
@@ -390,7 +436,6 @@ Aut_Sci_Write/
 │   └── journal_db.json       # 期刊指标数据库（可独立更新）
 ├── examples/                 # 示例输出（PDF + Markdown + PPT）
 ├── docs/                     # GitHub Pages 展示页
-├── init-env.js               # 按技能划分的.env 初始化器
 ├── skills-cli.js             # 本地技能发现助手
 └── requirements.txt        
 ```
