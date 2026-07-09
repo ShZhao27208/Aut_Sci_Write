@@ -10,7 +10,6 @@ library.json
 .DS_Store
 .vscode/
 .npmrc
-.claude-plugin/
 *.log
 skills/*/out/
 skills/*/output/

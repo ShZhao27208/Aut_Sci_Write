@@ -1,0 +1,29 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "shuozhao",
+  "description": "Aut_Sci_Write — Academic research enhancement skills for Claude Code",
+  "owner": {
+    "name": "Shuo Zhao",
+    "email": "2720828562@qq.com"
+  },
+  "plugins": [
+    {
+      "name": "academic-skills",
+      "version": "1.6.6",
+      "description": "Academic research suite: paper search, PDF download, Zotero sync, PPT/HTML generation, figure extraction, and peer review",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/sci-search",
+        "./skills/sci-download",
+        "./skills/sci-zotero",
+        "./skills/sci-ppt",
+        "./skills/sci-html",
+        "./skills/sci-figure",
+        "./skills/sci-extract",
+        "./skills/sci-review"
+      ]
+    }
+  ]
+}
+
