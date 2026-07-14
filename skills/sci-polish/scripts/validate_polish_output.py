@@ -57,7 +57,7 @@ def check_burstiness(text: str) -> dict:
 
     lengths = [word_count(s) for s in sentences]
     mean = sum(lengths) / len(lengths)
-    variance = sum((l - mean) ** 2 for l in lengths) / len(lengths)
+    variance = sum((length - mean) ** 2 for length in lengths) / len(lengths)
     sd = variance ** 0.5
     length_range = max(lengths) - min(lengths)
     mid_band = sum(1 for l in lengths if 10 <= l <= 20)
