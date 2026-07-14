@@ -599,6 +599,483 @@
       .hero-install code { padding: 12px 16px; }
       .copy-btn { width: 100%; justify-content: center; }
     }
+
+    /* ── 2026 Visual Refresh ── */
+    :root {
+      --bg-deep: #06101f;
+      --bg-mid: #09172a;
+      --bg-card: rgba(15, 34, 59, 0.78);
+      --bg-card-h: rgba(20, 45, 76, 0.94);
+      --gold: #f3c969;
+      --gold-dim: #c99b36;
+      --cyan: #67d8e8;
+      --cyan-soft: rgba(103, 216, 232, 0.12);
+      --text: #f6f8fb;
+      --text-muted: #9aabc2;
+      --border: rgba(157, 188, 224, 0.12);
+      --border-h: rgba(243, 201, 105, 0.38);
+      --shadow-lg: 0 28px 80px rgba(0, 0, 0, 0.32);
+    }
+
+    body {
+      background:
+        radial-gradient(circle at 12% 12%, rgba(36, 95, 148, 0.22), transparent 28%),
+        radial-gradient(circle at 88% 6%, rgba(243, 201, 105, 0.1), transparent 24%),
+        linear-gradient(180deg, #06101f 0%, #071426 46%, #06101f 100%);
+      letter-spacing: 0.005em;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.16;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.028) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.028) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: linear-gradient(to bottom, black, transparent 76%);
+    }
+
+    #stars { opacity: 0.38; }
+
+    .container { max-width: 1180px; }
+
+    nav {
+      top: 14px;
+      left: 50%;
+      right: auto;
+      width: min(1160px, calc(100% - 32px));
+      transform: translateX(-50%);
+      padding: 11px 14px 11px 18px;
+      border: 1px solid rgba(157, 188, 224, 0.15);
+      border-radius: 16px;
+      background: rgba(6, 16, 31, 0.72);
+      box-shadow: 0 12px 50px rgba(0,0,0,0.24);
+    }
+
+    .nav-logo {
+      display: inline-flex;
+      align-items: center;
+      font-size: 1rem;
+      letter-spacing: 0;
+    }
+
+    .nav-logo img {
+      width: 36px !important;
+      height: 36px !important;
+      margin-right: 10px !important;
+      border: 1px solid rgba(243, 201, 105, 0.55);
+    }
+
+    .nav-links { align-items: center; gap: 8px; }
+
+    .nav-links a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 36px;
+      padding: 0 13px;
+      border-radius: 10px;
+      font-size: 0.74rem;
+      transition: color .2s, background .2s, transform .2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+      background: rgba(255,255,255,0.06);
+      transform: translateY(-1px);
+    }
+
+    .nav-links li:last-child a {
+      color: #071426;
+      background: var(--gold);
+      box-shadow: 0 8px 24px rgba(243, 201, 105, 0.2);
+    }
+
+    .hero {
+      min-height: 940px;
+      padding: 156px 28px 88px;
+      isolation: isolate;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      width: min(780px, 92vw);
+      aspect-ratio: 1;
+      top: 46%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: -2;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, rgba(31, 91, 135, 0.21) 0 26%, transparent 27%),
+        repeating-radial-gradient(circle, transparent 0 76px, rgba(103, 216, 232, 0.08) 77px 78px);
+      filter: drop-shadow(0 0 90px rgba(37, 106, 159, 0.28));
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: auto 50% 0;
+      width: 86%;
+      height: 1px;
+      transform: translateX(-50%);
+      background: linear-gradient(90deg, transparent, rgba(243,201,105,.3), transparent);
+    }
+
+    .pixel-avatar {
+      position: relative;
+      margin-bottom: 22px;
+      padding: 10px;
+      border-radius: 50%;
+    }
+
+    .pixel-avatar::before,
+    .pixel-avatar::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1px solid rgba(103, 216, 232, 0.22);
+      animation: avatarOrbit 10s linear infinite;
+    }
+
+    .pixel-avatar::after {
+      inset: -9px;
+      border-color: rgba(243, 201, 105, 0.2);
+      animation-direction: reverse;
+      animation-duration: 14s;
+    }
+
+    .pixel-avatar img {
+      width: 118px !important;
+      height: 118px !important;
+      margin-bottom: 10px !important;
+      border: 1px solid rgba(243,201,105,.72) !important;
+      box-shadow: 0 0 0 6px rgba(243,201,105,.06), 0 18px 54px rgba(0,0,0,.38) !important;
+    }
+
+    @keyframes avatarOrbit { to { transform: rotate(360deg); } }
+
+    .hero-eyebrow {
+      margin-bottom: 26px;
+      padding: 7px 14px;
+      color: #b9f4fb;
+      border-color: rgba(103,216,232,.28);
+      background: rgba(103,216,232,.07);
+      box-shadow: inset 0 0 24px rgba(103,216,232,.04);
+    }
+
+    .hero-eyebrow::before {
+      background: var(--cyan);
+      box-shadow: 0 0 10px var(--cyan);
+    }
+
+    .hero h1 {
+      max-width: 900px;
+      margin-bottom: 20px;
+      font-size: clamp(3.6rem, 9vw, 7.4rem);
+      letter-spacing: -0.055em;
+      text-shadow: 0 20px 70px rgba(0,0,0,.3);
+    }
+
+    .hero h1 .accent {
+      color: transparent;
+      background: linear-gradient(115deg, #f8dea0 5%, var(--gold) 45%, #fff0c8 92%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      filter: drop-shadow(0 10px 28px rgba(243,201,105,.2));
+    }
+
+    .hero-sub {
+      max-width: 680px;
+      margin-bottom: 34px;
+      color: #aebbd0;
+      font-size: clamp(1rem, 2.1vw, 1.18rem);
+      line-height: 1.85;
+    }
+
+    .hero-install {
+      max-width: 660px;
+      margin-bottom: 24px;
+      border-color: rgba(103,216,232,.25);
+      border-radius: 14px;
+      background: rgba(5,14,26,.72);
+      box-shadow: 0 22px 70px rgba(0,0,0,.34), 0 0 0 1px rgba(255,255,255,.025) inset;
+      backdrop-filter: blur(20px);
+    }
+
+    .hero-install::before {
+      content: '$';
+      padding-left: 20px;
+      color: var(--gold);
+      font-family: var(--mono);
+      font-weight: 700;
+    }
+
+    .hero-install code { padding-left: 12px; text-align: left; }
+
+    .copy-btn {
+      min-height: 52px;
+      margin: 5px;
+      padding: 0 20px;
+      border-radius: 9px;
+    }
+
+    .btn {
+      min-height: 48px;
+      padding: 0 24px;
+      border-radius: 12px;
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, #f7d682, #e9b94d);
+      box-shadow: 0 14px 36px rgba(243,201,105,.22);
+    }
+
+    .btn-ghost {
+      background: rgba(255,255,255,.035);
+      border-color: rgba(255,255,255,.12);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(110px, 1fr));
+      gap: 10px;
+      width: min(620px, 100%);
+      margin: 30px auto 0;
+      opacity: 0;
+      animation: fadeUp .8s .82s ease forwards;
+    }
+
+    .hero-stat {
+      padding: 15px 18px;
+      border: 1px solid rgba(157,188,224,.12);
+      border-radius: 14px;
+      background: rgba(10,25,44,.42);
+      backdrop-filter: blur(12px);
+    }
+
+    .hero-stat strong {
+      display: block;
+      color: var(--text);
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem;
+      line-height: 1.1;
+    }
+
+    .hero-stat span {
+      color: var(--text-muted);
+      font-family: var(--mono);
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .045em;
+      text-transform: uppercase;
+    }
+
+    section { padding: 118px 0; }
+
+    .section-label {
+      width: fit-content;
+      margin: 0 auto 14px;
+      padding: 5px 10px;
+      border: 1px solid rgba(243,201,105,.16);
+      border-radius: 999px;
+      background: rgba(243,201,105,.055);
+    }
+
+    .section-title { letter-spacing: -.025em; }
+    .section-sub { margin-bottom: 54px; line-height: 1.75; }
+
+    .workflow-section,
+    .install-section {
+      background: linear-gradient(180deg, rgba(9,23,42,.76), rgba(7,20,38,.9));
+    }
+
+    .workflow-rows {
+      gap: 14px;
+      padding: 22px;
+      border: 1px solid rgba(157,188,224,.1);
+      border-radius: 24px;
+      background: rgba(4,13,25,.34);
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(18px);
+    }
+
+    .workflow-track { width: 100%; }
+
+    .wf-node {
+      flex: 0 0 168px;
+      min-width: 0;
+      min-height: 190px;
+      justify-content: center;
+      padding: 25px 12px 23px;
+      border-radius: 16px;
+      background: linear-gradient(145deg, rgba(18,40,68,.92), rgba(10,25,45,.78));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
+    }
+
+    .wf-node:hover {
+      transform: translateY(-3px);
+      background: linear-gradient(145deg, rgba(22,49,82,.98), rgba(12,30,53,.9));
+    }
+
+    .wf-node .wf-icon {
+      display: grid;
+      place-items: center;
+      width: 54px;
+      height: 54px;
+      border: 1px solid rgba(243,201,105,.15);
+      border-radius: 15px;
+      background: rgba(243,201,105,.055);
+      font-size: 1.6rem;
+    }
+
+    .wf-connector { padding: 0 6px; opacity: .48; }
+
+    #skills::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 40%, rgba(34,91,135,.13), transparent 44%);
+    }
+
+    .skills-grid { max-width: 1060px; gap: 16px; }
+
+    .skill-card {
+      min-height: 260px;
+      padding: 26px;
+      gap: 12px;
+      border-radius: 18px;
+      background: linear-gradient(145deg, rgba(16,36,62,.9), rgba(9,23,42,.82));
+      box-shadow: 0 16px 45px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.035);
+    }
+
+    .skill-card::after {
+      content: '';
+      position: absolute;
+      width: 130px;
+      height: 130px;
+      top: -78px;
+      right: -56px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(103,216,232,.12), transparent 68%);
+      transition: transform .35s, opacity .35s;
+    }
+
+    .skill-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 24px 65px rgba(0,0,0,.28), 0 0 0 1px rgba(243,201,105,.1);
+    }
+
+    .skill-card:hover::after { transform: scale(1.35); opacity: .9; }
+
+    .card-icon {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: var(--cyan-soft);
+      border: 1px solid rgba(103,216,232,.15);
+      font-size: 1.45rem;
+    }
+
+    .card-header { align-items: flex-start; flex-direction: column; gap: 8px; }
+    .card-title { font-size: 1.18rem; }
+    .card-desc { flex: 1; color: #a4b3c8; font-size: .9rem; }
+
+    .card-slug,
+    .trigger { border-radius: 999px; }
+
+    .trigger { background: rgba(255,255,255,.028); }
+
+    .install-steps {
+      max-width: 820px;
+      gap: 18px;
+      padding: 22px;
+      border: 1px solid rgba(157,188,224,.1);
+      border-radius: 24px;
+      background: rgba(4,13,25,.3);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .install-step {
+      padding: 22px;
+      border: 1px solid rgba(157,188,224,.1);
+      border-radius: 18px;
+      background: rgba(13,31,53,.7);
+    }
+
+    .step-circle {
+      border-radius: 14px;
+      background: linear-gradient(145deg, rgba(243,201,105,.16), rgba(243,201,105,.06));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+    }
+
+    .code-wrap {
+      border-color: rgba(103,216,232,.13);
+      border-radius: 13px;
+      background: #050d18;
+      box-shadow: inset 0 1px 18px rgba(0,0,0,.28);
+    }
+
+    footer {
+      padding: 64px 28px;
+      background: #040b15;
+    }
+
+    .footer-logo { font-size: 1.7rem; }
+
+    @media (max-width: 900px) {
+      .workflow-rows { padding: 16px; }
+      .workflow-track { overflow-x: auto; justify-content: flex-start; padding-bottom: 8px; }
+      .workflow-track .wf-node { min-width: 150px; }
+      .wf-connector { min-width: 28px; justify-content: center; }
+    }
+
+    @media (max-width: 768px) {
+      nav { top: 10px; width: calc(100% - 20px); }
+      .nav-links { display: flex; }
+      .nav-links li:not(:last-child) { display: none; }
+      .nav-links li:last-child a { min-height: 34px; padding: 0 12px; }
+      .hero { min-height: auto; padding: 140px 20px 80px; }
+      .hero::before { top: 42%; }
+      .workflow-track { flex-direction: row; align-items: stretch; }
+      .wf-connector { transform: none; padding: 0; }
+      .wf-node { width: auto; }
+      .install-step { grid-template-columns: 42px 1fr; gap: 14px; }
+      .step-circle { display: flex; width: 42px; height: 42px; }
+      .install-steps { padding: 12px; }
+      .install-step { padding: 18px 14px; }
+    }
+
+    @media (max-width: 560px) {
+      .hero h1 { font-size: clamp(3.15rem, 17vw, 4.7rem); }
+      .hero-sub br { display: none; }
+      .hero-install::before { display: none; }
+      .hero-install code { width: 100%; text-align: center; white-space: normal; }
+      .hero-stats { grid-template-columns: 1fr; gap: 8px; }
+      .hero-stat { display: flex; align-items: baseline; justify-content: space-between; padding: 12px 16px; }
+      .hero-stat strong { font-size: 1.2rem; }
+      section { padding: 88px 0; }
+      .container { padding: 0 18px; }
+      .skill-card { min-height: 0; }
+      .install-step { grid-template-columns: 1fr; }
+      .step-circle { display: none; }
+      pre { padding: 16px; font-size: .74rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
   </style>
 </head>
 <body>
@@ -628,10 +1105,10 @@
 
   <div class="hero-eyebrow">Claude Code Skills &nbsp;·&nbsp; 9 Modules</div>
   <h1>Aut_Sci_<span class="accent">Write</span></h1>
-  <p class="hero-sub">面向科研工作者的全链路 AI 写作Skills集<br>从文献检索到 PPT 生成，一套技能覆盖全流程</p>
+  <p class="hero-sub">面向科研工作者的全链路 AI 写作 Skills 集<br>从文献检索、深度阅读到成果展示，一套技能覆盖完整研究流程</p>
 
   <div class="hero-install">
-    <code id="install-cmd">npx</span> skills add ShZhao27208/Aut_Sci_Write <span class="c-flag">-g</span> <span class="c-flag">-y</span></code>
+    <code id="install-cmd">npx skills add ShZhao27208/Aut_Sci_Write -g -y</code>
     <button class="copy-btn" id="hero-copy" onclick="copyInstall()">COPY</button>
   </div>
 
@@ -641,6 +1118,12 @@
       GitHub 仓库
     </a>
     <a href="#install" class="btn btn-ghost">快速开始 →</a>
+  </div>
+
+  <div class="hero-stats" aria-label="项目概览">
+    <div class="hero-stat"><strong>9</strong><span>专业技能模块</span></div>
+    <div class="hero-stat"><strong>8+</strong><span>学术数据源</span></div>
+    <div class="hero-stat"><strong>1 Command</strong><span>完成全局安装</span></div>
   </div>
 </section>
 
