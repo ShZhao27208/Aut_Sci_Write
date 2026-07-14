@@ -1,6 +1,6 @@
 {
   "name": "shuozhao-academic-skills",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "Academic research enhancement skills for Claude Code: literature search, paper extraction, figure processing, HTML reports, PPT generation, review writing, paper polishing, and Zotero integration",
   "main": "index.js",
   "type": "module",
