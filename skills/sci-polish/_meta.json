@@ -1,0 +1,34 @@
+{
+  "name": "sci-polish",
+  "version": "1.0.0",
+  "author": "Shuo Zhao",
+  "description": "Academic paper polishing: AI detection reduction + 8-dimension quality improvement",
+  "category": "academic",
+  "tags": [
+    "academic-writing",
+    "polish",
+    "de-ai",
+    "humanize",
+    "grammar",
+    "coherence",
+    "terminology",
+    "journal-compliance"
+  ],
+  "triggers": [
+    "润色论文",
+    "polish paper",
+    "reduce AI detection",
+    "降AI率",
+    "de-AI",
+    "humanize paper",
+    "academic polish",
+    "论文润色",
+    "学术改写",
+    "improve writing",
+    "proofread",
+    "降低AI率",
+    "论文降重",
+    "paper polishing",
+    "rewrite academic"
+  ]
+}

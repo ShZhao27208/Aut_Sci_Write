@@ -1,0 +1,151 @@
+{
+  "_comment": "Initial journal style database. Extend as needed.",
+  "venues": [
+    {
+      "id": "ieee-tpami",
+      "name": "IEEE Transactions on Pattern Analysis and Machine Intelligence",
+      "short": "TPAMI",
+      "publisher": "IEEE",
+      "format": {
+        "columns": 2,
+        "citation_style": "numbered",
+        "abstract_type": "unstructured",
+        "abstract_max_words": 200,
+        "page_limit": null,
+        "reference_style": "ieee"
+      }
+    },
+    {
+      "id": "ieee-tip",
+      "name": "IEEE Transactions on Image Processing",
+      "short": "TIP",
+      "publisher": "IEEE",
+      "format": {
+        "columns": 2,
+        "citation_style": "numbered",
+        "abstract_type": "unstructured",
+        "abstract_max_words": 200,
+        "page_limit": null,
+        "reference_style": "ieee"
+      }
+    },
+    {
+      "id": "neurips",
+      "name": "Conference on Neural Information Processing Systems",
+      "short": "NeurIPS",
+      "publisher": "NeurIPS Foundation",
+      "format": {
+        "columns": 1,
+        "citation_style": "author-year",
+        "abstract_type": "unstructured",
+        "abstract_max_words": 300,
+        "page_limit": 9,
+        "page_limit_note": "excluding references and appendix",
+        "reference_style": "natbib"
+      }
+    },
+    {
+      "id": "icml",
+      "name": "International Conference on Machine Learning",
+      "short": "ICML",
+      "publisher": "PMLR",
+      "format": {
+        "columns": 1,
+        "citation_style": "author-year",
+        "abstract_type": "unstructured",
+        "abstract_max_words": 300,
+        "page_limit": 8,
+        "page_limit_note": "excluding references and appendix",
+        "reference_style": "natbib"
+      }
+    },
+    {
+      "id": "iclr",
+      "name": "International Conference on Learning Representations",
+      "short": "ICLR",
+      "publisher": "OpenReview",
+      "format": {
+        "columns": 1,
+        "citation_style": "author-year",
+        "abstract_type": "unstructured",
+        "abstract_max_words": 300,
+        "page_limit": 9,
+        "page_limit_note": "excluding references and appendix",
+        "reference_style": "natbib"
+      }
+    },
+    {
+      "id": "cvpr",
+      "name": "IEEE/CVF Conference on Computer Vision and Pattern Recognition",
+      "short": "CVPR",
+      "publisher": "IEEE",
+      "format": {
+        "columns": 2,
+        "citation_style": "numbered",
+        "abstract_type": "unstructured",
+        "abstract_max_words": 300,
+        "page_limit": 8,
+        "page_limit_note": "excluding references",
+        "reference_style": "ieee"
+      }
+    },
+    {
+      "id": "acl",
+      "name": "Annual Meeting of the Association for Computational Linguistics",
+      "short": "ACL",
+      "publisher": "ACL",
+      "format": {
+        "columns": 2,
+        "citation_style": "author-year",
+        "abstract_type": "unstructured",
+        "abstract_max_words": 200,
+        "page_limit": 8,
+        "page_limit_note": "excluding references and appendix (long paper)",
+        "reference_style": "acl_natbib"
+      }
+    },
+    {
+      "id": "aaai",
+      "name": "AAAI Conference on Artificial Intelligence",
+      "short": "AAAI",
+      "publisher": "AAAI Press",
+      "format": {
+        "columns": 2,
+        "citation_style": "author-year",
+        "abstract_type": "unstructured",
+        "abstract_max_words": 250,
+        "page_limit": 7,
+        "page_limit_note": "excluding references (main track)",
+        "reference_style": "aaai"
+      }
+    },
+    {
+      "id": "nature",
+      "name": "Nature (and Nature sub-journals)",
+      "short": "Nature",
+      "publisher": "Springer Nature",
+      "format": {
+        "columns": 1,
+        "citation_style": "numbered-superscript",
+        "abstract_type": "unstructured",
+        "abstract_max_words": 150,
+        "page_limit": null,
+        "reference_style": "nature"
+      }
+    },
+    {
+      "id": "elsevier-pr",
+      "name": "Pattern Recognition",
+      "short": "PR",
+      "publisher": "Elsevier",
+      "format": {
+        "columns": 1,
+        "citation_style": "numbered",
+        "abstract_type": "unstructured",
+        "abstract_max_words": 200,
+        "page_limit": null,
+        "reference_style": "elsarticle-num"
+      }
+    }
+  ]
+}

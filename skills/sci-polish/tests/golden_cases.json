@@ -1,0 +1,76 @@
+{
+  "description": "Golden test cases for sci-polish skill validation",
+  "cases": [
+    {
+      "name": "high-ai-abstract",
+      "description": "Abstract with heavy AI patterns — should trigger extensive de-AI editing",
+      "input": "In recent years, deep learning has attracted growing attention in the field of computer vision. This paper delves into a comprehensive framework that leverages robust feature extraction to streamline the overall pipeline. Furthermore, our novel approach utilizes a cutting-edge architecture that significantly enhances performance. Moreover, the proposed method demonstrates remarkable results across various benchmarks. It is worth noting that our holistic solution achieves state-of-the-art results. The experimental results clearly demonstrate that our method is pivotal for advancing the landscape of visual recognition.",
+      "expected_features": {
+        "no_tier1_words": true,
+        "burstiness_sd_gt_8": true,
+        "no_template_phrases": true,
+        "no_em_dash_overuse": true,
+        "protected_regions_intact": true,
+        "meaning_preserved": true
+      },
+      "expected_ai_score_before": ">60",
+      "expected_ai_score_after": "<25"
+    },
+    {
+      "name": "latex-protection",
+      "description": "Text with LaTeX commands — protected regions must remain intact",
+      "input": "As shown in Figure~\\ref{fig:arch}, our model $f(x) = \\sigma(Wx + b)$ builds on the Transformer architecture \\cite{vaswani2017attention}. The loss function is defined in Equation~\\ref{eq:loss}. \\begin{equation} \\mathcal{L} = -\\sum_{i=1}^{N} y_i \\log(\\hat{y}_i) \\end{equation} Furthermore, our comprehensive framework leverages robust representations.",
+      "expected_features": {
+        "protected_regions_intact": true,
+        "cite_preserved": ["vaswani2017attention"],
+        "ref_preserved": ["fig:arch", "eq:loss"],
+        "math_preserved": true,
+        "tier1_words_removed": ["comprehensive", "leverages", "robust"]
+      }
+    },
+    {
+      "name": "already-human-methods",
+      "description": "Well-written methods section — should receive minimal changes",
+      "input": "We trained the encoder for 100 epochs using AdamW with a learning rate of 3e-4 and batch size 64 on 4 A100 GPUs. The temperature parameter was set to 0.07 based on validation performance. Training took approximately 18 hours. We froze the backbone after epoch 50 and fine-tuned only the projection head for the remaining epochs.",
+      "expected_features": {
+        "minimal_changes": true,
+        "meaning_preserved": true,
+        "change_count_max": 2
+      }
+    },
+    {
+      "name": "uniform-burstiness",
+      "description": "Text with uniform sentence lengths — burstiness must improve",
+      "input": "The model processes input sequences of variable length. Each token is mapped to a dense embedding vector. The attention mechanism computes pairwise similarity scores. These scores determine the weighted combination of values. The output is passed through a feedforward network. Layer normalization is applied after each sub-layer. Residual connections help preserve gradient flow through layers.",
+      "expected_features": {
+        "burstiness_sd_gt_8": true,
+        "sentence_length_range_gte_20": true,
+        "mid_band_ratio_lt_50": true,
+        "meaning_preserved": true
+      }
+    },
+    {
+      "name": "overclaim-hedging",
+      "description": "Text with overclaiming — should be hedged appropriately",
+      "input": "Our method proves that attention is all you need for this task. The results universally demonstrate unprecedented performance gains. This approach will revolutionize the field of natural language processing. In all cases, our framework clearly outperforms every existing baseline without exception.",
+      "expected_features": {
+        "no_overclaim_patterns": true,
+        "hedging_appropriate": true,
+        "meaning_preserved": true,
+        "claims_qualified": ["proves that", "universally", "unprecedented", "will revolutionize", "in all cases"]
+      }
+    },
+    {
+      "name": "polish-only-grammar",
+      "description": "Text with grammar issues but no AI patterns — polish-only mode",
+      "mode": "polish-only",
+      "input": "The data shows that less parameters leads to underfitting. This allow the model learning more efficient representations. We conducted a experiment on CIFAR-10 dataset, which the results is shown in Table 1.",
+      "expected_features": {
+        "grammar_fixed": true,
+        "subject_verb_agreement": true,
+        "article_usage_correct": true,
+        "meaning_preserved": true
+      }
+    }
+  ]
+}

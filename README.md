@@ -7,8 +7,8 @@
 
 *A modular Agent Skills suite for the full academic research lifecycle*
 
-[![Version](https://img.shields.io/badge/version-1.6.0-2563eb.svg)](package.json)
-[![Skills](https://img.shields.io/badge/skills-8-0f766e.svg)](#-what-it-does)
+[![Version](https://img.shields.io/badge/version-1.7.0-2563eb.svg)](package.json)
+[![Skills](https://img.shields.io/badge/skills-9-0f766e.svg)](#-what-it-does)
 [![Academic Workflow](https://img.shields.io/badge/workflow-search%20%E2%86%92%20download%20%E2%86%92%20extract%20%E2%86%92%20review%20%E2%86%92%20slides-c2410c.svg)](#-what-it-does)
 [![Paper Types](https://img.shields.io/badge/papers-research%20%7C%20review%20%7C%20meta--analysis-7c3aed.svg)](#-what-it-does)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
@@ -43,6 +43,7 @@
 | `sci-zotero` | Sync Zotero library, add citations by DOI/ISBN/PMID, fetch open-access PDFs | /sci-zotero *Connect to my Zotero database* |
 | `sci-ppt` | Generate professional academic PPTX from paper PDFs or structured text, with LaTeX formula rendering | /sci-zotero *Turn this paper into a seminar presentation* |
 | `sci-html` | Convert PDFs, Markdown, outlines, or summaries into interactive academic HTML slide decks and browser reports. | /sci-html Turn this paper into an interactive HTML report |
+| `sci-polish` | Two-stage academic paper polishing: AI detection reduction + 8-dimension quality improvement (grammar, tone, coherence, conciseness, terminology, structure, clarity, journal compliance) | /sci-polish *Polish this paper for NeurIPS submission* |
 
 #### 🔌 API 
 
@@ -87,7 +88,7 @@ Update to latest version:
 
 #### Method 2: npx CLI
 
-**One-line install** (***Recommended*** — installs all 8 skills globally):
+**One-line install** (***Recommended*** — installs all 9 skills globally):
 
 ```bash
 npx skills add ShZhao27208/Aut_Sci_Write -g -y
@@ -198,6 +199,9 @@ Once installed, just type naturally in AI Agent — no commands to memorize:
 
 # HTML report generation
 "/sci-html Convert paper.pdf into an interactive browser-based academic report"
+
+# Paper polishing (de-AI + 8-dimension quality)
+"/sci-polish Polish this paper for NeurIPS submission, reduce AI detection rate"
 ```
 
 ### 📁 Repository Structure
@@ -213,6 +217,7 @@ Aut_Sci_Write/
 │   ├── sci-review/     # Literature review and rebuttal writing
 │   ├── sci-ppt/        # Academic PPTX generation 
 │   ├── sci-html/       # Interactive HTML reports and browser slide decks
+│   ├── sci-polish/     # Academic paper polishing: de-AI + 8-dimension quality
 │   └── sci-zotero/     # Zotero library integration
 ├── scripts/
 │   ├── extract_core_insights.py  # Compatibility wrapper for sci-extract CLI
@@ -258,6 +263,7 @@ Contributions welcome! Priority areas:
 | `sci-zotero` | Zotero 文献库同步，支持 DOI/ISBN/PMID 添加引用，自动获取 PDF | /sci-zotero *连接我的zotero数据库* |
 | `sci-ppt` | 从论文 PDF 或结构化文本一键生成学术 PPT，支持 LaTeX 公式渲染 | /sci-ppt *把这篇文献做成组会汇报PPT* |
 | `sci-html` | 将论文 PDF、Markdown、大纲或总结转换为可交互的 HTML 学术报告或浏览器幻灯片。 | /sci-html 把这篇论文做成网页版交互报告 |
+| `sci-polish` | 两阶段学术论文润色：降低 AI 检测率 + 八维质量提升（语法、语调、连贯性、简洁性、术语、结构、论证、期刊合规） | /sci-polish *帮我润色这篇论文，目标投 NeurIPS* |
 
 #### 🔌 API 
 
@@ -302,7 +308,7 @@ Contributions welcome! Priority areas:
 
 #### 方式 2：npx 命令安装
 
-**一行命令安装**（***推荐***，将全部 8 个技能进行全局安装）：
+**一行命令安装**（***推荐***，将全部 9 个技能进行全局安装）：
 
 ```bash
 npx skills add ShZhao27208/Aut_Sci_Write -g -y 
@@ -414,6 +420,9 @@ TESSERACT_CMD="C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 # 生成 HTML汇报
 "/sci-html 将 paper.pdf 转换成交互式 HTML 学术报告"
+
+# 论文润色（降AI率 + 八维提升）
+"/sci-polish 帮我润色这篇论文，目标期刊是 IEEE TPAMI"
 ```
 
 ### 📁 项目结构
@@ -429,6 +438,7 @@ Aut_Sci_Write/
 │   ├── sci-review/           # 综述写作与审稿回复
 │   ├── sci-ppt/              # PPT 生成引擎（模板、布局、解析器）
 │   ├── sci-html/             # html交互式报告生成
+│   ├── sci-polish/           # 论文润色：降AI率 + 八维质量提升
 │   └── sci-zotero/           # Zotero 文献库集成
 ├── scripts/
 │   ├── extract_core_insights.py  # sci-extract CLI 兼容包装

@@ -9,8 +9,8 @@
   "plugins": [
     {
       "name": "academic-skills",
-      "version": "1.6.7",
-      "description": "Academic research suite: paper search, PDF download, Zotero sync, PPT/HTML generation, figure extraction, and peer review",
+      "version": "1.7.0",
+      "description": "Academic research suite: paper search, PDF download, Zotero sync, PPT/HTML generation, figure extraction, peer review, and paper polishing",
       "source": "./",
       "strict": false,
       "skills": [
@@ -21,7 +21,8 @@
         "./skills/sci-html",
         "./skills/sci-figure",
         "./skills/sci-extract",
-        "./skills/sci-review"
+        "./skills/sci-review",
+        "./skills/sci-polish"
       ]
     }
   ]
