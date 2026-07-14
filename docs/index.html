@@ -65,7 +65,7 @@
     }
 
     /* ── Utility ── */
-    .container { max-width: 1120px; margin: 0 auto; padding: 0 28px; position: relative; z-index: 1; }
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 28px; position: relative; z-index: 1; }
 
     /* ── Nav ── */
     nav {
@@ -287,19 +287,25 @@
       align-items: stretch;
       justify-content: center;
       gap: 0;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
+    }
+    .workflow-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      align-items: center;
     }
     .wf-node {
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      padding: 24px 10px;
-      min-width: 100px;
+      padding: 32px 16px;
+      min-width: 140px;
       flex: 1;
       background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: 16px;
       position: relative;
       transition: border-color 0.25s, box-shadow 0.25s;
     }
@@ -309,34 +315,34 @@
     }
     .wf-node .step-num {
       font-family: var(--mono);
-      font-size: 0.68rem;
+      font-size: 0.78rem;
       color: var(--gold);
       font-weight: 600;
       letter-spacing: 0.08em;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
     .wf-node .wf-icon {
-      font-size: 2rem;
-      margin-bottom: 10px;
+      font-size: 2.6rem;
+      margin-bottom: 12px;
       filter: drop-shadow(0 0 6px rgba(232,179,57,0.3));
     }
     .wf-node .wf-label {
-      font-size: 0.85rem;
+      font-size: 1rem;
       font-weight: 700;
       color: var(--text);
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
     .wf-node .wf-skill {
       font-family: var(--mono);
-      font-size: 0.72rem;
+      font-size: 0.82rem;
       color: var(--gold);
     }
     .wf-connector {
       display: flex;
       align-items: center;
-      padding: 0 4px;
+      padding: 0 8px;
       color: var(--gold-dim);
-      font-size: 1rem;
+      font-size: 1.4rem;
       flex-shrink: 0;
     }
 
@@ -581,6 +587,7 @@
     /* ── Responsive ── */
     @media (max-width: 768px) {
       .nav-links { display: none; }
+      .workflow-rows { gap: 16px; }
       .workflow-track { flex-direction: column; align-items: center; }
       .wf-connector { transform: rotate(90deg); padding: 4px 0; }
       .wf-node { max-width: 100%; width: 100%; }
@@ -645,68 +652,71 @@
     <div class="gold-line" style="margin-bottom: 16px;"></div>
     <p class="section-sub">九个技能模块覆盖从文献发现到成果输出的完整链路</p>
 
-    <div class="workflow-track">
-      <div class="wf-node">
-        <div class="step-num">01</div>
-        <div class="wf-icon">🔍</div>
-        <div class="wf-label">文献检索</div>
-        <div class="wf-skill">sci-search</div>
+    <div class="workflow-rows">
+      <div class="workflow-track">
+        <div class="wf-node">
+          <div class="step-num">01</div>
+          <div class="wf-icon">🔍</div>
+          <div class="wf-label">文献检索</div>
+          <div class="wf-skill">sci-search</div>
+        </div>
+        <div class="wf-connector">→</div>
+        <div class="wf-node">
+          <div class="step-num">02</div>
+          <div class="wf-icon">⬇️</div>
+          <div class="wf-label">论文下载</div>
+          <div class="wf-skill">sci-download</div>
+        </div>
+        <div class="wf-connector">→</div>
+        <div class="wf-node">
+          <div class="step-num">03</div>
+          <div class="wf-icon">📄</div>
+          <div class="wf-label">论文解析</div>
+          <div class="wf-skill">sci-extract</div>
+        </div>
+        <div class="wf-connector">→</div>
+        <div class="wf-node">
+          <div class="step-num">04</div>
+          <div class="wf-icon">🖼️</div>
+          <div class="wf-label">图表提取</div>
+          <div class="wf-skill">sci-figure</div>
+        </div>
+        <div class="wf-connector">→</div>
+        <div class="wf-node">
+          <div class="step-num">05</div>
+          <div class="wf-icon">✍️</div>
+          <div class="wf-label">综述写作</div>
+          <div class="wf-skill">sci-review</div>
+        </div>
       </div>
-      <div class="wf-connector">→</div>
-      <div class="wf-node">
-        <div class="step-num">02</div>
-        <div class="wf-icon">⬇️</div>
-        <div class="wf-label">论文下载</div>
-        <div class="wf-skill">sci-download</div>
-      </div>
-      <div class="wf-connector">→</div>
-      <div class="wf-node">
-        <div class="step-num">03</div>
-        <div class="wf-icon">📄</div>
-        <div class="wf-label">论文解析</div>
-        <div class="wf-skill">sci-extract</div>
-      </div>
-      <div class="wf-connector">→</div>
-      <div class="wf-node">
-        <div class="step-num">04</div>
-        <div class="wf-icon">🖼️</div>
-        <div class="wf-label">图表提取</div>
-        <div class="wf-skill">sci-figure</div>
-      </div>
-      <div class="wf-connector">→</div>
-      <div class="wf-node">
-        <div class="step-num">05</div>
-        <div class="wf-icon">✍️</div>
-        <div class="wf-label">综述写作</div>
-        <div class="wf-skill">sci-review</div>
-      </div>
-      <div class="wf-connector">→</div>
-      <div class="wf-node">
-        <div class="step-num">06</div>
-        <div class="wf-icon">📚</div>
-        <div class="wf-label">文献管理</div>
-        <div class="wf-skill">sci-zotero</div>
-      </div>
-      <div class="wf-connector">→</div>
-      <div class="wf-node">
-        <div class="step-num">07</div>
-        <div class="wf-icon">🌐</div>
-        <div class="wf-label">HTML 报告</div>
-        <div class="wf-skill">sci-html</div>
-      </div>
-      <div class="wf-connector">→</div>
-      <div class="wf-node">
-        <div class="step-num">08</div>
-        <div class="wf-icon">📊</div>
-        <div class="wf-label">PPT 生成</div>
-        <div class="wf-skill">sci-ppt</div>
-      </div>
-      <div class="wf-connector">→</div>
-      <div class="wf-node">
-        <div class="step-num">09</div>
-        <div class="wf-icon">✨</div>
-        <div class="wf-label">论文润色</div>
-        <div class="wf-skill">sci-polish</div>
+      <div class="workflow-track">
+        <div class="wf-node">
+          <div class="step-num">06</div>
+          <div class="wf-icon">📚</div>
+          <div class="wf-label">文献管理</div>
+          <div class="wf-skill">sci-zotero</div>
+        </div>
+        <div class="wf-connector">→</div>
+        <div class="wf-node">
+          <div class="step-num">07</div>
+          <div class="wf-icon">🌐</div>
+          <div class="wf-label">HTML 报告</div>
+          <div class="wf-skill">sci-html</div>
+        </div>
+        <div class="wf-connector">→</div>
+        <div class="wf-node">
+          <div class="step-num">08</div>
+          <div class="wf-icon">📊</div>
+          <div class="wf-label">PPT 生成</div>
+          <div class="wf-skill">sci-ppt</div>
+        </div>
+        <div class="wf-connector">→</div>
+        <div class="wf-node">
+          <div class="step-num">09</div>
+          <div class="wf-icon">✨</div>
+          <div class="wf-label">论文润色</div>
+          <div class="wf-skill">sci-polish</div>
+        </div>
       </div>
     </div>
   </div>
