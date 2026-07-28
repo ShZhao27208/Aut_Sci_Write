@@ -209,6 +209,84 @@ class SciSearchTests(unittest.TestCase):
 
         self.assertEqual(results, papers)
 
+    def test_main_default_source_order_uses_only_four_enabled_sources(self):
+        calls = []
+
+        class KeyedFetcher:
+            def __init__(self, name):
+                self.name = name
+
+            def is_available(self):
+                return True
+
+            def search(self, query, limit, **kwargs):
+                calls.append(self.name)
+                return []
+
+        with mock.patch.object(self.module, "WoSFetcher", lambda: KeyedFetcher("wos")), \
+                mock.patch.object(
+                    self.module, "SpringerMetaFetcher", lambda: KeyedFetcher("springer_meta")
+                ), \
+                mock.patch.object(
+                    self.module, "SpringerOpenAccessFetcher", lambda: KeyedFetcher("springer_oa")
+                ), \
+                mock.patch.object(self.module, "ScopusFetcher", lambda: KeyedFetcher("scopus")), \
+                mock.patch.object(self.module.ArxivFetcher, "search") as arxiv, \
+                mock.patch.object(self.module.PubmedFetcher, "search") as pubmed, \
+                mock.patch.object(self.module.SemanticScholarFetcher, "search") as semantic, \
+                mock.patch.object(self.module.OpenAlexFetcher, "search") as openalex, \
+                mock.patch.object(self.module.time, "sleep"):
+            self.module.main(["GNSS NLOS", "--no-cache"])
+
+        self.assertEqual(calls, ["wos", "springer_meta", "springer_oa", "scopus"])
+        arxiv.assert_not_called()
+        pubmed.assert_not_called()
+        semantic.assert_not_called()
+        openalex.assert_not_called()
+
+    def test_main_keeps_non_default_sources_explicitly_accessible(self):
+        cases = [
+            ("arxiv", "ArxivFetcher"),
+            ("pubmed", "PubmedFetcher"),
+            ("semantic_scholar", "SemanticScholarFetcher"),
+            ("openalex", "OpenAlexFetcher"),
+        ]
+        for source, class_name in cases:
+            fetcher = mock.Mock()
+            fetcher.search.return_value = []
+            with self.subTest(source=source), \
+                    mock.patch.object(self.module, class_name, return_value=fetcher), \
+                    mock.patch.object(self.module.time, "sleep"):
+                self.module.main(["query", "--source", source, "--no-cache"])
+            fetcher.search.assert_called_once_with("query", 5)
+
+    def test_main_springer_source_runs_metadata_then_open_access(self):
+        calls = []
+
+        class SpringerFetcher:
+            def __init__(self, name):
+                self.name = name
+
+            def is_available(self):
+                return True
+
+            def search(self, query, limit, **kwargs):
+                calls.append(self.name)
+                return []
+
+        with mock.patch.object(
+                self.module,
+                "SpringerMetaFetcher",
+                lambda: SpringerFetcher("springer_meta"),
+            ), mock.patch.object(
+                self.module,
+                "SpringerOpenAccessFetcher",
+                lambda: SpringerFetcher("springer_oa"),
+            ), mock.patch.object(self.module.time, "sleep"):
+            self.module.main(["query", "--source", "springer", "--no-cache"])
+
+        self.assertEqual(calls, ["springer_meta", "springer_oa"])
+
     def test_wos_builds_bounded_recent_query_and_parses_citations(self):
         payload = {
             "hits": [{

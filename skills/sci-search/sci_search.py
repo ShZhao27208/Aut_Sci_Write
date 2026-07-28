@@ -1116,37 +1116,25 @@ def post_process_results(
     filtered = filter_results_by_year(results, year_from, year_to)
     return sort_results(dedupe_results(filtered), sort_mode)
 
-def main():
+def main(argv: Optional[List[str]] = None):
     configure_windows_console()
-    parser = argparse.ArgumentParser(description='Sci Search Tool')
-    parser.add_argument('query', help='Search query')
-    parser.add_argument('--limit', type=int, default=5)
-    parser.add_argument('--output', help='Output to markdown file')
-    parser.add_argument('--source', choices=['all', 'arxiv', 'pubmed', 'wos', 'springer', 'springer_meta', 'springer_oa', 'scopus', 'semantic_scholar', 'openalex'], default='all',
-                        help='Search source (default: all available)')
-    parser.add_argument('--library', default=str(LIBRARY_PATH), help='Path to library cache JSON')
-    parser.add_argument('--no-cache', action='store_true', help='Skip writing search results to library cache')
-    args = parser.parse_args()
+    args = parse_args(argv)
 
     results = []
     wos = WoSFetcher()
 
     print(f"Searching for: {args.query}...")
 
-    if args.source in ('all', 'arxiv'):
-        print("  - arXiv...")
-        results.extend(ArxivFetcher().search(args.query, args.limit))
-        time.sleep(RATE_LIMIT_DELAY)
-
-    if args.source in ('all', 'pubmed'):
-        print("  - PubMed...")
-        results.extend(PubmedFetcher().search(args.query, args.limit))
-        time.sleep(RATE_LIMIT_DELAY)
-
     if args.source in ('all', 'wos'):
         if wos.is_available():
             print("  - Web of Science...")
-            results.extend(wos.search(args.query, args.limit))
+            results.extend(wos.search(
+                args.query,
+                args.limit,
+                year_from=args.year_from,
+                year_to=args.year_to,
+                sort_mode=args.sort,
+            ))
         elif args.source == 'wos':
             print("  WOS_API_KEY is not configured in ~/.aut_sci_write/.env. Get a free key at: https://developer.clarivate.com/apis/wos-starter")
             return
@@ -1157,7 +1145,13 @@ def main():
         springer_meta = SpringerMetaFetcher()
         if springer_meta.is_available():
             print("  - Springer Nature (Meta)...")
-            results.extend(springer_meta.search(args.query, args.limit))
+            results.extend(springer_meta.search(
+                args.query,
+                args.limit,
+                year_from=args.year_from,
+                year_to=args.year_to,
+                sort_mode=args.sort,
+            ))
             time.sleep(RATE_LIMIT_DELAY)
         elif args.source in ('springer', 'springer_meta'):
             print("  SPRINGER_API_KEY is not configured in ~/.aut_sci_write/.env. Get a free key at: https://dev.springernature.com/")
@@ -1169,7 +1163,13 @@ def main():
         springer_oa = SpringerOpenAccessFetcher()
         if springer_oa.is_available():
             print("  - Springer Nature (Open Access)...")
-            results.extend(springer_oa.search(args.query, args.limit))
+            results.extend(springer_oa.search(
+                args.query,
+                args.limit,
+                year_from=args.year_from,
+                year_to=args.year_to,
+                sort_mode=args.sort,
+            ))
             time.sleep(RATE_LIMIT_DELAY)
         elif args.source == 'springer_oa':
             print("  SPRINGER_OA_API_KEY / SPRINGER_API_KEY is not configured. Get a free key at: https://dev.springernature.com/")
@@ -1181,7 +1181,13 @@ def main():
         scopus = ScopusFetcher()
         if scopus.is_available():
             print("  - Scopus...")
-            results.extend(scopus.search(args.query, args.limit))
+            results.extend(scopus.search(
+                args.query,
+                args.limit,
+                year_from=args.year_from,
+                year_to=args.year_to,
+                sort_mode=args.sort,
+            ))
             time.sleep(RATE_LIMIT_DELAY)
         elif args.source == 'scopus':
             print("  SCOPUS_API_KEY is not configured in ~/.aut_sci_write/.env. Get a free key at: https://dev.elsevier.com/")
@@ -1189,17 +1195,32 @@ def main():
         else:
             print("  Scopus skipped (SCOPUS_API_KEY is not configured in ~/.aut_sci_write/.env)")
 
-    if args.source in ('all', 'semantic_scholar'):
+    if args.source == 'arxiv':
+        print("  - arXiv...")
+        results.extend(ArxivFetcher().search(args.query, args.limit))
+        time.sleep(RATE_LIMIT_DELAY)
+
+    if args.source == 'pubmed':
+        print("  - PubMed...")
+        results.extend(PubmedFetcher().search(args.query, args.limit))
+        time.sleep(RATE_LIMIT_DELAY)
+
+    if args.source == 'semantic_scholar':
         print("  - Semantic Scholar...")
         results.extend(SemanticScholarFetcher().search(args.query, args.limit))
         time.sleep(RATE_LIMIT_DELAY)
 
-    if args.source in ('all', 'openalex'):
+    if args.source == 'openalex':
         print("  - OpenAlex...")
         results.extend(OpenAlexFetcher().search(args.query, args.limit))
         time.sleep(RATE_LIMIT_DELAY)
 
-    results = dedupe_results(results)
+    results = post_process_results(
+        results,
+        year_from=args.year_from,
+        year_to=args.year_to,
+        sort_mode=args.sort,
+    )
 
     if not results:
         print("No results found.")
