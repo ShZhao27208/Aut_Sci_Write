@@ -219,6 +219,32 @@ def get_journal_metrics(journal_name: str) -> Optional[Dict]:
     # No confident match: return None rather than fabricate metrics.
     return None
 
+
+def normalize_doi(value: str) -> str:
+    normalized = str(value or "").strip().lower()
+    if normalized.startswith("https://doi.org/"):
+        normalized = normalized[len("https://doi.org/"):]
+    if normalized.startswith("doi:"):
+        normalized = normalized[len("doi:"):].strip()
+    return normalized
+
+
+def normalize_title(value: str) -> str:
+    lowered = str(value or "").lower()
+    return re.sub(r"\s+", " ", re.sub(r"[\W_]+", " ", lowered)).strip()
+
+
+def papers_match(left: Dict, right: Dict) -> bool:
+    left_doi = normalize_doi(left.get("doi", ""))
+    right_doi = normalize_doi(right.get("doi", ""))
+    if left_doi and right_doi:
+        return left_doi == right_doi
+
+    left_title = normalize_title(left.get("title", ""))
+    right_title = normalize_title(right.get("title", ""))
+    return bool(left_title and right_title and left_title == right_title)
+
+
 class PaperLibrary:
     def __init__(self, library_path: str = str(LIBRARY_PATH)):
         self.library_path = library_path
@@ -239,14 +265,6 @@ class PaperLibrary:
         with open(self.library_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
-    def _paper_key(self, paper: Dict) -> tuple:
-        return (
-            paper.get('source', ''),
-            paper.get('url', ''),
-            paper.get('doi', ''),
-            paper.get('title', '').strip().lower(),
-        )
-
     def add_paper(self, paper: Dict):
         # Decorate with metrics if available
         paper = dict(paper)
@@ -255,9 +273,8 @@ class PaperLibrary:
             if metrics:
                 paper['journal_metrics'] = metrics
 
-        paper_key = self._paper_key(paper)
         for index, existing in enumerate(self.papers):
-            if self._paper_key(existing) == paper_key:
+            if papers_match(existing, paper):
                 self.papers[index] = paper
                 self._save_library()
                 return
@@ -949,21 +966,11 @@ def format_markdown(paper: Dict, index: int) -> str:
 
 def dedupe_results(results: List[Dict]) -> List[Dict]:
     """Deduplicate cross-source results while keeping first-seen order."""
-    seen = set()
     deduped = []
-
     for paper in results:
-        key = (
-            paper.get('source', ''),
-            paper.get('url', ''),
-            paper.get('doi', ''),
-            paper.get('title', '').strip().lower(),
-        )
-        if key in seen:
+        if any(papers_match(existing, paper) for existing in deduped):
             continue
-        seen.add(key)
         deduped.append(paper)
-
     return deduped
 
 def main():

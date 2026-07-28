@@ -90,6 +90,66 @@ class SciSearchTests(unittest.TestCase):
 
         self.assertEqual([paper["title"] for paper in deduped], ["Paper A", "Paper B"])
 
+    def test_dedupe_results_uses_normalized_doi_across_sources(self):
+        wos = {
+            "source": "wos",
+            "title": "GNSS NLOS Mitigation",
+            "url": "https://example.test/wos",
+            "doi": "10.1000/GNSS.1",
+        }
+        scopus = {
+            "source": "scopus",
+            "title": "A different provider title",
+            "url": "https://example.test/scopus",
+            "doi": "https://doi.org/10.1000/gnss.1",
+        }
+
+        self.assertEqual(self.module.dedupe_results([wos, scopus]), [wos])
+
+    def test_dedupe_results_falls_back_to_title_when_either_doi_is_missing(self):
+        without_doi = {
+            "source": "springer_meta",
+            "title": "GNSS-NLOS: Mitigation!",
+            "url": "https://example.test/meta",
+            "doi": "",
+        }
+        with_doi = {
+            "source": "scopus",
+            "title": "gnss nlos mitigation",
+            "url": "https://example.test/scopus",
+            "doi": "10.1000/gnss.2",
+        }
+
+        self.assertEqual(
+            self.module.dedupe_results([without_doi, with_doi]),
+            [without_doi],
+        )
+
+    def test_dedupe_results_keeps_same_title_with_two_different_dois(self):
+        first = {"source": "wos", "title": "Shared", "url": "a", "doi": "10.1/a"}
+        second = {"source": "scopus", "title": "Shared", "url": "b", "doi": "10.1/b"}
+
+        self.assertEqual(self.module.dedupe_results([first, second]), [first, second])
+
+    def test_normalize_title_preserves_unicode_words(self):
+        self.assertEqual(self.module.normalize_title("卫星-导航！"), "卫星 导航")
+
+    def test_paper_library_updates_cross_source_duplicate_by_doi(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            library = self.module.PaperLibrary(str(Path(tmp_dir) / "library.json"))
+            library.add_paper({
+                "source": "wos", "title": "Paper", "authors": [], "year": "2025",
+                "url": "a", "doi": "10.1000/PAPER",
+            })
+            library.add_paper({
+                "source": "scopus", "title": "Paper from Scopus", "authors": [],
+                "year": "2025", "url": "b",
+                "doi": "https://doi.org/10.1000/paper",
+            })
+
+        self.assertEqual(len(library.papers), 1)
+        self.assertEqual(library.papers[0]["source"], "scopus")
+
 
 if __name__ == "__main__":
     unittest.main()
