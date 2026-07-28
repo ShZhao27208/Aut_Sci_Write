@@ -1,6 +1,6 @@
 ---
 name: sci-search
-description: Academic paper search and metrics analysis. Searches arXiv, PubMed, Web of Science, Springer Nature, Scopus, Semantic Scholar, and OpenAlex simultaneously with journal impact factor data. Triggers on requests to search for papers or find literature.
+description: Academic paper search and metrics analysis. Searches enabled defaults in priority order (Web of Science, Springer Metadata, Springer Open Access, Scopus) with journal impact factor data. arXiv, PubMed, Semantic Scholar, and OpenAlex require explicit source selection. Triggers on requests to search for papers or find literature.
 author: Shuo Zhao         
 license: MIT
 copyright: © 2026 Shuo Zhao. All rights reserved. 
@@ -42,7 +42,8 @@ Academic paper search and metrics analysis tool for scientific research workflow
 - "get impact factor for [topic] papers"
 
 ## Capabilities
-- **Seven-Source Search**: Simultaneously searches arXiv, PubMed, **Web of Science**, **Springer Nature**, **Scopus**, **Semantic Scholar**, and **OpenAlex** (API-key-gated sources activate when keys are configured).
+- **Default Search Order**: Searches enabled **Web of Science**, **Springer Metadata**, **Springer Open Access**, and **Scopus** sources in that priority order.
+- **Explicit-Only Sources**: arXiv, PubMed, Semantic Scholar, and OpenAlex are searched only when selected explicitly with `--source`.
 - **Web of Science Integration**: Returns SCI-indexed papers with times-cited counts — the gold standard for academic quality filtering.
 - **Springer Nature Integration**: Returns articles from Springer, Nature, Palgrave Macmillan, and other Springer Nature imprints with DOI links.
 - **Scopus Integration**: Elsevier's largest abstract and citation database; returns cited-by counts.
@@ -51,7 +52,8 @@ Academic paper search and metrics analysis tool for scientific research workflow
 - **Journal Metrics**: Automatically supplements results with JCR partitions and Impact Factors (IF).
 - **Ranking & Highlighting**: Highlights top-tier journals (Nature, Science, Advanced Materials, etc.).
 - **Markdown Export**: Generates formatted markdown reports of search results.
-- **Source Selection**: Use `--source scopus`, `--source springer`, `--source semantic_scholar`, `--source openalex`, `--source wos`, or `--source all` for all sources.
+- **Source Selection**: `--source all` searches enabled default sources. Use `--source arxiv`, `--source pubmed`, `--source wos`, `--source springer`, `--source springer_meta`, `--source springer_oa`, `--source scopus`, `--source semantic_scholar`, or `--source openalex` to select a source explicitly.
+- **Search Controls**: `--year-from` and `--year-to` set inclusive year bounds, `--sort recent` is the default, and `--limit` applies per source.
 
 ## Configuration
 
@@ -122,8 +124,11 @@ OPENALEX_EMAIL=your_email@example.com
 Main script: `./sci_search.py`
 
 ```bash
-# Search all sources (arXiv + PubMed + WoS + Springer + Scopus + Semantic Scholar + OpenAlex)
+# Search enabled default sources (WoS + Springer Metadata + Springer Open Access + Scopus)
 python skills/sci-search/sci_search.py "perovskite solar cells" --limit 5
+
+# Search a bounded recent year range; --limit applies per source
+python skills/sci-search/sci_search.py "GNSS NLOS" --year-from 2022 --year-to 2026 --sort recent --limit 5
 
 # Search Web of Science only
 python skills/sci-search/sci_search.py "solid state electrolyte" --source wos --limit 10

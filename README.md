@@ -35,7 +35,7 @@
 
 | Skill | Description | Example Trigger |
 |:------|:------------|:----------------|
-| `sci-search` | Search arXiv + PubMed + **Web of Science** + **Elsevier** +**Springer** +  Semantic Scholar + OpenAlex simultaneously with JCR tier & impact factor data | /sci-search *Find high-IF papers on perovskite solar cells* |
+| `sci-search` | Search enabled defaults in priority order: **Web of Science** → **Springer Metadata** → **Springer Open Access** → **Scopus**, with JCR tier & impact factor data; arXiv, PubMed, Semantic Scholar, and OpenAlex require explicit `--source` selection | /sci-search *Find high-IF papers on perovskite solar cells* |
 | `sci-download` | Download paper PDFs with intelligent DOI routing across 8 sources:  **Elsevier**, **Springer**, IEEE, arXiv, Unpaywall, Semantic Scholar, PubMed Central, CNKI | /sci-download *Download 10.1038/s41586-023-06600-9* |
 | `sci-extract` | Extract core insights, experimental parameters, and conclusions from PDFs | /sci-extract  *Analyze the key findings of paper.pdf* |
 | `sci-figure` | Auto-detect and crop figures from PDFs at 600 DPI, with subfigure splitting | /sci-figure *Extract Figure 3c from this paper* |
@@ -204,13 +204,15 @@ Once installed, just type naturally in AI Agent — no commands to memorize:
 "/sci-polish Polish this paper for NeurIPS submission, reduce AI detection rate"
 ```
 
+The enabled default sources are searched in this order: Web of Science → Springer Metadata → Springer Open Access → Scopus. arXiv, PubMed, Semantic Scholar, and OpenAlex require explicit `--source` selection. `--year-from` and `--year-to` are inclusive; `--sort recent` is the default; and `--limit` applies per source.
+
 ### 📁 Repository Structure
 
 ```
 Aut_Sci_Write/
 ├── skills/
 │   ├── _shared/        # Unified env config module (env_config.py)
-│   ├── sci-search/     # Literature search with journal metrics (7 sources)
+│   ├── sci-search/     # Literature search with journal metrics (4 default sources)
 │   ├── sci-download/   # Paper PDF download with intelligent DOI routing (8 sources)
 │   ├── sci-extract/    # Paper analysis and structured insight extraction
 │   ├── sci-figure/     # PDF figure and subfigure extraction
@@ -255,7 +257,7 @@ Contributions welcome! Priority areas:
 
 | 技能 | 功能描述 | 触发词示例 |
 |------|----------|:----------|
-| `sci-search` | arXiv + PubMed + **Web of Science** + **Elsevier** +**Springer**  + Semantic Scholar + OpenAlex 七源检索，自动附加 JCR 分区和影响因子 | /sci-search *搜索钙钛矿太阳能电池最新论文* |
+| `sci-search` | 默认按 **Web of Science** → **Springer Metadata** → **Springer Open Access** → **Scopus** 的优先顺序检索并附加 JCR 分区和影响因子；arXiv、PubMed、Semantic Scholar、OpenAlex 仅在显式指定 `--source` 时检索 | /sci-search *搜索钙钛矿太阳能电池最新论文* |
 | `sci-download` | 论文 PDF 智能下载，根据 DOI 前缀自动路由到 **Elsevier**、**Springer**、IEEE、arXiv、Unpaywall、Semantic Scholar、PubMed Central,、知网 8 个数据源 | /sci-download *下载 10.1038/s41586-023-06600-9* |
 | `sci-extract` | 从 PDF 提取核心发现、实验参数、数值对比和主要结论 | /sci-extract *分析 paper.pdf 的核心结论* |
 | `sci-figure` | 自动检测并裁剪论文图片（600 DPI），支持复合图拆分为子图 | /sci-figure *提取论文第3张图的子图* |
@@ -425,13 +427,15 @@ TESSERACT_CMD="C:\Program Files\Tesseract-OCR\tesseract.exe"
 "/sci-polish 帮我润色这篇论文，目标期刊是 IEEE TPAMI"
 ```
 
+默认数据源的检索顺序为 Web of Science → Springer Metadata → Springer Open Access → Scopus。arXiv、PubMed、Semantic Scholar、OpenAlex 需要通过 `--source` 显式选择。`--year-from` 和 `--year-to` 是包含边界的年份范围；默认使用 `--sort recent`；`--limit` 按每个数据源分别计算。
+
 ### 📁 项目结构
 
 ```
 Aut_Sci_Write/
 ├── skills/
 │   ├── _shared/              # 统一环境配置模块 (env_config.py)
-│   ├── sci-search/           # 文献检索与期刊指标（7 源）
+│   ├── sci-search/           # 文献检索与期刊指标（4 个默认源）
 │   ├── sci-download/         # 论文 PDF 智能下载（8 源）
 │   ├── sci-extract/          # 文献核心内容提取
 │   ├── sci-figure/           # 论文图表检测与裁剪

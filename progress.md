@@ -54,3 +54,48 @@
 - Rollback point: commit `9849e59`; run
   `git switch -c sci-search-plan-base 9849e59` to create a recovery branch
   before the plan was added.
+
+## 2026-07-28 - Task: Improve sci-search default strategy and result quality
+
+### What was done
+
+- Changed the default search to Web of Science, Springer Metadata, Springer
+  Open Access, and Scopus in priority order while retaining explicit access to
+  arXiv, PubMed, Semantic Scholar, and OpenAlex.
+- Added inclusive year bounds, recent/relevance sorting, corrected WoS citation
+  parsing, provider-specific queries, and DOI/title cross-source identity.
+- Updated English, Chinese, skill, and website documentation for the revised
+  search contract.
+
+### Testing
+
+- `conda run -n aut-sci-write python -m unittest discover -s tests -p
+  "test_*.py" -v` - 25 tests passed.
+- `conda run --no-capture-output -n aut-sci-write python -m ruff check
+  --select 'F,E9' skills/sci-search/sci_search.py tests/test_sci_search.py` -
+  passed; 53 pre-existing full-Ruff findings remain outside this task.
+- `conda run -n aut-sci-write python -m compileall -q
+  skills/sci-search/sci_search.py tests/test_sci_search.py` - passed.
+- CLI help exposed `--year-from`, `--year-to`, and
+  `--sort {relevance,recent}`; the stale seven-source claim scan returned no
+  matches.
+- Bounded live `GNSS NLOS` query attempted WoS, Springer Metadata, Springer
+  Open Access, and Scopus in that order and returned 6 results: 2 WoS, 2
+  Springer Metadata, 1 Springer Open Access, and 1 Scopus. All results were
+  dated 2026 and the final order satisfied recent-first sorting. No provider
+  error or credential exposure was observed.
+- `git diff --check 9849e59..HEAD` and the working-tree whitespace check passed.
+
+### Notes
+
+- `skills/sci-search/sci_search.py` - revised source orchestration, provider
+  queries, citation parsing, result processing, and cache identity.
+- `tests/test_sci_search.py` - added deterministic coverage for the revised
+  search contract.
+- `skills/sci-search/SKILL.md` - documented default sources and new CLI options.
+- `README.md` - updated English and Chinese search descriptions.
+- `docs/index.html` - updated the public sci-search feature description.
+- `progress.md` - recorded implementation and verification evidence.
+- Rollback point: commit `9849e59`; run `git switch main` to return to the
+  unchanged main branch, or `git switch -c sci-search-before-fix 9849e59` to
+  create a recovery branch at the pre-implementation state.
