@@ -368,16 +368,30 @@ class WoSFetcher:
     def is_available(self) -> bool:
         return bool(self.api_key)
 
-    def search(self, query: str, max_results: int = 5) -> List[Dict]:
+    def search(
+        self,
+        query: str,
+        max_results: int = 5,
+        year_from: Optional[int] = None,
+        year_to: Optional[int] = None,
+        sort_mode: str = "recent",
+    ) -> List[Dict]:
         if not self.api_key:
             return []
 
+        wos_query = f"TS=({query})"
+        if year_from is not None or year_to is not None:
+            start_year = year_from if year_from is not None else 1900
+            end_year = year_to if year_to is not None else datetime.now().year
+            wos_query += f" AND PY=({start_year}-{end_year})"
         params = {
-            "q": f"TS=({query})",
+            "q": wos_query,
             "db": "WOS",
             "limit": min(max_results, 10),
             "page": 1,
         }
+        if sort_mode == "recent":
+            params["sortField"] = "PY+D"
         url = f"{self.API_URL}?{urllib.parse.urlencode(params)}"
         req = urllib.request.Request(url, headers={
             "X-ApiKey": self.api_key,
@@ -412,6 +426,15 @@ class WoSFetcher:
 
                 uid = hit.get("uid", "")
                 url_link = f"https://www.webofscience.com/wos/woscc/full-record/{uid}" if uid else ""
+                citations = hit.get("citations", [])
+                times_cited = next(
+                    (
+                        item.get("count", "")
+                        for item in citations
+                        if isinstance(item, dict) and "count" in item
+                    ),
+                    "",
+                )
 
                 paper = {
                     "source": "wos",
@@ -421,13 +444,26 @@ class WoSFetcher:
                     "journal": journal,
                     "url": url_link,
                     "doi": doi,
-                    "times_cited": hit.get("timesCited", ""),
+                    "times_cited": times_cited,
                 }
                 papers.append(paper)
             return papers
         except Exception as e:
             print(f"Web of Science error: {e}")
             return []
+
+
+def _springer_query(
+    query: str,
+    year_from: Optional[int],
+    year_to: Optional[int],
+) -> str:
+    parts = [f"keyword:{query}"]
+    if year_from is not None:
+        parts.append(f"datefrom:{year_from}-01-01")
+    if year_to is not None:
+        parts.append(f"dateto:{year_to}-12-31")
+    return " ".join(parts)
 
 
 class SpringerMetaFetcher:
@@ -445,12 +481,19 @@ class SpringerMetaFetcher:
     def is_available(self) -> bool:
         return bool(self.api_key)
 
-    def search(self, query: str, max_results: int = 5) -> List[Dict]:
+    def search(
+        self,
+        query: str,
+        max_results: int = 5,
+        year_from: Optional[int] = None,
+        year_to: Optional[int] = None,
+        sort_mode: str = "recent",
+    ) -> List[Dict]:
         if not self.api_key:
             return []
 
         params = {
-            "q": f'keyword:"{query}"',
+            "q": _springer_query(query, year_from, year_to),
             "api_key": self.api_key,
             "p": min(max_results, 25),
             "s": 1,
@@ -520,12 +563,19 @@ class SpringerOpenAccessFetcher:
     def is_available(self) -> bool:
         return bool(self.api_key)
 
-    def search(self, query: str, max_results: int = 5) -> List[Dict]:
+    def search(
+        self,
+        query: str,
+        max_results: int = 5,
+        year_from: Optional[int] = None,
+        year_to: Optional[int] = None,
+        sort_mode: str = "recent",
+    ) -> List[Dict]:
         if not self.api_key:
             return []
 
         params = {
-            "q": f'keyword:"{query}"',
+            "q": _springer_query(query, year_from, year_to),
             "api_key": self.api_key,
             "p": min(max_results, 25),
             "s": 1,
@@ -610,15 +660,27 @@ class ScopusFetcher:
     def is_available(self) -> bool:
         return bool(self.api_key)
 
-    def search(self, query: str, max_results: int = 5) -> List[Dict]:
+    def search(
+        self,
+        query: str,
+        max_results: int = 5,
+        year_from: Optional[int] = None,
+        year_to: Optional[int] = None,
+        sort_mode: str = "recent",
+    ) -> List[Dict]:
         if not self.api_key:
             return []
 
+        scopus_query = f"TITLE-ABS-KEY({query})"
+        if year_from is not None:
+            scopus_query += f" AND PUBYEAR > {year_from - 1}"
+        if year_to is not None:
+            scopus_query += f" AND PUBYEAR < {year_to + 1}"
         params = {
-            "query": f'TITLE-ABS-KEY("{query}")',
+            "query": scopus_query,
             "count": min(max_results, 25),
             "start": 0,
-            "sort": "-relevancy",
+            "sort": "-coverDate" if sort_mode == "recent" else "-relevancy",
         }
         url = f"{self.API_URL}?{urllib.parse.urlencode(params)}"
         req = urllib.request.Request(url, headers={

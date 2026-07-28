@@ -3,6 +3,8 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
+from urllib.parse import parse_qs, urlsplit
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -15,6 +17,20 @@ def load_module():
     assert spec.loader is not None
     spec.loader.exec_module(module)
     return module
+
+
+class FakeResponse:
+    def __init__(self, payload):
+        self.payload = json.dumps(payload).encode("utf-8")
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        return False
+
+    def read(self):
+        return self.payload
 
 
 class SciSearchTests(unittest.TestCase):
@@ -192,6 +208,81 @@ class SciSearchTests(unittest.TestCase):
         results = self.module.post_process_results(papers, None, None, "relevance")
 
         self.assertEqual(results, papers)
+
+    def test_wos_builds_bounded_recent_query_and_parses_citations(self):
+        payload = {
+            "hits": [{
+                "uid": "WOS:1", "title": "GNSS NLOS", "names": {"authors": []},
+                "source": {"sourceTitle": "Journal", "publishYear": 2025},
+                "identifiers": {"doi": "10.1000/test"},
+                "citations": [{"db": "WOS", "count": 12}],
+            }]
+        }
+        with mock.patch.object(self.module, "get_config_value", return_value="test-key"), \
+                mock.patch.object(
+                    self.module.urllib.request,
+                    "urlopen",
+                    return_value=FakeResponse(payload),
+                ) as urlopen:
+            papers = self.module.WoSFetcher().search(
+                "GNSS NLOS", 5, year_from=2022, year_to=2026, sort_mode="recent"
+            )
+
+        query = parse_qs(urlsplit(urlopen.call_args.args[0].full_url).query)
+        self.assertEqual(query["q"], ["TS=(GNSS NLOS) AND PY=(2022-2026)"])
+        self.assertEqual(query["sortField"], ["PY+D"])
+        self.assertEqual(papers[0]["times_cited"], 12)
+
+    def test_wos_relevance_query_has_no_sort_field(self):
+        with mock.patch.object(self.module, "get_config_value", return_value="test-key"), \
+                mock.patch.object(
+                    self.module.urllib.request,
+                    "urlopen",
+                    return_value=FakeResponse({"hits": []}),
+                ) as urlopen:
+            self.module.WoSFetcher().search("GNSS", sort_mode="relevance")
+
+        query = parse_qs(urlsplit(urlopen.call_args.args[0].full_url).query)
+        self.assertNotIn("sortField", query)
+
+    def test_springer_fetchers_use_unquoted_keywords_and_date_bounds(self):
+        for fetcher_class in (
+            self.module.SpringerMetaFetcher,
+            self.module.SpringerOpenAccessFetcher,
+        ):
+            with self.subTest(fetcher=fetcher_class.__name__), \
+                    mock.patch.object(self.module, "get_config_value", return_value="test-key"), \
+                    mock.patch.object(
+                        self.module.urllib.request,
+                        "urlopen",
+                        return_value=FakeResponse({"records": []}),
+                    ) as urlopen:
+                fetcher_class().search("GNSS NLOS", year_from=2022, year_to=2026)
+
+            query = parse_qs(urlsplit(urlopen.call_args.args[0].full_url).query)
+            self.assertEqual(
+                query["q"],
+                ["keyword:GNSS NLOS datefrom:2022-01-01 dateto:2026-12-31"],
+            )
+
+    def test_scopus_uses_non_phrase_year_query_and_recent_sort(self):
+        payload = {"search-results": {"entry": []}}
+        with mock.patch.object(self.module, "get_config_value", return_value="test-key"), \
+                mock.patch.object(
+                    self.module.urllib.request,
+                    "urlopen",
+                    return_value=FakeResponse(payload),
+                ) as urlopen:
+            self.module.ScopusFetcher().search(
+                "GNSS NLOS", year_from=2022, year_to=2026, sort_mode="recent"
+            )
+
+        query = parse_qs(urlsplit(urlopen.call_args.args[0].full_url).query)
+        self.assertEqual(
+            query["query"],
+            ["TITLE-ABS-KEY(GNSS NLOS) AND PUBYEAR > 2021 AND PUBYEAR < 2027"],
+        )
+        self.assertEqual(query["sort"], ["-coverDate"])
 
 
 if __name__ == "__main__":
