@@ -150,6 +150,49 @@ class SciSearchTests(unittest.TestCase):
         self.assertEqual(len(library.papers), 1)
         self.assertEqual(library.papers[0]["source"], "scopus")
 
+    def test_parse_args_rejects_invalid_year_bounds(self):
+        invalid_commands = [
+            ["query", "--year-from", "22"],
+            ["query", "--year-to", "year"],
+            ["query", "--year-from", "2026", "--year-to", "2022"],
+        ]
+        for argv in invalid_commands:
+            with self.subTest(argv=argv), self.assertRaises(SystemExit):
+                self.module.parse_args(argv)
+
+    def test_parse_args_defaults_to_recent_sort(self):
+        args = self.module.parse_args(["query"])
+
+        self.assertEqual(args.sort, "recent")
+        self.assertIsNone(args.year_from)
+        self.assertIsNone(args.year_to)
+
+    def test_post_process_filters_inclusive_years_and_sorts_recent(self):
+        papers = [
+            {"source": "wos", "title": "2023 first", "doi": "1", "year": "2023"},
+            {"source": "wos", "title": "unknown", "doi": "2", "year": ""},
+            {"source": "wos", "title": "2025", "doi": "3", "year": "2025"},
+            {"source": "wos", "title": "2023 second", "doi": "4", "year": "2023"},
+            {"source": "wos", "title": "2021", "doi": "5", "year": "2021"},
+        ]
+
+        results = self.module.post_process_results(papers, 2022, 2025, "recent")
+
+        self.assertEqual(
+            [paper["title"] for paper in results],
+            ["2025", "2023 first", "2023 second"],
+        )
+
+    def test_post_process_preserves_provider_order_for_relevance(self):
+        papers = [
+            {"source": "wos", "title": "Older", "doi": "1", "year": "2022"},
+            {"source": "wos", "title": "Newer", "doi": "2", "year": "2026"},
+        ]
+
+        results = self.module.post_process_results(papers, None, None, "relevance")
+
+        self.assertEqual(results, papers)
+
 
 if __name__ == "__main__":
     unittest.main()

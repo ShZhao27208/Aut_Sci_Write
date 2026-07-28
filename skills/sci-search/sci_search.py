@@ -5,6 +5,7 @@
 Combined logic from paper_fetch.py and smart_paper_output.py
 """
 
+import argparse
 import os
 import sys
 import json
@@ -50,6 +51,45 @@ def default_data_dir() -> Path:
 
 
 LIBRARY_PATH = default_data_dir() / "library.json"
+SOURCE_CHOICES = [
+    "all", "arxiv", "pubmed", "wos", "springer", "springer_meta",
+    "springer_oa", "scopus", "semantic_scholar", "openalex",
+]
+
+
+def parse_year(value: str) -> int:
+    if not re.fullmatch(r"\d{4}", value):
+        raise argparse.ArgumentTypeError("year must contain exactly four digits")
+    return int(value)
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Sci Search Tool")
+    parser.add_argument("query", help="Search query")
+    parser.add_argument("--limit", type=int, default=5)
+    parser.add_argument("--output", help="Output to markdown file")
+    parser.add_argument("--source", choices=SOURCE_CHOICES, default="all",
+                        help="Search source (default: enabled API sources)")
+    parser.add_argument("--year-from", type=parse_year)
+    parser.add_argument("--year-to", type=parse_year)
+    parser.add_argument("--sort", choices=["relevance", "recent"], default="recent")
+    parser.add_argument("--library", default=str(LIBRARY_PATH),
+                        help="Path to library cache JSON")
+    parser.add_argument("--no-cache", action="store_true",
+                        help="Skip writing search results to library cache")
+    return parser
+
+
+def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    if (
+        args.year_from is not None
+        and args.year_to is not None
+        and args.year_from > args.year_to
+    ):
+        parser.error("--year-from must not be greater than --year-to")
+    return args
 
 # API rate-limit delay (seconds)
 RATE_LIMIT_DELAY = 1.0
@@ -973,8 +1013,48 @@ def dedupe_results(results: List[Dict]) -> List[Dict]:
         deduped.append(paper)
     return deduped
 
+
+def _paper_year(paper: Dict) -> Optional[int]:
+    value = str(paper.get("year", "")).strip()
+    return int(value) if re.fullmatch(r"\d{4}", value) else None
+
+
+def filter_results_by_year(
+    results: List[Dict],
+    year_from: Optional[int],
+    year_to: Optional[int],
+) -> List[Dict]:
+    if year_from is None and year_to is None:
+        return list(results)
+    filtered = []
+    for paper in results:
+        year = _paper_year(paper)
+        if year is None:
+            continue
+        if year_from is not None and year < year_from:
+            continue
+        if year_to is not None and year > year_to:
+            continue
+        filtered.append(paper)
+    return filtered
+
+
+def sort_results(results: List[Dict], sort_mode: str) -> List[Dict]:
+    if sort_mode == "relevance":
+        return list(results)
+    return sorted(results, key=lambda paper: _paper_year(paper) or -1, reverse=True)
+
+
+def post_process_results(
+    results: List[Dict],
+    year_from: Optional[int],
+    year_to: Optional[int],
+    sort_mode: str,
+) -> List[Dict]:
+    filtered = filter_results_by_year(results, year_from, year_to)
+    return sort_results(dedupe_results(filtered), sort_mode)
+
 def main():
-    import argparse
     configure_windows_console()
     parser = argparse.ArgumentParser(description='Sci Search Tool')
     parser.add_argument('query', help='Search query')
