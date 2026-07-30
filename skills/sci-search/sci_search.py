@@ -794,6 +794,22 @@ class SemanticScholarFetcher:
             return []
 
 
+def reconstruct_openalex_abstract(index: object) -> str:
+    if not isinstance(index, dict):
+        return ""
+
+    positioned_words = []
+    for word, positions in index.items():
+        if not isinstance(word, str) or not isinstance(positions, list):
+            continue
+        for position in positions:
+            if isinstance(position, int) and not isinstance(position, bool):
+                positioned_words.append((position, word))
+
+    positioned_words.sort(key=lambda item: item[0])
+    return " ".join(word for _, word in positioned_words)
+
+
 class OpenAlexFetcher:
     """OpenAlex API fetcher.
 
@@ -855,7 +871,9 @@ class OpenAlexFetcher:
                     "journal": journal,
                     "url": landing_url or doi_url or work.get("id", ""),
                     "doi": doi,
-                    "abstract": "",
+                    "abstract": reconstruct_openalex_abstract(
+                        work.get("abstract_inverted_index")
+                    ),
                     "times_cited": work.get("cited_by_count", ""),
                 }
                 papers.append(paper)

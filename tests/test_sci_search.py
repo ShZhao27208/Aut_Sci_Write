@@ -287,6 +287,68 @@ class SciSearchTests(unittest.TestCase):
 
         self.assertEqual(calls, ["springer_meta", "springer_oa"])
 
+    def test_reconstruct_openalex_abstract_orders_repeated_tokens(self):
+        index = {
+            "GNSS": [0, 3],
+            "signals": [1],
+            "improve": [2],
+        }
+        reconstruct = getattr(
+            self.module,
+            "reconstruct_openalex_abstract",
+            lambda value: None,
+        )
+
+        abstract = reconstruct(index)
+
+        self.assertEqual(abstract, "GNSS signals improve GNSS")
+
+    def test_reconstruct_openalex_abstract_ignores_invalid_positions(self):
+        reconstruct = getattr(
+            self.module,
+            "reconstruct_openalex_abstract",
+            lambda value: None,
+        )
+
+        self.assertEqual(reconstruct(None), "")
+        self.assertEqual(reconstruct({}), "")
+        self.assertEqual(
+            reconstruct({
+                "valid": [0],
+                "ignored": ["bad"],
+            }),
+            "valid",
+        )
+
+    def test_openalex_fetcher_parses_inverted_abstract(self):
+        payload = {
+            "results": [{
+                "title": "GNSS Paper",
+                "authorships": [],
+                "publication_year": 2026,
+                "doi": "https://doi.org/10.1000/openalex",
+                "primary_location": {
+                    "source": {"display_name": "Journal"},
+                    "landing_page_url": "https://example.test/paper",
+                },
+                "abstract_inverted_index": {
+                    "Urban": [0],
+                    "GNSS": [1],
+                    "positioning": [2],
+                },
+                "cited_by_count": 4,
+            }],
+        }
+        with mock.patch.object(self.module, "get_config_value", return_value=""), \
+                mock.patch.object(
+                    self.module.urllib.request,
+                    "urlopen",
+                    return_value=FakeResponse(payload),
+                ):
+            papers = self.module.OpenAlexFetcher().search("GNSS", 1)
+
+        self.assertEqual(papers[0]["abstract"], "Urban GNSS positioning")
+
     def test_wos_builds_bounded_recent_query_and_parses_citations(self):
         payload = {
             "hits": [{
