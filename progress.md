@@ -128,3 +128,28 @@
 - Rollback point: commit `32fe388`; run
   `git switch -c sci-search-before-result-enrichment-design 32fe388` to create
   a recovery branch at the state before this design was added.
+
+## 2026-07-30 - Task: Align sci-search result enrichment design
+
+### What was done
+
+- Aligned the written design with the approved behavior for retaining the
+  longer available abstract and recording its provider.
+- Made merged provider provenance and the generated report path explicit.
+
+### Testing
+
+- Rechecked the design for placeholders, contradictions, ambiguous merge
+  behavior, scope expansion, and report-path consistency.
+- Confirmed the corrected contract preserves provider priority while allowing
+  only the approved abstract and author completeness exceptions.
+
+### Notes
+
+- `docs/superpowers/specs/2026-07-30-sci-search-result-enrichment-design.md` -
+  clarifies abstract selection, abstract provenance, source rendering, and the
+  report destination.
+- `progress.md` - records this design correction.
+- Rollback point: commit `cba73af`; run
+  `git switch -c sci-search-before-design-alignment cba73af` to create a
+  recovery branch before this correction.
