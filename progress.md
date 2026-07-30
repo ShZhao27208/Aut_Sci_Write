@@ -153,3 +153,32 @@
 - Rollback point: commit `cba73af`; run
   `git switch -c sci-search-before-design-alignment cba73af` to create a
   recovery branch before this correction.
+
+## 2026-07-30 - Task: Plan sci-search result enrichment implementation
+
+### What was done
+
+- Converted the approved result-enrichment specification into three
+  independently testable TDD tasks.
+- Defined exact interfaces, failing tests, minimal implementations, commit
+  checkpoints, documentation updates, and live report verification.
+
+### Testing
+
+- `conda run -n aut-sci-write python -m unittest discover -s tests -p
+  "test_*.py" -v` - existing baseline passed 25 tests.
+- Checked every specification requirement against an implementation task.
+- Reviewed the plan for placeholders, contradictory interfaces, uncovered
+  requirements, credential exposure, and inconsistent report paths.
+- Confirmed the plan preserves the current provider order, query behavior,
+  ranking, output format, and 300-character abstract preview.
+- `git diff --check` - passed.
+
+### Notes
+
+- `docs/superpowers/plans/2026-07-30-sci-search-result-enrichment.md` -
+  provides the executable test-driven implementation plan.
+- `progress.md` - records this planning-stage repository change.
+- Rollback point: commit `8d8d401`; run
+  `git switch -c sci-search-before-result-enrichment-plan 8d8d401` to create a
+  recovery branch before the plan was added.
