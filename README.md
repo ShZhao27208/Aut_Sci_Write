@@ -204,7 +204,7 @@ Once installed, just type naturally in AI Agent — no commands to memorize:
 "/sci-polish Polish this paper for NeurIPS submission, reduce AI detection rate"
 ```
 
-The enabled default sources are searched in this order: Web of Science → Springer Metadata → Springer Open Access → Scopus. arXiv, PubMed, Semantic Scholar, and OpenAlex require explicit `--source` selection. `--year-from` and `--year-to` are inclusive; `--sort recent` is the default; and `--limit` applies per source.
+The enabled default sources are searched in this order: Web of Science → Springer Metadata → Springer Open Access → Scopus. arXiv, PubMed, Semantic Scholar, and OpenAlex require explicit `--source` selection. `--year-from` and `--year-to` are inclusive; `--sort recent` is the default; and `--limit` applies per source. Cross-source duplicates retain the highest-priority record while filling approved missing metadata and preferring the more complete author list and abstract. Reports list every author and identify contributing sources and the abstract provider. Explicit OpenAlex searches reconstruct available inverted abstracts.
 
 ### 📁 Repository Structure
 
@@ -427,7 +427,7 @@ TESSERACT_CMD="C:\Program Files\Tesseract-OCR\tesseract.exe"
 "/sci-polish 帮我润色这篇论文，目标期刊是 IEEE TPAMI"
 ```
 
-默认数据源的检索顺序为 Web of Science → Springer Metadata → Springer Open Access → Scopus。arXiv、PubMed、Semantic Scholar、OpenAlex 需要通过 `--source` 显式选择。`--year-from` 和 `--year-to` 是包含边界的年份范围；默认使用 `--sort recent`；`--limit` 按每个数据源分别计算。
+默认数据源的检索顺序为 Web of Science → Springer Metadata → Springer Open Access → Scopus。arXiv、PubMed、Semantic Scholar、OpenAlex 需要通过 `--source` 显式选择。`--year-from` 和 `--year-to` 是包含边界的年份范围；默认使用 `--sort recent`；`--limit` 按每个数据源分别计算。跨源重复论文保留最高优先级记录，同时补充允许合并的缺失元数据，并优先采用更完整的作者列表和摘要。报告展示全部作者，并标明贡献来源及摘要来源。显式选择 OpenAlex 时会重建其倒排摘要。
 
 ### 📁 项目结构
 

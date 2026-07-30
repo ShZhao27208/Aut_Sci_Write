@@ -592,8 +592,8 @@ Append one entry to `progress.md` using the repository format:
 - `docs/reports/2026-07-30-gnss-nlos-search.md` - identifies the generated live
   report.
 - `progress.md` - records implementation and verification evidence.
-- Rollback point: commit `8d8d401`; run
-  `git switch -c sci-search-before-result-enrichment 8d8d401` to create a
+- Rollback point: commit `e0ff61e`; run
+  `git switch -c sci-search-before-result-enrichment e0ff61e` to create a
   recovery branch before implementation.
 ```
 
@@ -609,7 +609,7 @@ conda run -n aut-sci-write python -m unittest discover -s tests -p "test_*.py" -
 conda run --no-capture-output -n aut-sci-write python -m ruff check --select 'F,E9' skills/sci-search/sci_search.py tests/test_sci_search.py
 conda run -n aut-sci-write python -m compileall -q skills/sci-search/sci_search.py tests/test_sci_search.py
 git diff --check
-git diff --check 8d8d401..HEAD
+git diff --check e0ff61e..HEAD
 git status --short
 ```
 
@@ -631,8 +631,8 @@ Run:
 ```powershell
 git status --short --branch
 git log --oneline --decorate -5
-git diff --check 8d8d401..HEAD
+git diff --check e0ff61e..HEAD
 ```
 
 Expected: `dev` is clean, the three implementation commits are present after
-`8d8d401`, and the complete implementation diff passes whitespace validation.
+`e0ff61e`, and the complete implementation diff passes whitespace validation.

@@ -1221,7 +1221,7 @@
           <span class="card-slug">sci-search</span>
           <span class="card-title">文献检索与期刊指标</span>
         </div>
-        <div class="card-desc">默认按 Web of Science → Springer Metadata → Springer Open Access → Scopus 的优先顺序检索；arXiv、PubMed、Semantic Scholar、OpenAlex 仅在通过 --source 显式选择时检索。年份范围包含边界，默认按最新年份排序，--limit 按每个数据源分别计算；自动附加 JCR 分区和影响因子。</div>
+        <div class="card-desc">默认按 Web of Science → Springer Metadata → Springer Open Access → Scopus 的优先顺序检索；arXiv、PubMed、Semantic Scholar、OpenAlex 仅在通过 --source 显式选择时检索。年份范围包含边界，默认按最新年份排序，--limit 按每个数据源分别计算；跨源重复论文保留最高优先级记录并补充更完整的作者和摘要，报告展示全部作者及来源信息；显式选择 OpenAlex 时重建可用的倒排摘要；自动附加 JCR 分区和影响因子。</div>
         <div class="trigger-list">
           <span class="trigger">搜索文献</span>
           <span class="trigger">查文献</span>

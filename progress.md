@@ -182,3 +182,58 @@
 - Rollback point: commit `8d8d401`; run
   `git switch -c sci-search-before-result-enrichment-plan 8d8d401` to create a
   recovery branch before the plan was added.
+
+## 2026-07-30 - Task: Enrich sci-search results and generate a live report
+
+### What was done
+
+- Reconstructed OpenAlex inverted abstracts and enriched duplicate provider
+  records without changing first-seen priority.
+- Displayed every author and added contributing-source and abstract-source
+  provenance to Markdown results.
+- Updated user-facing search documentation and generated the bounded GNSS NLOS
+  report from the configured live APIs.
+
+### Testing
+
+- OpenAlex TDD red phase produced the expected three failures; its green phase
+  passed all 22 focused tests.
+- Result-enrichment TDD red phase produced the expected four assertion
+  failures after correcting two test-side `KeyError` assertions.
+- `conda run -n aut-sci-write python -m unittest discover -s tests -p
+  "test_*.py" -v` - 31 tests passed.
+- `conda run --no-capture-output -n aut-sci-write python -m ruff check
+  --select 'F,E9' skills/sci-search/sci_search.py tests/test_sci_search.py` -
+  passed.
+- `conda run -n aut-sci-write python -m compileall -q
+  skills/sci-search/sci_search.py tests/test_sci_search.py` - passed.
+- Live OpenAlex `GNSS NLOS` diagnostic returned 3 papers; all 3 rendered an
+  OpenAlex abstract and abstract-source label.
+- Live default-source `GNSS NLOS` report attempted WoS, Springer Metadata,
+  Springer Open Access, and Scopus in order with no provider error. It returned
+  13 papers, 13 complete author lines, 8 abstracts with matching abstract
+  sources, 7 merged-source lines, and no formatter-added `et al.`.
+- Final `git diff --check` and committed-range
+  `git diff --check e0ff61e..HEAD` checks passed.
+- Structured review of the complete implementation found no Critical or
+  Important issues; the plan's rollback point was corrected to the actual
+  pre-implementation commit.
+
+### Notes
+
+- `skills/sci-search/sci_search.py` - reconstructs OpenAlex abstracts, merges
+  approved cross-source metadata, and renders complete authors and provenance.
+- `tests/test_sci_search.py` - adds deterministic regression coverage for the
+  parser, merge behavior, input immutability, and Markdown presentation.
+- `README.md` - documents result enrichment and complete-author output in
+  English and Chinese.
+- `skills/sci-search/SKILL.md` - documents the enriched search-result contract.
+- `docs/index.html` - updates the public sci-search feature description.
+- `docs/reports/2026-07-30-gnss-nlos-search.md` - contains the generated live
+  2022-2026 GNSS NLOS report.
+- `docs/superpowers/plans/2026-07-30-sci-search-result-enrichment.md` - corrects
+  the implementation rollback point.
+- `progress.md` - records implementation and verification evidence.
+- Rollback point: commit `e0ff61e`; run
+  `git switch -c sci-search-before-result-enrichment e0ff61e` to create a
+  recovery branch before implementation.

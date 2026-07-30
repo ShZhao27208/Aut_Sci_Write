@@ -54,6 +54,7 @@ Academic paper search and metrics analysis tool for scientific research workflow
 - **Markdown Export**: Generates formatted markdown reports of search results.
 - **Source Selection**: `--source all` searches enabled default sources. Use `--source arxiv`, `--source pubmed`, `--source wos`, `--source springer`, `--source springer_meta`, `--source springer_oa`, `--source scopus`, `--source semantic_scholar`, or `--source openalex` to select a source explicitly.
 - **Search Controls**: `--year-from` and `--year-to` set inclusive year bounds, `--sort recent` is the default, and `--limit` applies per source.
+- **Result Enrichment**: Cross-source duplicates retain the highest-priority record while filling approved missing metadata and preferring the more complete author list and abstract. Reports list every author and identify contributing sources and the abstract provider. Explicit OpenAlex searches reconstruct available inverted abstracts.
 
 ## Configuration
 
