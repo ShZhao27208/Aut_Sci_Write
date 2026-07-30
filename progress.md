@@ -99,3 +99,32 @@
 - Rollback point: commit `9849e59`; run `git switch main` to return to the
   unchanged main branch, or `git switch -c sci-search-before-fix 9849e59` to
   create a recovery branch at the pre-implementation state.
+
+## 2026-07-30 - Task: Confirm sci-search result enrichment design
+
+### What was done
+
+- Confirmed the bounded design for complete author presentation, conservative
+  cross-source field enrichment, OpenAlex abstract reconstruction, and a live
+  Markdown report check.
+- Kept the first-seen provider as the primary record so existing provider
+  priority and result ordering remain stable.
+
+### Testing
+
+- Reproduced the three current defects: duplicate abstracts are discarded,
+  author output is truncated after three names, and OpenAlex abstracts are
+  always empty.
+- Confirmed the existing repository baseline passes 25 tests.
+- Reviewed the design for placeholders, contradictions, ambiguity, scope
+  expansion, and credential handling.
+
+### Notes
+
+- `docs/superpowers/specs/2026-07-30-sci-search-result-enrichment-design.md` -
+  records the approved merge, OpenAlex parsing, presentation, and verification
+  contracts.
+- `progress.md` - records this design-stage repository change.
+- Rollback point: commit `32fe388`; run
+  `git switch -c sci-search-before-result-enrichment-design 32fe388` to create
+  a recovery branch at the state before this design was added.
