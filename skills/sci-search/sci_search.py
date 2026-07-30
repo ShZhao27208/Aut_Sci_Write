@@ -1042,6 +1042,28 @@ class PubmedFetcher:
             print(f"PubMed error: {self._scrub_api_key(str(e))}")
             return []
 
+SOURCE_LABELS = {
+    "wos": "Web of Science",
+    "springer_meta": "Springer Nature",
+    "springer_oa": "Springer Nature (OA)",
+    "scopus": "Scopus",
+    "semantic_scholar": "Semantic Scholar",
+    "openalex": "OpenAlex",
+}
+
+
+def source_label(source: str) -> str:
+    return SOURCE_LABELS.get(source, source.upper())
+
+
+def _paper_sources(paper: Dict) -> List[str]:
+    sources = paper.get("sources")
+    if isinstance(sources, list):
+        return [source for source in sources if isinstance(source, str) and source]
+    source = paper.get("source", "")
+    return [source] if isinstance(source, str) and source else []
+
+
 def format_markdown(paper: Dict, index: int) -> str:
     metrics = paper.get('journal_metrics', get_journal_metrics(paper.get('journal', '')))
 
@@ -1050,22 +1072,17 @@ def format_markdown(paper: Dict, index: int) -> str:
         if metrics.get('is_nature_science_advmat'): status_icon = " **Priority journal**"
         elif metrics.get('is_top_journal'): status_icon = " **High-impact journal**"
 
-    source_label = paper['source'].upper()
-    if paper['source'] == 'wos':
-        source_label = "Web of Science"
-    elif paper['source'] in ('springer_meta', 'springer_oa'):
-        source_label = "Springer Nature" + (" (OA)" if paper['source'] == 'springer_oa' else "")
-    elif paper['source'] == 'scopus':
-        source_label = "Scopus"
-    elif paper['source'] == 'semantic_scholar':
-        source_label = "Semantic Scholar"
-    elif paper['source'] == 'openalex':
-        source_label = "OpenAlex"
+    sources = _paper_sources(paper)
+    source_labels = [source_label(source) for source in sources]
+    source_heading = "Sources" if len(source_labels) > 1 else "Source"
 
     lines = [
         f"### {index}. {paper['title']}{status_icon}",
-        f"- **Authors:** {', '.join(paper['authors'][:3])}" + (" et al." if len(paper['authors']) > 3 else ""),
-        f"- **Year:** {paper['year']} | **Source:** {source_label}",
+        f"- **Authors:** {', '.join(paper['authors'])}",
+        (
+            f"- **Year:** {paper['year']} | **{source_heading}:** "
+            f"{', '.join(source_labels)}"
+        ),
     ]
 
     if paper.get('journal'):
@@ -1079,18 +1096,75 @@ def format_markdown(paper: Dict, index: int) -> str:
 
     lines.append(f"- **Link:** {paper['url']}")
     if paper.get('abstract'):
+        abstract_source = paper.get("abstract_source") or paper.get("source", "")
+        if abstract_source:
+            lines.append(
+                f"- **Abstract Source:** {source_label(abstract_source)}"
+            )
         lines.append(f"- **Abstract:** {paper['abstract'][:300]}...")
 
     return "\n".join(lines)
+
+
+def _has_value(value: object) -> bool:
+    return value not in (None, "", [], {})
+
+
+def merge_paper_records(primary: Dict, duplicate: Dict) -> Dict:
+    merged = dict(primary)
+    if isinstance(primary.get("authors"), list):
+        merged["authors"] = list(primary["authors"])
+
+    sources = _paper_sources(primary)
+    for source in _paper_sources(duplicate):
+        if source not in sources:
+            sources.append(source)
+    merged["sources"] = sources
+
+    for field in ("doi", "journal", "year", "url", "times_cited"):
+        if not _has_value(merged.get(field)) and _has_value(duplicate.get(field)):
+            merged[field] = duplicate[field]
+
+    primary_authors = merged.get("authors")
+    duplicate_authors = duplicate.get("authors")
+    if not isinstance(primary_authors, list):
+        primary_authors = []
+    if not isinstance(duplicate_authors, list):
+        duplicate_authors = []
+    if len(duplicate_authors) > len(primary_authors):
+        merged["authors"] = list(duplicate_authors)
+
+    primary_abstract = str(merged.get("abstract") or "").strip()
+    duplicate_abstract = str(duplicate.get("abstract") or "").strip()
+    if duplicate_abstract and len(duplicate_abstract) > len(primary_abstract):
+        merged["abstract"] = duplicate_abstract
+        merged["abstract_source"] = (
+            duplicate.get("abstract_source") or duplicate.get("source", "")
+        )
+    elif primary_abstract:
+        merged["abstract"] = primary_abstract
+        merged["abstract_source"] = (
+            merged.get("abstract_source") or merged.get("source", "")
+        )
+
+    return merged
 
 
 def dedupe_results(results: List[Dict]) -> List[Dict]:
     """Deduplicate cross-source results while keeping first-seen order."""
     deduped = []
     for paper in results:
-        if any(papers_match(existing, paper) for existing in deduped):
-            continue
-        deduped.append(paper)
+        for index, existing in enumerate(deduped):
+            if papers_match(existing, paper):
+                deduped[index] = merge_paper_records(existing, paper)
+                break
+        else:
+            copied = dict(paper)
+            if isinstance(paper.get("authors"), list):
+                copied["authors"] = list(paper["authors"])
+            if isinstance(paper.get("sources"), list):
+                copied["sources"] = list(paper["sources"])
+            deduped.append(copied)
     return deduped
 
 

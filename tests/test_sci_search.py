@@ -120,7 +120,11 @@ class SciSearchTests(unittest.TestCase):
             "doi": "https://doi.org/10.1000/gnss.1",
         }
 
-        self.assertEqual(self.module.dedupe_results([wos, scopus]), [wos])
+        deduped = self.module.dedupe_results([wos, scopus])
+
+        self.assertEqual(len(deduped), 1)
+        self.assertEqual(deduped[0]["source"], "wos")
+        self.assertEqual(deduped[0].get("sources"), ["wos", "scopus"])
 
     def test_dedupe_results_falls_back_to_title_when_either_doi_is_missing(self):
         without_doi = {
@@ -136,9 +140,16 @@ class SciSearchTests(unittest.TestCase):
             "doi": "10.1000/gnss.2",
         }
 
+        deduped = self.module.dedupe_results([without_doi, with_doi])
+
+        self.assertEqual(len(deduped), 1)
+        self.assertEqual(deduped[0]["source"], "springer_meta")
+        self.assertEqual(deduped[0]["title"], "GNSS-NLOS: Mitigation!")
+        self.assertEqual(deduped[0]["url"], "https://example.test/meta")
+        self.assertEqual(deduped[0]["doi"], "10.1000/gnss.2")
         self.assertEqual(
-            self.module.dedupe_results([without_doi, with_doi]),
-            [without_doi],
+            deduped[0]["sources"],
+            ["springer_meta", "scopus"],
         )
 
     def test_dedupe_results_keeps_same_title_with_two_different_dois(self):
@@ -146,6 +157,94 @@ class SciSearchTests(unittest.TestCase):
         second = {"source": "scopus", "title": "Shared", "url": "b", "doi": "10.1/b"}
 
         self.assertEqual(self.module.dedupe_results([first, second]), [first, second])
+
+    def test_dedupe_results_merges_missing_fields_without_mutating_inputs(self):
+        wos = {
+            "source": "wos",
+            "title": "GNSS NLOS Mitigation",
+            "authors": ["A. Author"],
+            "year": "2026",
+            "journal": "",
+            "url": "https://example.test/wos",
+            "doi": "10.1000/merge",
+            "abstract": "",
+            "times_cited": 12,
+        }
+        springer = {
+            "source": "springer_meta",
+            "title": "GNSS NLOS Mitigation",
+            "authors": ["A. Author", "B. Author", "C. Author", "D. Author"],
+            "year": "2026",
+            "journal": "GPS Solutions",
+            "url": "https://example.test/springer",
+            "doi": "10.1000/merge",
+            "abstract": "A complete abstract supplied by Springer.",
+            "times_cited": "",
+        }
+
+        merged = self.module.dedupe_results([wos, springer])
+
+        self.assertEqual(len(merged), 1)
+        self.assertEqual(merged[0]["source"], "wos")
+        self.assertEqual(merged[0].get("sources"), ["wos", "springer_meta"])
+        self.assertEqual(merged[0]["journal"], "GPS Solutions")
+        self.assertEqual(merged[0]["url"], "https://example.test/wos")
+        self.assertEqual(merged[0]["times_cited"], 12)
+        self.assertEqual(merged[0]["authors"], springer["authors"])
+        self.assertEqual(merged[0]["abstract"], springer["abstract"])
+        self.assertEqual(merged[0]["abstract_source"], "springer_meta")
+        self.assertNotIn("sources", wos)
+        self.assertEqual(wos["abstract"], "")
+        self.assertEqual(
+            springer["abstract"],
+            "A complete abstract supplied by Springer.",
+        )
+
+    def test_dedupe_results_keeps_longer_abstract_and_records_its_source(self):
+        wos = {
+            "source": "wos",
+            "title": "Shared Paper",
+            "doi": "10.1000/longer",
+            "abstract": "Short abstract.",
+        }
+        springer = {
+            "source": "springer_oa",
+            "title": "Shared Paper",
+            "doi": "10.1000/longer",
+            "abstract": "A substantially longer abstract returned by the OA provider.",
+        }
+
+        merged = self.module.dedupe_results([wos, springer])
+
+        self.assertEqual(merged[0]["abstract"], springer["abstract"])
+        self.assertEqual(merged[0]["abstract_source"], "springer_oa")
+
+    def test_format_markdown_renders_all_authors_and_source_provenance(self):
+        paper = {
+            "source": "wos",
+            "sources": ["wos", "springer_meta"],
+            "title": "GNSS Paper",
+            "authors": ["A", "B", "C", "D"],
+            "year": "2026",
+            "journal": "",
+            "url": "https://example.test/paper",
+            "doi": "10.1000/report",
+            "abstract": "Abstract text",
+            "abstract_source": "springer_meta",
+        }
+
+        markdown = self.module.format_markdown(paper, 1)
+
+        self.assertIn("- **Authors:** A, B, C, D", markdown)
+        self.assertNotIn("et al.", markdown)
+        self.assertIn(
+            "**Sources:** Web of Science, Springer Nature",
+            markdown,
+        )
+        self.assertIn(
+            "- **Abstract Source:** Springer Nature",
+            markdown,
+        )
 
     def test_normalize_title_preserves_unicode_words(self):
         self.assertEqual(self.module.normalize_title("卫星-导航！"), "卫星 导航")
