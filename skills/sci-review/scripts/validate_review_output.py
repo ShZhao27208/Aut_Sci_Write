@@ -8,7 +8,6 @@ import json
 import re
 from pathlib import Path
 
-
 CASE_RULES = {
     "literature-review": {
         "required": ["Introduction", "Methodology", "Challenges", "Conclusion"],

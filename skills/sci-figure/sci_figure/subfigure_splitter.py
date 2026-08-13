@@ -12,9 +12,11 @@ from __future__ import annotations
 
 import os
 import re
-import numpy as np
+
 import cv2
-from sci_figure.utils import get_logger, check_tesseract, check_easyocr
+import numpy as np
+
+from sci_figure.utils import check_easyocr, check_tesseract, get_logger
 
 logger = get_logger()
 

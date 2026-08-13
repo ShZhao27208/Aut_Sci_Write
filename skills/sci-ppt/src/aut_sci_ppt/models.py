@@ -2,7 +2,7 @@
 PPT Agent 数据模型 - 完整版（含图表支持）
 """
 from dataclasses import dataclass, field
-from typing import List, Any, Optional
+from typing import Any
 
 
 @dataclass
@@ -25,7 +25,7 @@ class TOCItem:
 @dataclass
 class TOCData:
     title: str = "目录"
-    items: List[TOCItem] = field(default_factory=list)
+    items: list[TOCItem] = field(default_factory=list)
 
 
 @dataclass
@@ -78,10 +78,10 @@ class ContentListData:
     title: str = ""
     subtitle: str = ""
     part_num: str = ""
-    header_info: Optional[HeaderInfo] = None
-    items: List[ListItem] = field(default_factory=list)
-    footer: Optional[FooterInfo] = None
-    figures: List[FigurePlaceholder] = field(default_factory=list)
+    header_info: HeaderInfo | None = None
+    items: list[ListItem] = field(default_factory=list)
+    footer: FooterInfo | None = None
+    figures: list[FigurePlaceholder] = field(default_factory=list)
 
 
 @dataclass
@@ -90,9 +90,9 @@ class ContentDetailData:
     subtitle: str = ""
     part_num: str = ""
     background: str = ""
-    points: List[str] = field(default_factory=list)
-    results: List[str] = field(default_factory=list)
-    figures: List[FigurePlaceholder] = field(default_factory=list)
+    points: list[str] = field(default_factory=list)
+    results: list[str] = field(default_factory=list)
+    figures: list[FigurePlaceholder] = field(default_factory=list)
 
 
 @dataclass
@@ -101,9 +101,9 @@ class ContentWithFigureData:
     title: str = ""
     subtitle: str = ""
     part_num: str = ""
-    points: List[str] = field(default_factory=list)
-    figure: Optional[FigurePlaceholder] = None          # 主图（兼容旧代码）
-    figures: List[FigurePlaceholder] = field(default_factory=list)  # 多图列表
+    points: list[str] = field(default_factory=list)
+    figure: FigurePlaceholder | None = None          # 主图（兼容旧代码）
+    figures: list[FigurePlaceholder] = field(default_factory=list)  # 多图列表
     layout: str = "auto"
     current_section: str = ""
 
@@ -119,8 +119,8 @@ class TimelineEvent:
 class TimelineData:
     title: str = ""
     part_num: str = ""
-    events: List[TimelineEvent] = field(default_factory=list)
-    figures: List["FigurePlaceholder"] = field(default_factory=list)  # 支持图片注入
+    events: list[TimelineEvent] = field(default_factory=list)
+    figures: list["FigurePlaceholder"] = field(default_factory=list)  # 支持图片注入
 
 
 @dataclass
@@ -141,8 +141,8 @@ class Page:
 @dataclass
 class ParsedData:
     meta: CoverData = field(default_factory=CoverData)
-    sections: List[Page] = field(default_factory=list)
-    toc_items: List[TOCItem] = field(default_factory=list)
+    sections: list[Page] = field(default_factory=list)
+    toc_items: list[TOCItem] = field(default_factory=list)
 
 
 # 页面类型常量

@@ -3,8 +3,6 @@
 - 根据内容量自动调整字号、行间距、内容区高度
 - 确保每页不溢出、重点突出、排版专业
 """
-from typing import Tuple
-
 
 # ── 字号自适应规则 ────────────────────────────────────────────
 
@@ -20,13 +18,11 @@ def calc_font_size(text: str, box_width_inch: float, box_height_inch: float,
     # 每个字符平均宽度（英寸）：中文约 0.18，英文约 0.10（以 16pt 为基准）
     char_w_cn = 0.155   # 16pt 中文字符宽
     chars_per_line = int(box_width_inch / char_w_cn)
-    if chars_per_line < 1:
-        chars_per_line = 1
+    chars_per_line = max(chars_per_line, 1)
 
     line_h_inch = 0.28  # 16pt 行高（含行间距）
     max_lines = int(box_height_inch / line_h_inch)
-    if max_lines < 1:
-        max_lines = 1
+    max_lines = max(max_lines, 1)
 
     text_len = len(text)
     needed_lines = max(1, -(-text_len // chars_per_line))  # ceil division
@@ -44,7 +40,7 @@ def calc_font_size(text: str, box_width_inch: float, box_height_inch: float,
 
 
 def calc_list_layout(items: list, avail_height: float,
-                     base_font: int = 15, min_font: int = 10) -> Tuple[int, float]:
+                     base_font: int = 15, min_font: int = 10) -> tuple[int, float]:
     """
     根据列表项数量，计算最优字号和每项高度
     返回 (font_size, item_height_inch)

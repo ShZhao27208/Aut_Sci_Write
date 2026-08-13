@@ -1,7 +1,7 @@
 """
 交互节点控制器 - 在关键节点暂停并询问用户确认
 """
-from typing import Dict, List
+
 
 class InteractiveController:
     """交互节点控制器"""
@@ -9,7 +9,7 @@ class InteractiveController:
     def __init__(self):
         self.confirmed = {}
     
-    def ask_basic_info(self) -> Dict[str, str]:
+    def ask_basic_info(self) -> dict[str, str]:
         """节点1：询问基本信息"""
         print("\n=== 📊 ShuoC Ppt - 开始制作 ===\n")
         info = {}
@@ -27,7 +27,7 @@ class InteractiveController:
         info["style"] = style_map.get(st, "专业蓝")
         return info
     
-    def confirm_outline(self, outline: List[Dict]) -> bool:
+    def confirm_outline(self, outline: list[dict]) -> bool:
         """节点2：确认大纲"""
         print("\n=== 📋 大纲预览（请确认）===\n")
         for i, section in enumerate(outline, 1):

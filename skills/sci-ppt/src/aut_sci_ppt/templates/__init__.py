@@ -2,27 +2,27 @@
 PPT Agent 模板系统
 """
 from .base import BaseTemplate
-from .cover import CoverTemplate
-from .toc import TOCTemplate
-from .section import SectionTemplate
-from .content_list import ContentListTemplate
 from .content_detail import ContentDetailTemplate
-from .timeline import TimelineTemplate
+from .content_list import ContentListTemplate
+from .cover import CoverTemplate
 from .ending import EndingTemplate
+from .section import SectionTemplate
+from .timeline import TimelineTemplate
+from .toc import TOCTemplate
 
 __all__ = [
-    "BaseTemplate",
-    "CoverTemplate",
-    "TOCTemplate",
-    "SectionTemplate",
-    "ContentListTemplate",
-    "ContentDetailTemplate",
-    "TimelineTemplate",
-    "EndingTemplate",
     "TEMPLATE_MAP",
+    "BaseTemplate",
+    "ContentDetailTemplate",
+    "ContentListTemplate",
+    "CoverTemplate",
+    "EndingTemplate",
+    "SectionTemplate",
+    "TOCTemplate",
+    "TimelineTemplate",
     "get_template",
-    "register_template",
     "list_templates",
+    "register_template",
 ]
 
 # 模板映射

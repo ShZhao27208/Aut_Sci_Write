@@ -21,7 +21,6 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
 
 from . import http
 
@@ -44,7 +43,7 @@ class OAPackage:
     xml_url: str = ""
     pdf_url: str = ""
     text_url: str = ""
-    media: Dict[str, str] = field(default_factory=dict)
+    media: dict[str, str] = field(default_factory=dict)
     title: str = ""
     doi: str = ""
     pmid: str = ""
@@ -52,13 +51,13 @@ class OAPackage:
     is_open_access: bool = False
     is_manuscript: bool = False
     is_retracted: bool = False
-    errors: List[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
 
     @property
     def found(self) -> bool:
         return bool(self.key)
 
-    def media_for(self, filename: str) -> Optional[str]:
+    def media_for(self, filename: str) -> str | None:
         """Resolve a JATS graphic href to a bucket URL.
 
         JATS ``xlink:href`` values sometimes carry an extension and sometimes
@@ -159,7 +158,7 @@ def _discover_key(pmcid: str, pkg: OAPackage) -> str:
     return versions[-1][1]
 
 
-def _load_manifest(key: str, pkg: OAPackage) -> Optional[dict]:
+def _load_manifest(key: str, pkg: OAPackage) -> dict | None:
     url = f"{BUCKET}/{key}/{key}.json"
     try:
         data = http.get_json(url)
@@ -172,7 +171,7 @@ def _load_manifest(key: str, pkg: OAPackage) -> Optional[dict]:
     return data
 
 
-def _to_https(key: str, s3_url: Optional[str]) -> str:
+def _to_https(key: str, s3_url: str | None) -> str:
     """Rewrite an ``s3://`` manifest URL to the public HTTPS endpoint.
 
     The manifest appends ``?md5=...`` as an integrity hint, not a query the
@@ -182,7 +181,7 @@ def _to_https(key: str, s3_url: Optional[str]) -> str:
     return f"{BUCKET}/{key}/{name}" if name else ""
 
 
-def _basename(s3_url: Optional[str]) -> str:
+def _basename(s3_url: str | None) -> str:
     if not s3_url:
         return ""
     match = _MEDIA_RE.match(s3_url)
@@ -195,7 +194,6 @@ def _normalize(pmcid: str) -> str:
     if not pmcid:
         return ""
     text = pmcid.strip().upper()
-    if text.startswith("PMC"):
-        text = text[3:]
+    text = text.removeprefix("PMC")
     digits = "".join(ch for ch in text if ch.isdigit())
     return f"PMC{digits}" if digits else ""

@@ -3,7 +3,6 @@ import unittest
 from pathlib import Path
 
 import _path  # noqa: F401  # ensures src/ is importable without install
-
 from sci_html.paper_pipeline import build_paper_deck_markdown
 
 

@@ -3,7 +3,6 @@ import unittest
 from pathlib import Path
 
 import _path  # noqa: F401  # ensures src/ is importable without install
-
 from sci_html.models import Deck, Slide
 from sci_html.renderer import render_deck
 

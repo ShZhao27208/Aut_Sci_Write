@@ -3,26 +3,25 @@ PPT Agent 智能分页器 - 终版
 单图页合并：在 parser 阶段就把同章节多张图+文字整合为一页或两页
 """
 
-from typing import List
+import os
+
+from ..config import default_config
 from ..models import (
-    ParsedData,
-    Page,
-    TOCItem,
-    TOCData,
+    PAGE_TYPE_CONTENT_LIST,
+    PAGE_TYPE_CONTENT_WITH_FIG,
+    PAGE_TYPE_COVER,
+    PAGE_TYPE_ENDING,
+    PAGE_TYPE_SECTION,
+    PAGE_TYPE_TOC,
     ContentListData,
     ContentWithFigureData,
     EndingData,
     FigurePlaceholder,
-    PAGE_TYPE_COVER,
-    PAGE_TYPE_TOC,
-    PAGE_TYPE_SECTION,
-    PAGE_TYPE_CONTENT_LIST,
-    PAGE_TYPE_CONTENT_WITH_FIG,
-    PAGE_TYPE_ENDING,
+    Page,
+    ParsedData,
+    TOCData,
+    TOCItem,
 )
-from ..config import default_config
-
-import os
 
 
 def _aspect(path):
@@ -43,7 +42,7 @@ class SmartPaginator:
         self.config = config or default_config
         self.page_config = self.config.CONTENT_CONFIG
 
-    def paginate(self, parsed_data: ParsedData) -> List[Page]:
+    def paginate(self, parsed_data: ParsedData) -> list[Page]:
         pages = []
         pages.append(Page(page_type=PAGE_TYPE_COVER, data=parsed_data.meta))
 
@@ -120,7 +119,7 @@ class SmartPaginator:
         pages.append(Page(page_type=PAGE_TYPE_ENDING, data=ending))
         return pages
 
-    def _extract_texts(self, page) -> List[str]:
+    def _extract_texts(self, page) -> list[str]:
         if hasattr(page.data, "items"):
             return [
                 item.text if hasattr(item, "text") else str(item)
@@ -133,10 +132,10 @@ class SmartPaginator:
     def _assign_fig_pages(
         self,
         page,
-        texts: List[str],
-        figures: List[FigurePlaceholder],
+        texts: list[str],
+        figures: list[FigurePlaceholder],
         current_section: str = "",
-    ) -> List[Page]:
+    ) -> list[Page]:
         """
         核心逻辑：把文字和图片合并到尽可能少的页面
         规则：

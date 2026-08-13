@@ -19,7 +19,7 @@ class Slide:
     data: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Slide":
+    def from_dict(cls, data: dict[str, Any]) -> Slide:
         known = {field.name for field in cls.__dataclass_fields__.values()}
         kwargs = {key: value for key, value in data.items() if key in known}
         extra = {key: value for key, value in data.items() if key not in known}
@@ -43,7 +43,7 @@ class Deck:
     metadata: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Deck":
+    def from_dict(cls, data: dict[str, Any]) -> Deck:
         slides = [Slide.from_dict(slide) for slide in data.get("slides", [])]
         return cls(
             title=data.get("title", "Untitled Deck"),

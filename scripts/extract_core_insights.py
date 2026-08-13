@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Compatibility wrapper for the sci-extract CLI."""
 
-from pathlib import Path
 import runpy
-
+from pathlib import Path
 
 TARGET = (
     Path(__file__).resolve().parents[1]

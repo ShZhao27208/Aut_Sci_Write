@@ -1,11 +1,13 @@
 """
 详细内容页 - 终版溢出保护
 """
-from .base import BaseTemplate, hex_to_rgb
-from pptx.util import Inches, Pt
-from pptx.oxml.ns import qn
-from lxml import etree
 import re
+
+from lxml import etree
+from pptx.oxml.ns import qn
+from pptx.util import Inches, Pt
+
+from .base import BaseTemplate, hex_to_rgb
 
 
 def _set_lnsp(tf, pt_val):

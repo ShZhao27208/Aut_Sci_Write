@@ -11,8 +11,9 @@ Core algorithm:
 
 from __future__ import annotations
 
-import numpy as np
 import cv2
+import numpy as np
+
 from sci_figure.utils import get_logger
 
 logger = get_logger()
@@ -154,8 +155,7 @@ class RegionDetector:
 
             # Vertical proximity (closer = better)
             vertical_dist = cap_y0 - ry1
-            if vertical_dist < 0:
-                vertical_dist = 0
+            vertical_dist = max(vertical_dist, 0)
             proximity_score = max(0, 1.0 - vertical_dist / (page_height * 0.3))
 
             # Center alignment bonus (horizontal offset normalized by page WIDTH)

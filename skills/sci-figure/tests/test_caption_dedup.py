@@ -13,7 +13,6 @@ import unittest
 from types import SimpleNamespace
 
 import numpy as np
-
 from sci_figure.caption_detector import CaptionDetector
 from sci_figure.subfigure_splitter import SubfigureSplitter
 

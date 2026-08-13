@@ -1,13 +1,15 @@
 """
 图文页 - 终版：溢出保护 + 填满 + 左右/上下自动布局
 """
-from .base import BaseTemplate, hex_to_rgb
-from pptx.util import Inches, Pt
-from pptx.oxml.ns import qn
-from pptx.enum.text import PP_ALIGN
-from lxml import etree
-import re
 import os
+import re
+
+from lxml import etree
+from pptx.enum.text import PP_ALIGN
+from pptx.oxml.ns import qn
+from pptx.util import Inches, Pt
+
+from .base import BaseTemplate, hex_to_rgb
 
 
 def _set_lnsp(tf, pt_val):

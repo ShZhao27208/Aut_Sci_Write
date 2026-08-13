@@ -7,9 +7,8 @@ Step3: build_from_outline() - 根据提纲+已提取图片生成最终PPT
 
 import os
 import re
-from typing import List, Dict, Tuple
-from .pdf_extractor import PDFFigureExtractor, ExtractedFigure
 
+from .pdf_extractor import ExtractedFigure, PDFFigureExtractor
 
 # ══════════════════════════════════════════════
 #  Step 1: 从 PDF 提取文本+图片，生成提纲 Markdown 文件
@@ -49,9 +48,9 @@ def generate_outline(pdf_path: str, output_dir: str = None) -> str:
     # ── 3. 同步提取所有图片（智能裁切，PyMuPDF坐标渲染）────
     print("  📷 提取PDF图片中...")
     extractor = PDFFigureExtractor(pdf_path, figures_dir)
-    all_figures: List[ExtractedFigure] = []
+    all_figures: list[ExtractedFigure] = []
     fig_count = 0
-    fig_page_map: Dict[int, List[ExtractedFigure]] = {}  # page_0idx -> [figures]
+    fig_page_map: dict[int, list[ExtractedFigure]] = {}  # page_0idx -> [figures]
 
     for page_0idx in range(len(doc)):
         page = doc[page_0idx]
@@ -189,7 +188,7 @@ def _extract_fig_caption(page_text: str, fig_idx: int) -> str:
     return ""
 
 
-def _detect_paper_sections(full_text: str, page_texts: List[str]) -> List[Dict]:
+def _detect_paper_sections(full_text: str, page_texts: list[str]) -> list[dict]:
     """
     检测论文章节结构，提取各节标题和要点。
     优先识别标准学术论文结构（Introduction/Methods/Results/Discussion/Conclusion）
@@ -230,7 +229,7 @@ def _detect_paper_sections(full_text: str, page_texts: List[str]) -> List[Dict]:
     return detected
 
 
-def _extract_section_items(full_text: str, section_pattern: str) -> List[str]:
+def _extract_section_items(full_text: str, section_pattern: str) -> list[str]:
     """提取章节内主要内容，取到下一个章节标题前，最多8条有意义的句子"""
     m = re.search(section_pattern, full_text, re.IGNORECASE)
     if not m:
@@ -268,8 +267,8 @@ def _extract_section_items(full_text: str, section_pattern: str) -> List[str]:
 
 
 def _assign_figures_to_sections(
-    sections: List[Dict],
-    fig_page_map: Dict[int, List[ExtractedFigure]],
+    sections: list[dict],
+    fig_page_map: dict[int, list[ExtractedFigure]],
     total_pages: int,
 ):
     """
@@ -295,7 +294,7 @@ def _assign_figures_to_sections(
 
 def parse_outline_to_ppt_input(
     outline: str, pdf_path: str, output_dir: str = "figures"
-) -> Tuple[str, Dict[str, str]]:
+) -> tuple[str, dict[str, str]]:
     """
     解析用户修改后的提纲 Markdown，提取图片路径，
     返回 (ppt_text_input, fig_label_to_path_dict)
@@ -304,7 +303,7 @@ def parse_outline_to_ppt_input(
     1. 读取 md 里 ![图N](path) 格式 → 图片已提取，直接用路径，不重复截图
     2. 兜底：遇到 [图N,页P] 且路径不存在时，才从 PDF 重新截图
     """
-    label_to_path: Dict[str, str] = {}
+    label_to_path: dict[str, str] = {}
 
     # ── 1. 优先读取 ![图N](path) 格式（generate_outline 已提取好的图）────
     for m in re.finditer(r"!\[([^\]]+)\]\(([^)]+)\)", outline):
@@ -323,7 +322,7 @@ def parse_outline_to_ppt_input(
 
     # ── 2. 兜底：[图N,页P] 且该图还没有路径时，从 PDF 重新截图 ────────
     fig_refs = re.findall(r"\[([图表Fig\.]+\d*)[,，]页?(\d+)\]", outline)
-    missing_fig_map: Dict[str, int] = {}
+    missing_fig_map: dict[str, int] = {}
     for label, page_str in fig_refs:
         if label not in label_to_path:
             missing_fig_map[label] = int(page_str)
@@ -341,7 +340,7 @@ def parse_outline_to_ppt_input(
     return ppt_text, label_to_path
 
 
-def _outline_to_ppt_text(outline: str, label_to_path: Dict[str, str]) -> str:
+def _outline_to_ppt_text(outline: str, label_to_path: dict[str, str]) -> str:
     """将提纲 Markdown 转为 aut_sci_ppt 识别的文本格式"""
     lines_out = []
     section_num = 0

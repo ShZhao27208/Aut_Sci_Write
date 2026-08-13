@@ -10,7 +10,6 @@ import os
 import sys
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict
 
 _SKILLS_ROOT = Path(__file__).resolve().parents[2]
 
@@ -22,8 +21,8 @@ try:
 except ImportError:  # pragma: no cover - standalone fallback
     ENV_FILE = Path.home() / ".aut_sci_write" / ".env"
 
-    def load_env() -> Dict[str, str]:
-        env: Dict[str, str] = {}
+    def load_env() -> dict[str, str]:
+        env: dict[str, str] = {}
         if not ENV_FILE.exists():
             return env
         for line in ENV_FILE.read_text(encoding="utf-8").splitlines():
@@ -39,7 +38,7 @@ except ImportError:  # pragma: no cover - standalone fallback
 
 
 # Every credential sci-extract can make use of, grouped by the source it unlocks.
-SOURCE_CREDENTIALS: Dict[str, tuple[str, ...]] = {
+SOURCE_CREDENTIALS: dict[str, tuple[str, ...]] = {
     "crossref": (),
     "openalex": ("OPENALEX_EMAIL",),
     "semantic_scholar": ("SEMANTIC_SCHOLAR_API_KEY",),
@@ -61,7 +60,7 @@ KEYLESS_SOURCES = frozenset(
 
 
 @lru_cache(maxsize=1)
-def _env_snapshot() -> Dict[str, str]:
+def _env_snapshot() -> dict[str, str]:
     return load_env()
 
 
@@ -74,9 +73,9 @@ def has(name: str) -> bool:
     return bool(key(name))
 
 
-def available_sources() -> Dict[str, bool]:
+def available_sources() -> dict[str, bool]:
     """Map every known source to whether it is usable right now."""
-    status: Dict[str, bool] = {}
+    status: dict[str, bool] = {}
     for source, required in SOURCE_CREDENTIALS.items():
         if source in KEYLESS_SOURCES:
             status[source] = True

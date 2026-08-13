@@ -10,7 +10,7 @@ indexed citation counts, Springer and Elsevier for publisher-side detail.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from . import env, http
 from .identify import PaperRef, normalize_doi
@@ -33,7 +33,7 @@ class Author:
     given: str = ""
     family: str = ""
     orcid: str = ""
-    affiliations: List[str] = field(default_factory=list)
+    affiliations: list[str] = field(default_factory=list)
     is_corresponding: bool = False
 
     def display(self) -> str:
@@ -51,11 +51,11 @@ class PaperMetadata:
     title: str = ""
     subtitle: str = ""
     abstract: str = ""
-    authors: List[Author] = field(default_factory=list)
+    authors: list[Author] = field(default_factory=list)
     journal: str = ""
     journal_abbrev: str = ""
     publisher: str = ""
-    issn: List[str] = field(default_factory=list)
+    issn: list[str] = field(default_factory=list)
     volume: str = ""
     issue: str = ""
     pages: str = ""
@@ -67,11 +67,11 @@ class PaperMetadata:
     received_date: str = ""
     paper_type: str = ""
     language: str = ""
-    keywords: List[str] = field(default_factory=list)
-    mesh_terms: List[str] = field(default_factory=list)
-    topics: List[str] = field(default_factory=list)
-    subjects: List[str] = field(default_factory=list)
-    funders: List[Dict[str, Any]] = field(default_factory=list)
+    keywords: list[str] = field(default_factory=list)
+    mesh_terms: list[str] = field(default_factory=list)
+    topics: list[str] = field(default_factory=list)
+    subjects: list[str] = field(default_factory=list)
+    funders: list[dict[str, Any]] = field(default_factory=list)
     license: str = ""
     is_open_access: bool = False
     oa_status: str = ""
@@ -81,16 +81,16 @@ class PaperMetadata:
     arxiv_id: str = ""
     scopus_id: str = ""
     wos_uid: str = ""
-    citation_counts: Dict[str, int] = field(default_factory=dict)
+    citation_counts: dict[str, int] = field(default_factory=dict)
     reference_count: int = 0
-    references: List[Dict[str, str]] = field(default_factory=list)
-    urls: Dict[str, str] = field(default_factory=dict)
+    references: list[dict[str, str]] = field(default_factory=list)
+    urls: dict[str, str] = field(default_factory=dict)
     tldr: str = ""
-    sources_consulted: List[str] = field(default_factory=list)
-    source_errors: Dict[str, str] = field(default_factory=dict)
-    raw_by_source: Dict[str, Any] = field(default_factory=dict)
+    sources_consulted: list[str] = field(default_factory=list)
+    source_errors: dict[str, str] = field(default_factory=dict)
+    raw_by_source: dict[str, Any] = field(default_factory=dict)
 
-    def author_names(self) -> List[str]:
+    def author_names(self) -> list[str]:
         return [a.display() for a in self.authors]
 
     def first_author_family(self) -> str:
@@ -99,12 +99,12 @@ class PaperMetadata:
         first = self.authors[0]
         return first.family or first.display().split()[-1]
 
-    def best_citation_count(self) -> Optional[int]:
+    def best_citation_count(self) -> int | None:
         """Highest count across databases; they legitimately disagree."""
         return max(self.citation_counts.values()) if self.citation_counts else None
 
-    def to_dict(self, include_raw: bool = False) -> Dict[str, Any]:
-        payload: Dict[str, Any] = {
+    def to_dict(self, include_raw: bool = False) -> dict[str, Any]:
+        payload: dict[str, Any] = {
             "doi": self.doi,
             "title": self.title,
             "subtitle": self.subtitle,
@@ -171,7 +171,7 @@ def _first_nonempty(*values: str) -> str:
     return ""
 
 
-def _merge_list(target: List[str], incoming: List[str]) -> None:
+def _merge_list(target: list[str], incoming: list[str]) -> None:
     """Append unseen items, comparing case-insensitively, order preserved."""
     seen = {item.lower() for item in target}
     for item in incoming:
@@ -269,12 +269,12 @@ def fetch_crossref(doi: str, meta: PaperMetadata) -> None:
     _collect_crossref_references(work, meta)
 
 
-def _crossref_params() -> Dict[str, str]:
+def _crossref_params() -> dict[str, str]:
     email = env.contact_email()
     return {"mailto": email} if email else {}
 
 
-def _crossref_author(entry: Dict[str, Any]) -> Author:
+def _crossref_author(entry: dict[str, Any]) -> Author:
     affiliations = [
         a.get("name", "") for a in entry.get("affiliation") or [] if a.get("name")
     ]
@@ -289,7 +289,7 @@ def _crossref_author(entry: Dict[str, Any]) -> Author:
     )
 
 
-def _collect_crossref_references(work: Dict[str, Any], meta: PaperMetadata) -> None:
+def _collect_crossref_references(work: dict[str, Any], meta: PaperMetadata) -> None:
     """Reference list is often the only machine-readable citation graph we get."""
     if meta.references:
         return
@@ -354,7 +354,7 @@ def fetch_openalex(doi: str, meta: PaperMetadata) -> None:
             meta.funders.append(entry)
 
 
-def _openalex_venue(work: Dict[str, Any], meta: PaperMetadata) -> None:
+def _openalex_venue(work: dict[str, Any], meta: PaperMetadata) -> None:
     location = work.get("primary_location") or {}
     source = location.get("source") or {}
     meta.journal = _first_nonempty(meta.journal, source.get("display_name", ""))
@@ -369,7 +369,7 @@ def _openalex_venue(work: Dict[str, Any], meta: PaperMetadata) -> None:
         meta.pages = f"{biblio['first_page']}-{last}" if last else str(biblio["first_page"])
 
 
-def _openalex_open_access(work: Dict[str, Any], meta: PaperMetadata) -> None:
+def _openalex_open_access(work: dict[str, Any], meta: PaperMetadata) -> None:
     """OpenAlex is the most reliable single answer on OA status and PDF location."""
     oa = work.get("open_access") or {}
     if oa.get("is_oa"):
@@ -388,7 +388,7 @@ def _openalex_open_access(work: Dict[str, Any], meta: PaperMetadata) -> None:
         meta.urls.setdefault("oa_landing", best["landing_page_url"])
 
 
-def _openalex_ids(work: Dict[str, Any], meta: PaperMetadata) -> None:
+def _openalex_ids(work: dict[str, Any], meta: PaperMetadata) -> None:
     ids = work.get("ids") or {}
     if ids.get("pmid"):
         meta.pmid = _first_nonempty(meta.pmid, str(ids["pmid"]).rsplit("/", 1)[-1])
@@ -398,9 +398,9 @@ def _openalex_ids(work: Dict[str, Any], meta: PaperMetadata) -> None:
         meta.urls.setdefault("openalex", ids["openalex"])
 
 
-def _rebuild_inverted_abstract(index: Dict[str, List[int]]) -> str:
+def _rebuild_inverted_abstract(index: dict[str, list[int]]) -> str:
     """OpenAlex stores abstracts as {word: [positions]} for licensing reasons."""
-    positions: Dict[int, str] = {}
+    positions: dict[int, str] = {}
     for word, spots in index.items():
         for spot in spots:
             positions[spot] = word
@@ -409,7 +409,7 @@ def _rebuild_inverted_abstract(index: Dict[str, List[int]]) -> str:
     return " ".join(positions[i] for i in sorted(positions))
 
 
-def _openalex_author(entry: Dict[str, Any]) -> Author:
+def _openalex_author(entry: dict[str, Any]) -> Author:
     author = entry.get("author") or {}
     name = author.get("display_name", "")
     parts = name.split()
@@ -491,7 +491,7 @@ def fetch_semantic_scholar(doi: str, meta: PaperMetadata) -> None:
 
 # ------------------------------------------------------------------ PubMed ---
 
-def _ncbi_params(extra: Optional[Dict[str, str]] = None) -> Dict[str, str]:
+def _ncbi_params(extra: dict[str, str] | None = None) -> dict[str, str]:
     params = {"tool": "sci-extract"}
     if env.has("NCBI_API_KEY"):
         params["api_key"] = env.key("NCBI_API_KEY")
@@ -901,7 +901,7 @@ def _run(name: str, action, meta: PaperMetadata, verbose: bool) -> None:
 
 def _finalize(meta: PaperMetadata) -> None:
     """Derive fields that depend on the merged whole, and dedupe bookkeeping."""
-    seen: List[str] = []
+    seen: list[str] = []
     for source in meta.sources_consulted:
         if source not in seen:
             seen.append(source)
@@ -923,29 +923,27 @@ def _finalize(meta: PaperMetadata) -> None:
 
 # ------------------------------------------------------------------- search ---
 
-def search(query: str, *, limit: int = 10, exact_title: bool = False) -> List[Dict[str, Any]]:
+def search(query: str, *, limit: int = 10, exact_title: bool = False) -> list[dict[str, Any]]:
     """Resolve a title or keyword query to candidate papers via OpenAlex + Crossref.
 
     Both are keyless, so search always works regardless of configuration.
     Results are deduplicated by DOI and ranked by title similarity when the
     caller signalled that the input was a full title.
     """
-    candidates: List[Dict[str, Any]] = []
+    candidates: list[dict[str, Any]] = []
     for provider in (_search_openalex, _search_crossref):
         try:
             candidates.extend(provider(query, limit))
         except (http.FetchError, Exception):  # noqa: BLE001
             continue
 
-    merged: Dict[str, Dict[str, Any]] = {}
+    merged: dict[str, dict[str, Any]] = {}
     for item in candidates:
         key = (item.get("doi") or item.get("title", "")).lower()
         if not key:
             continue
         existing = merged.get(key)
-        if existing is None:
-            merged[key] = item
-        elif (item.get("cited_by") or 0) > (existing.get("cited_by") or 0):
+        if existing is None or (item.get("cited_by") or 0) > (existing.get("cited_by") or 0):
             merged[key] = item
 
     results = list(merged.values())
@@ -957,7 +955,7 @@ def search(query: str, *, limit: int = 10, exact_title: bool = False) -> List[Di
     return results[:limit]
 
 
-def _search_openalex(query: str, limit: int) -> List[Dict[str, Any]]:
+def _search_openalex(query: str, limit: int) -> list[dict[str, Any]]:
     email = env.key("OPENALEX_EMAIL") or env.contact_email()
     params = {"search": query, "per-page": str(min(limit * 2, 50))}
     if email:
@@ -985,7 +983,7 @@ def _search_openalex(query: str, limit: int) -> List[Dict[str, Any]]:
     return out
 
 
-def _search_crossref(query: str, limit: int) -> List[Dict[str, Any]]:
+def _search_crossref(query: str, limit: int) -> list[dict[str, Any]]:
     params = _crossref_params()
     params.update({"query.bibliographic": query, "rows": str(min(limit * 2, 50))})
     payload = http.get_json(CROSSREF_API, params=params) or {}

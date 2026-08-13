@@ -9,7 +9,6 @@ from __future__ import annotations
 import os
 import re
 from pathlib import Path
-from typing import Dict
 
 ENV_DIR = Path(os.environ.get("AUT_SCI_WRITE_ENV_DIR", str(Path.home() / ".aut_sci_write")))
 ENV_FILE = ENV_DIR / ".env"
@@ -60,9 +59,9 @@ ZOTERO_GROUP_ID=
 """
 
 
-def _parse_env(path: Path) -> Dict[str, str]:
+def _parse_env(path: Path) -> dict[str, str]:
     """Parse a .env file into a dict. Ignores comments and empty lines."""
-    env: Dict[str, str] = {}
+    env: dict[str, str] = {}
     if not path.exists():
         return env
     try:
@@ -86,7 +85,7 @@ def ensure_env_dir() -> Path:
     return ENV_DIR
 
 
-def load_env() -> Dict[str, str]:
+def load_env() -> dict[str, str]:
     """Load all key-value pairs from the unified .env file."""
     ensure_env_dir()
     return _parse_env(ENV_FILE)

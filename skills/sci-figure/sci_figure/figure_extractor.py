@@ -18,11 +18,12 @@ from __future__ import annotations
 
 import cv2
 import numpy as np
-from sci_figure.pdf_parser import PDFParser
+
 from sci_figure.caption_detector import CaptionDetector
-from sci_figure.native_extractor import NativeExtractor
-from sci_figure.region_detector import RegionDetector
 from sci_figure.column_detector import ColumnDetector
+from sci_figure.native_extractor import NativeExtractor
+from sci_figure.pdf_parser import PDFParser
+from sci_figure.region_detector import RegionDetector
 from sci_figure.utils import get_logger
 
 logger = get_logger()

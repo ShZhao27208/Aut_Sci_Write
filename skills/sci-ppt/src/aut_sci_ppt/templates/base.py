@@ -3,9 +3,9 @@
 颜色/字体优先从 config 读取，类常量作为默认兜底
 """
 
-from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
+from pptx.util import Inches, Pt
 
 
 def hex_to_rgb(hex_color: str) -> RGBColor:

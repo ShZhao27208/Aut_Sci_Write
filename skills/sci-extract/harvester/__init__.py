@@ -10,11 +10,11 @@ from __future__ import annotations
 
 __all__ = [
     "env",
+    "figures",
+    "fulltext",
     "identify",
+    "jats",
     "metadata",
     "oa_package",
-    "fulltext",
-    "jats",
-    "figures",
     "render",
 ]

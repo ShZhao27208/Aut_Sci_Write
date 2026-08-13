@@ -8,9 +8,12 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Dict, List
 
 from ..models import (
+    PAGE_TYPE_CONTENT_DETAIL,
+    PAGE_TYPE_CONTENT_LIST,
+    PAGE_TYPE_SECTION,
+    PAGE_TYPE_TIMELINE,
     ContentDetailData,
     ContentListData,
     CoverData,
@@ -21,10 +24,6 @@ from ..models import (
     SectionData,
     TimelineData,
     TimelineEvent,
-    PAGE_TYPE_CONTENT_DETAIL,
-    PAGE_TYPE_CONTENT_LIST,
-    PAGE_TYPE_SECTION,
-    PAGE_TYPE_TIMELINE,
 )
 
 FIG_RE = re.compile(
@@ -67,7 +66,7 @@ class TextParser:
         self.config = config
         self.scene = scene
         self.parsed_data = ParsedData()
-        self.warnings: List[str] = []
+        self.warnings: list[str] = []
 
     def parse(self, text: str) -> ParsedData:
         self.parsed_data = ParsedData()
@@ -77,7 +76,7 @@ class TextParser:
         self._parse_sections(lines)
         return self.parsed_data
 
-    def validate(self, data: ParsedData) -> List[str]:
+    def validate(self, data: ParsedData) -> list[str]:
         warnings = []
         if not data.meta.title:
             warnings.append("Missing title")
@@ -106,7 +105,7 @@ class TextParser:
                 return text
         return text
 
-    def _convert_mapping_to_text(self, data: Dict) -> str:
+    def _convert_mapping_to_text(self, data: dict) -> str:
         lines = []
         for key, value in (data.get("meta") or {}).items():
             if value:
@@ -122,7 +121,7 @@ class TextParser:
                 )
         return "\n".join(lines)
 
-    def _parse_meta(self, lines: List[str]) -> None:
+    def _parse_meta(self, lines: list[str]) -> None:
         meta = CoverData()
         for raw in lines:
             parsed = self._split_key_value(raw)
@@ -142,9 +141,9 @@ class TextParser:
                 meta.direction = value
         self.parsed_data.meta = meta
 
-    def _parse_sections(self, lines: List[str]) -> None:
+    def _parse_sections(self, lines: list[str]) -> None:
         current_title = None
-        current_content: List[str] = []
+        current_content: list[str] = []
         section_index = 0
 
         for raw in lines:
@@ -168,7 +167,7 @@ class TextParser:
             section_index += 1
             self._add_section(section_index, current_title, current_content)
 
-    def _add_section(self, index: int, title: str, content: List[str]) -> None:
+    def _add_section(self, index: int, title: str, content: list[str]) -> None:
         text_lines = []
         figures = []
         for line in content:
@@ -202,7 +201,7 @@ class TextParser:
         )
         self.parsed_data.sections.append(Page(page_type=page_type, data=data))
 
-    def _classify_page(self, title: str, lines: List[str]) -> str:
+    def _classify_page(self, title: str, lines: list[str]) -> str:
         joined = f"{title} {' '.join(lines)}".lower()
         if self._contains_any(joined, TIMELINE_KEYWORDS) or any(re.search(r"\b20\d{2}\b", line) for line in lines):
             return PAGE_TYPE_TIMELINE
@@ -211,7 +210,7 @@ class TextParser:
         return PAGE_TYPE_CONTENT_LIST
 
     @staticmethod
-    def _list_data(title: str, index: int, lines: List[str]) -> ContentListData:
+    def _list_data(title: str, index: int, lines: list[str]) -> ContentListData:
         return ContentListData(
             title=title,
             part_num=str(index),
@@ -219,11 +218,11 @@ class TextParser:
         )
 
     @staticmethod
-    def _detail_data(title: str, index: int, lines: List[str]) -> ContentDetailData:
+    def _detail_data(title: str, index: int, lines: list[str]) -> ContentDetailData:
         return ContentDetailData(title=title, part_num=str(index), points=[line for line in lines if line])
 
     @staticmethod
-    def _timeline_data(title: str, index: int, lines: List[str]) -> TimelineData:
+    def _timeline_data(title: str, index: int, lines: list[str]) -> TimelineData:
         events = []
         for line in lines:
             if not line:

@@ -5,7 +5,6 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List
 
 
 class ContentType(Enum):
@@ -25,14 +24,14 @@ class ContentBlock:
     title: str
     content: str
     importance: float
-    formulas: List[str] = field(default_factory=list)
+    formulas: list[str] = field(default_factory=list)
 
 
 class AcademicParser:
     def __init__(self):
-        self.content_blocks: List[ContentBlock] = []
+        self.content_blocks: list[ContentBlock] = []
 
-    def parse_text(self, text: str) -> List[ContentBlock]:
+    def parse_text(self, text: str) -> list[ContentBlock]:
         self.content_blocks = []
         for paragraph in re.split(r"\n\s*\n", text):
             paragraph = paragraph.strip()
@@ -50,10 +49,10 @@ class AcademicParser:
             )
         return self.content_blocks
 
-    def get_blocks_by_type(self, content_type: ContentType) -> List[ContentBlock]:
+    def get_blocks_by_type(self, content_type: ContentType) -> list[ContentBlock]:
         return [block for block in self.content_blocks if block.type == content_type]
 
-    def get_top_blocks(self, limit: int = 12) -> List[ContentBlock]:
+    def get_top_blocks(self, limit: int = 12) -> list[ContentBlock]:
         return sorted(self.content_blocks, key=lambda block: block.importance, reverse=True)[:limit]
 
     def generate_ppt_outline(self, limit: int = 12) -> str:
@@ -91,7 +90,7 @@ class AcademicParser:
         return first_line[:100]
 
     @staticmethod
-    def _extract_formulas(text: str) -> List[str]:
+    def _extract_formulas(text: str) -> list[str]:
         return [match.strip("$") for match in re.findall(r"\$[^$]+\$", text)]
 
     @staticmethod
@@ -109,5 +108,5 @@ class AcademicParser:
         return min(1.0, base + (0.1 if len(text) > 600 else 0.0))
 
     @staticmethod
-    def _sentences(text: str) -> List[str]:
+    def _sentences(text: str) -> list[str]:
         return [item.strip() for item in re.split(r"(?<=[.!?])\s+", text) if len(item.strip()) > 20]

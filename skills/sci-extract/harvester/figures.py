@@ -13,7 +13,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Optional
 
 from . import http, oa_package
 from .jats import Document, Figure
@@ -29,10 +28,10 @@ MIN_IMAGE_BYTES = 1200  # Anything smaller is an error page or a spacer.
 class FigureReport:
     """Outcome of the figure pass."""
 
-    saved: List[Figure] = field(default_factory=list)
-    failed: List[str] = field(default_factory=list)
+    saved: list[Figure] = field(default_factory=list)
+    failed: list[str] = field(default_factory=list)
     method: str = ""
-    notes: List[str] = field(default_factory=list)
+    notes: list[str] = field(default_factory=list)
 
     @property
     def count(self) -> int:
@@ -44,7 +43,7 @@ def download(
     meta: PaperMetadata,
     figures_dir: Path,
     *,
-    pdf_path: Optional[Path] = None,
+    pdf_path: Path | None = None,
     verbose: bool = False,
 ) -> FigureReport:
     """Fetch every figure image, preferring publisher originals over PDF crops."""
@@ -77,7 +76,7 @@ def download(
 
 
 def _from_publisher(
-    figures: List[Figure],
+    figures: list[Figure],
     package: oa_package.OAPackage,
     figures_dir: Path,
     report: FigureReport,
@@ -108,7 +107,7 @@ def _from_publisher(
             print(f"  [figure] {figure.display_label()} -> {name} ({len(payload)} B)", flush=True)
 
 
-def _candidate_urls(href: str, package: oa_package.OAPackage) -> List[str]:
+def _candidate_urls(href: str, package: oa_package.OAPackage) -> list[str]:
     """Every plausible URL for one graphic href, most likely first."""
     if href.startswith("http://") or href.startswith("https://"):
         return [href]
@@ -119,7 +118,7 @@ def _candidate_urls(href: str, package: oa_package.OAPackage) -> List[str]:
 
 def _asset_index(
     meta: PaperMetadata, report: FigureReport, verbose: bool
-) -> Optional[oa_package.OAPackage]:
+) -> oa_package.OAPackage | None:
     """Load the OA bucket manifest that maps JATS filenames to asset URLs."""
     package = oa_package.fetch(meta.pmcid, verbose=verbose)
     if package.found and package.media:
@@ -129,7 +128,7 @@ def _asset_index(
     return None
 
 
-def _first_image(urls: List[str]) -> tuple[Optional[bytes], str]:
+def _first_image(urls: list[str]) -> tuple[bytes | None, str]:
     """Return the first URL that yields a plausible image body."""
     for url in urls:
         try:
@@ -253,7 +252,7 @@ def _from_pdf(
         print(f"  [figure] PDF fallback recovered {saved} images", flush=True)
 
 
-def download_pdf(url: str, target: Path) -> Optional[Path]:
+def download_pdf(url: str, target: Path) -> Path | None:
     """Fetch the PDF itself, kept alongside the markdown for source checking."""
     try:
         payload = http.get_bytes(url)

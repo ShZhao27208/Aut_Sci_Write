@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import os
+
 import numpy as np
 from PIL import Image
+
 from sci_figure.utils import get_logger
 
 logger = get_logger()

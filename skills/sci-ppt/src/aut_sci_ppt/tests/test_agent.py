@@ -5,17 +5,17 @@ from pathlib import Path
 
 from aut_sci_ppt.enhanced_agent import EnhancedPPTAgent
 from aut_sci_ppt.models import (
+    PAGE_TYPE_CONTENT_LIST,
+    PAGE_TYPE_SECTION,
     ContentListData,
     CoverData,
     ListItem,
     Page,
     ParsedData,
-    PAGE_TYPE_CONTENT_LIST,
-    PAGE_TYPE_SECTION,
 )
-from aut_sci_ppt.parser.text_parser import TextParser
 from aut_sci_ppt.paginator.smart_paginator import SmartPaginator
 from aut_sci_ppt.paper_workflow import _detect_paper_sections
+from aut_sci_ppt.parser.text_parser import TextParser
 
 
 class TestTextParser(unittest.TestCase):

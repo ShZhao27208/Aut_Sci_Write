@@ -1,5 +1,5 @@
-import csv
 import contextlib
+import csv
 import importlib.util
 import io
 import subprocess
@@ -7,7 +7,6 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
-
 
 ROOT = Path(__file__).resolve().parents[1]
 MODULE_PATH = ROOT / "skills" / "sci-extract" / "extract_core_insights.py"

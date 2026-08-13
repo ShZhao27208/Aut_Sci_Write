@@ -1,6 +1,8 @@
 """结尾页 - 整体优化版"""
-from .base import BaseTemplate
 from pptx.enum.text import PP_ALIGN
+
+from .base import BaseTemplate
+
 
 class EndingTemplate(BaseTemplate):
     def render(self, data):

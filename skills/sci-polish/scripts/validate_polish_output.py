@@ -11,11 +11,11 @@ Checks:
 
 from __future__ import annotations
 
+import json
 import re
 import sys
-import json
-from pathlib import Path
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from tier1_words import TIER1_WORDS
 

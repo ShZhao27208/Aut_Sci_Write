@@ -3,7 +3,6 @@
 
 class SciFigureError(Exception):
     """Base exception."""
-    pass
 
 
 class PDFError(SciFigureError):

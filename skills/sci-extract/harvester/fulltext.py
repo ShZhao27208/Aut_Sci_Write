@@ -9,7 +9,6 @@ misses all four falls back to a PDF download plus figure cropping.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 from . import env, http, oa_package
 from .metadata import PaperMetadata
@@ -29,7 +28,7 @@ class FullText:
     xml: str = ""
     is_native_xml: bool = False
     pdf_url: str = ""
-    attempts: List[str] = field(default_factory=list)
+    attempts: list[str] = field(default_factory=list)
     errors: dict = field(default_factory=dict)
 
     @property
@@ -205,7 +204,7 @@ def _springer_jats(record: dict) -> str:
     return ""
 
 
-def resolve_pdf_urls(meta: PaperMetadata) -> List[str]:
+def resolve_pdf_urls(meta: PaperMetadata) -> list[str]:
     """PDF links worth trying, best first.
 
     All candidates are returned rather than only the top one. Publisher links
@@ -213,7 +212,7 @@ def resolve_pdf_urls(meta: PaperMetadata) -> List[str]:
     scripted clients, and when that happens a PMC copy of the same article still
     answers. The caller walks the list until a payload really starts with %PDF.
     """
-    urls: List[str] = []
+    urls: list[str] = []
     if meta.oa_pdf_url:
         urls.append(meta.oa_pdf_url)
     if meta.pmcid:

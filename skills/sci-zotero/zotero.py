@@ -657,7 +657,7 @@ def cmd_fetch_pdfs(args) -> None:
             f"filename=\"{filename}\"\r\nContent-Type: application/pdf\r\n\r\n"
         )
         prefix_bytes = "\r\n".join(parts_enc).encode("utf-8")
-        suffix_bytes = f"\r\n--{boundary}--\r\n".encode("utf-8")
+        suffix_bytes = f"\r\n--{boundary}--\r\n".encode()
         upload_body = prefix_bytes + pdf_bytes + suffix_bytes
         upload_req = urllib.request.Request(
             upload_url,

@@ -18,7 +18,6 @@ from pathlib import Path
 from typing import Any
 
 import requests
-
 from config import load_config
 
 USER_AGENT = (

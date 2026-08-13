@@ -8,8 +8,9 @@ raster figures but cannot detect vector-drawn figures.
 
 from __future__ import annotations
 
-import numpy as np
 import fitz
+import numpy as np
+
 from sci_figure.utils import get_logger
 
 logger = get_logger()
@@ -122,8 +123,7 @@ class NativeExtractor:
 
             # Vertical proximity
             dist = cap_y0 - iy1
-            if dist < 0:
-                dist = 0
+            dist = max(dist, 0)
             proximity = max(0, 1.0 - dist / (page_h * 0.3))
 
             # Center alignment

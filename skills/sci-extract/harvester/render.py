@@ -17,7 +17,6 @@ import json
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
 
 from .figures import FigureReport
 from .fulltext import FullText
@@ -41,15 +40,15 @@ class RenderResult:
     """Paths written for one paper."""
 
     directory: Path
-    raw: Optional[Path] = None
-    metadata: Optional[Path] = None
-    xml: Optional[Path] = None
-    prompt: Optional[Path] = None
-    pdf: Optional[Path] = None
+    raw: Path | None = None
+    metadata: Path | None = None
+    xml: Path | None = None
+    prompt: Path | None = None
+    pdf: Path | None = None
     # True when analysis.md predates this run and now describes an older capture.
     stale_analysis: bool = False
 
-    def written(self) -> List[Path]:
+    def written(self) -> list[Path]:
         return [
             p
             for p in (self.raw, self.metadata, self.xml, self.prompt, self.pdf)
@@ -61,7 +60,7 @@ def paper_dirname(meta: PaperMetadata) -> str:
     """Stable, filesystem-safe directory name: `{year}_{author}_{short-title}`."""
     year = meta.year or "n.d."
     author = _slug(meta.first_author_family()) or "unknown"
-    words: List[str] = []
+    words: list[str] = []
     for word in re.findall(r"[A-Za-z0-9]+", meta.title or "untitled"):
         if word.lower() in _SLUG_STOPWORDS and words:
             continue
@@ -79,12 +78,12 @@ def _slug(text: str) -> str:
 def write_raw(
     path: Path,
     meta: PaperMetadata,
-    doc: Optional[Document],
+    doc: Document | None,
     fulltext: FullText,
-    figure_report: Optional[FigureReport],
+    figure_report: FigureReport | None,
 ) -> Path:
     """Write the complete human and AI readable capture of the paper."""
-    lines: List[str] = []
+    lines: list[str] = []
     out = lines.append
 
     title = meta.title or (doc.title if doc else "") or "Untitled"
@@ -132,7 +131,7 @@ NO_FULLTEXT = "论文全文未提取"
 
 
 def extraction_status(
-    doc: Optional[Document], figure_report: Optional[FigureReport]
+    doc: Document | None, figure_report: FigureReport | None
 ) -> str:
     """The badge that goes under the title, naming exactly what was captured.
 
@@ -156,8 +155,8 @@ def extraction_status(
 
 def _raw_status_badge(
     out,
-    doc: Optional[Document],
-    figure_report: Optional[FigureReport],
+    doc: Document | None,
+    figure_report: FigureReport | None,
     fulltext: FullText,
 ) -> None:
     """Print the badge plus, when something is missing, why it is missing."""
@@ -172,8 +171,8 @@ def _raw_status_badge(
 
 def _status_detail(
     status: str,
-    doc: Optional[Document],
-    figure_report: Optional[FigureReport],
+    doc: Document | None,
+    figure_report: FigureReport | None,
     fulltext: FullText,
 ) -> str:
     if status == FULLTEXT_FIGURES_SKIPPED:
@@ -194,7 +193,7 @@ def _status_detail(
     return _no_fulltext_reason(fulltext)
 
 
-def _figure_failure_reason(figure_report: Optional[FigureReport]) -> str:
+def _figure_failure_reason(figure_report: FigureReport | None) -> str:
     if figure_report and figure_report.notes:
         return f"（{figure_report.notes[0]}）"
     if figure_report and figure_report.failed:
@@ -213,7 +212,7 @@ def _no_fulltext_reason(fulltext: FullText) -> str:
 
 
 def _raw_citation_block(out, meta: PaperMetadata) -> None:
-    bits: List[str] = []
+    bits: list[str] = []
     if meta.journal:
         bits.append(meta.journal)
     if meta.year:
@@ -228,7 +227,7 @@ def _raw_citation_block(out, meta: PaperMetadata) -> None:
         out(f"**{' | '.join(bits)}**")
         out("")
 
-    rows: List[tuple[str, str]] = []
+    rows: list[tuple[str, str]] = []
     if meta.publisher:
         rows.append(("Publisher", meta.publisher))
     if meta.paper_type:
@@ -309,7 +308,7 @@ def _raw_authors(out, meta: PaperMetadata) -> None:
         out("")
 
 
-def _raw_abstract(out, meta: PaperMetadata, doc: Optional[Document]) -> None:
+def _raw_abstract(out, meta: PaperMetadata, doc: Document | None) -> None:
     structured = doc.structured_abstract if doc else {}
     if structured:
         out("## Abstract")
@@ -329,7 +328,7 @@ def _raw_abstract(out, meta: PaperMetadata, doc: Optional[Document]) -> None:
         out("")
 
 
-def _raw_keywords(out, meta: PaperMetadata, doc: Optional[Document]) -> None:
+def _raw_keywords(out, meta: PaperMetadata, doc: Document | None) -> None:
     groups = [
         ("Keywords", (doc.keywords if doc else []) or meta.keywords),
         ("MeSH Terms", meta.mesh_terms),
@@ -373,9 +372,9 @@ def _raw_section(
 
 def _figures_cited_in(
     paragraph: str, doc: Document, emitted: set[int]
-) -> List[Figure]:
+) -> list[Figure]:
     """Figures whose label appears in this paragraph and are not yet emitted."""
-    found: List[Figure] = []
+    found: list[Figure] = []
     for position, figure in enumerate(doc.figures):
         if position in emitted or not figure.local_path:
             continue
@@ -410,8 +409,8 @@ def _emit_figure(out, figure: Figure) -> None:
 
 def _raw_orphan_figures(
     out,
-    doc: Optional[Document],
-    figure_report: Optional[FigureReport],
+    doc: Document | None,
+    figure_report: FigureReport | None,
     emitted: set[int],
 ) -> None:
     """Figures never cited by name in the body, plus any that failed to download."""
@@ -445,7 +444,7 @@ def _raw_orphan_figures(
         out("")
 
 
-def _raw_tables(out, doc: Optional[Document]) -> None:
+def _raw_tables(out, doc: Document | None) -> None:
     if doc is None or not doc.tables:
         return
     out("## Tables")
@@ -466,7 +465,7 @@ def _raw_tables(out, doc: Optional[Document]) -> None:
             out("")
 
 
-def _raw_backmatter(out, doc: Optional[Document]) -> None:
+def _raw_backmatter(out, doc: Document | None) -> None:
     if doc is None:
         return
     blocks = [
@@ -489,8 +488,8 @@ def _raw_backmatter(out, doc: Optional[Document]) -> None:
         out("")
 
 
-def _raw_references(out, meta: PaperMetadata, doc: Optional[Document]) -> None:
-    entries: List[str] = list(doc.references) if doc and doc.references else []
+def _raw_references(out, meta: PaperMetadata, doc: Document | None) -> None:
+    entries: list[str] = list(doc.references) if doc and doc.references else []
     if not entries and meta.references:
         for ref in meta.references:
             text = ref.get("citation") or ref.get("unstructured") or ""
@@ -515,7 +514,7 @@ def _raw_provenance(
     out,
     meta: PaperMetadata,
     fulltext: FullText,
-    figure_report: Optional[FigureReport],
+    figure_report: FigureReport | None,
 ) -> None:
     """Record where every part came from, so gaps are legible rather than silent."""
     out("---")
@@ -604,7 +603,7 @@ def _degraded_inventory(meta: PaperMetadata) -> str:
 
 def _degraded_routes(meta: PaperMetadata) -> str:
     """Concrete next steps, ordered by how likely they are to work."""
-    routes: List[str] = []
+    routes: list[str] = []
     landing = meta.urls.get("doi") or (
         f"https://doi.org/{meta.doi}" if meta.doi else ""
     )
@@ -635,9 +634,9 @@ def _degraded_routes(meta: PaperMetadata) -> str:
 def write_metadata(
     path: Path,
     meta: PaperMetadata,
-    doc: Optional[Document],
+    doc: Document | None,
     fulltext: FullText,
-    figure_report: Optional[FigureReport],
+    figure_report: FigureReport | None,
     *,
     include_raw: bool = False,
 ) -> Path:
@@ -712,7 +711,7 @@ _REVIEW_MARKERS = (
 )
 
 
-def classify_paper_type(meta: PaperMetadata, doc: Optional[Document]) -> str:
+def classify_paper_type(meta: PaperMetadata, doc: Document | None) -> str:
     """Guess "review" or "research" from the title, type field and section names."""
     haystack = " ".join(
         [
@@ -738,18 +737,18 @@ def classify_paper_type(meta: PaperMetadata, doc: Optional[Document]) -> str:
 def write_prompt(
     path: Path,
     meta: PaperMetadata,
-    doc: Optional[Document],
+    doc: Document | None,
     paper_type: str,
     *,
-    figure_report: Optional[FigureReport] = None,
-    skill_md: Optional[Path] = None,
+    figure_report: FigureReport | None = None,
+    skill_md: Path | None = None,
 ) -> Path:
     """Write the instruction file the host agent follows to produce analysis.md.
 
     The host agent is whatever model is already running this skill, so no LLM
     endpoint or key is referenced here.
     """
-    lines: List[str] = []
+    lines: list[str] = []
     out = lines.append
     title = meta.title or (doc.title if doc else "") or "Untitled"
     body_words = doc.body_word_count() if doc else 0
@@ -855,7 +854,7 @@ def write_prompt(
     return path
 
 
-def write_xml(path: Path, fulltext: FullText) -> Optional[Path]:
+def write_xml(path: Path, fulltext: FullText) -> Path | None:
     """Save the publisher XML exactly as received.
 
     Only genuine publisher XML is written. When no source returned any, no file
@@ -871,12 +870,12 @@ def write_xml(path: Path, fulltext: FullText) -> Optional[Path]:
 def render_all(
     directory: Path,
     meta: PaperMetadata,
-    doc: Optional[Document],
+    doc: Document | None,
     fulltext: FullText,
-    figure_report: Optional[FigureReport],
+    figure_report: FigureReport | None,
     *,
-    pdf_path: Optional[Path] = None,
-    skill_md: Optional[Path] = None,
+    pdf_path: Path | None = None,
+    skill_md: Path | None = None,
     include_raw_metadata: bool = False,
 ) -> RenderResult:
     """Write every output file for one paper into `directory`."""

@@ -3,29 +3,30 @@ PPT 生成器 - 禁用 AutoLayout 二次调整（会破坏精确布局）
 """
 
 import os
+
 from pptx import Presentation
 from pptx.util import Inches
-from typing import List
+
+from ..config import default_config
 from ..models import (
-    Page,
-    PAGE_TYPE_COVER,
-    PAGE_TYPE_TOC,
-    PAGE_TYPE_SECTION,
-    PAGE_TYPE_CONTENT_LIST,
     PAGE_TYPE_CONTENT_DETAIL,
+    PAGE_TYPE_CONTENT_LIST,
     PAGE_TYPE_CONTENT_WITH_FIG,
-    PAGE_TYPE_TIMELINE,
+    PAGE_TYPE_COVER,
     PAGE_TYPE_ENDING,
+    PAGE_TYPE_SECTION,
+    PAGE_TYPE_TIMELINE,
+    PAGE_TYPE_TOC,
+    Page,
 )
-from ..templates.cover import CoverTemplate
-from ..templates.toc import TOCTemplate
-from ..templates.section import SectionTemplate
-from ..templates.content_list import ContentListTemplate
 from ..templates.content_detail import ContentDetailTemplate
 from ..templates.content_figure import ContentFigureTemplate
-from ..templates.timeline import TimelineTemplate
+from ..templates.content_list import ContentListTemplate
+from ..templates.cover import CoverTemplate
 from ..templates.ending import EndingTemplate
-from ..config import default_config
+from ..templates.section import SectionTemplate
+from ..templates.timeline import TimelineTemplate
+from ..templates.toc import TOCTemplate
 
 NO_PAGE_NUM = {PAGE_TYPE_COVER, PAGE_TYPE_ENDING}
 
@@ -34,7 +35,7 @@ class PPTXGenerator:
     def __init__(self, config=None):
         self.config = config or default_config
 
-    def generate(self, pages: List[Page], output_path: str = "output.pptx") -> str:
+    def generate(self, pages: list[Page], output_path: str = "output.pptx") -> str:
         prs = Presentation()
         prs.slide_width = Inches(13.33)
         prs.slide_height = Inches(7.5)
@@ -62,7 +63,7 @@ class PPTXGenerator:
         prs.save(output_path)
         return output_path
 
-    def _quality_check(self, pages: List[Page]) -> List[str]:
+    def _quality_check(self, pages: list[Page]) -> list[str]:
         """生成后质量自动检查，返回警告列表"""
         warnings = []
         if len(pages) <= 2:

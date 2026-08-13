@@ -24,14 +24,12 @@ from __future__ import annotations
 import json
 import re
 import sys
-
 from pathlib import Path
 from typing import Any
 
 import requests
 from bs4 import BeautifulSoup
-
-from config import load_config, update_config, resolve_school, DATA_DIR, WEBVPN_DEFAULT_KEY, WEBVPN_DEFAULT_IV
+from config import DATA_DIR, WEBVPN_DEFAULT_IV, WEBVPN_DEFAULT_KEY, load_config, resolve_school, update_config
 
 USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "

@@ -13,7 +13,9 @@ Key improvements over v1:
 from __future__ import annotations
 
 import re
+
 import pdfplumber
+
 from sci_figure.utils import get_logger
 
 logger = get_logger()

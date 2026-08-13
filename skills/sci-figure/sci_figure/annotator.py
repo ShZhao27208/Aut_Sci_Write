@@ -7,8 +7,9 @@ so that multimodal LLMs can visually verify and correct extraction results.
 
 from __future__ import annotations
 
-import numpy as np
 import cv2
+import numpy as np
+
 from sci_figure.utils import get_logger
 
 logger = get_logger()

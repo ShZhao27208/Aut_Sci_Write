@@ -1,22 +1,21 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """Sci Search - Academic Paper Search & Metrics Tool
 Combined logic from paper_fetch.py and smart_paper_output.py
 """
 
-import os
-import sys
 import json
-import time
-import urllib.request
-import urllib.parse
-import urllib.error
+import os
 import re
+import sys
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
 import xml.etree.ElementTree as ET
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Optional
+
 
 def configure_windows_console() -> None:
     """Avoid import-time stdio mutation; only reconfigure in CLI mode."""
@@ -75,7 +74,7 @@ DEFAULT_JOURNAL_DB = {
 }
 
 
-def _normalize_journal_metrics(journal_name: str, metrics: Dict) -> Dict:
+def _normalize_journal_metrics(journal_name: str, metrics: dict) -> dict:
     """Support both legacy JSON schema and richer in-code metrics schema."""
     normalized = {
         'jcr_partition': metrics.get('jcr_partition', metrics.get('JCR', 'N/A')),
@@ -97,7 +96,7 @@ def _normalize_journal_metrics(journal_name: str, metrics: Dict) -> Dict:
     return normalized
 
 
-def load_journal_db(db_path: Path = JOURNAL_DB_PATH) -> Dict[str, Dict]:
+def load_journal_db(db_path: Path = JOURNAL_DB_PATH) -> dict[str, dict]:
     """Load journal metrics from disk, falling back to bundled defaults."""
     database = {
         name: _normalize_journal_metrics(name, metrics)
@@ -178,7 +177,7 @@ def _normalize_journal_name(name: str) -> str:
     return re.sub(r'\s+', ' ', no_punct).strip()
 
 
-def get_journal_metrics(journal_name: str) -> Optional[Dict]:
+def get_journal_metrics(journal_name: str) -> dict | None:
     if not journal_name:
         return None
 
@@ -224,7 +223,7 @@ class PaperLibrary:
         self.library_path = library_path
         self.papers = self._load_library()
 
-    def _load_library(self) -> List[Dict]:
+    def _load_library(self) -> list[dict]:
         if os.path.exists(self.library_path):
             try:
                 with open(self.library_path, 'r', encoding='utf-8') as f:
@@ -239,7 +238,7 @@ class PaperLibrary:
         with open(self.library_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
-    def _paper_key(self, paper: Dict) -> tuple:
+    def _paper_key(self, paper: dict) -> tuple:
         return (
             paper.get('source', ''),
             paper.get('url', ''),
@@ -247,7 +246,7 @@ class PaperLibrary:
             paper.get('title', '').strip().lower(),
         )
 
-    def add_paper(self, paper: Dict):
+    def add_paper(self, paper: dict):
         # Decorate with metrics if available
         paper = dict(paper)
         if paper.get('journal'):
@@ -265,7 +264,7 @@ class PaperLibrary:
         self.papers.append(paper)
         self._save_library()
 
-    def extend_papers(self, papers: List[Dict]):
+    def extend_papers(self, papers: list[dict]):
         for paper in papers:
             self.add_paper(paper)
 
@@ -273,7 +272,7 @@ class ArxivFetcher:
     API_URL = "https://export.arxiv.org/api/query"
     NS = {'atom': 'http://www.w3.org/2005/Atom'}
 
-    def search(self, query: str, max_results: int = 5) -> List[Dict]:
+    def search(self, query: str, max_results: int = 5) -> list[dict]:
         params = {'search_query': f'all:{query}', 'max_results': max_results}
         url = f"{self.API_URL}?{urllib.parse.urlencode(params)}"
         try:
@@ -311,7 +310,7 @@ class WoSFetcher:
     def is_available(self) -> bool:
         return bool(self.api_key)
 
-    def search(self, query: str, max_results: int = 5) -> List[Dict]:
+    def search(self, query: str, max_results: int = 5) -> list[dict]:
         if not self.api_key:
             return []
 
@@ -388,7 +387,7 @@ class SpringerMetaFetcher:
     def is_available(self) -> bool:
         return bool(self.api_key)
 
-    def search(self, query: str, max_results: int = 5) -> List[Dict]:
+    def search(self, query: str, max_results: int = 5) -> list[dict]:
         if not self.api_key:
             return []
 
@@ -463,7 +462,7 @@ class SpringerOpenAccessFetcher:
     def is_available(self) -> bool:
         return bool(self.api_key)
 
-    def search(self, query: str, max_results: int = 5) -> List[Dict]:
+    def search(self, query: str, max_results: int = 5) -> list[dict]:
         if not self.api_key:
             return []
 
@@ -554,7 +553,7 @@ class ScopusFetcher:
     def is_available(self) -> bool:
         return bool(self.api_key)
 
-    def search(self, query: str, max_results: int = 5) -> List[Dict]:
+    def search(self, query: str, max_results: int = 5) -> list[dict]:
         if not self.api_key:
             return []
 
@@ -637,7 +636,7 @@ class SemanticScholarFetcher:
     def is_available(self) -> bool:
         return True
 
-    def search(self, query: str, max_results: int = 5) -> List[Dict]:
+    def search(self, query: str, max_results: int = 5) -> list[dict]:
         params = {
             "query": query,
             "limit": min(max_results, 100),
@@ -707,7 +706,7 @@ class OpenAlexFetcher:
     def is_available(self) -> bool:
         return True
 
-    def search(self, query: str, max_results: int = 5) -> List[Dict]:
+    def search(self, query: str, max_results: int = 5) -> list[dict]:
         params = {
             "search": query,
             "per_page": min(max_results, 50),
@@ -779,7 +778,7 @@ class PubmedFetcher:
         self.email = get_config_value("NCBI_EMAIL")
         self.tool = get_config_value("NCBI_TOOL", "sci-search")
 
-    def _request(self, url: str, params: Dict, timeout: int = 20) -> bytes:
+    def _request(self, url: str, params: dict, timeout: int = 20) -> bytes:
         payload = dict(params)
         payload["tool"] = self.tool
         if self.email:
@@ -795,19 +794,19 @@ class PubmedFetcher:
             return resp.read()
 
     @staticmethod
-    def _text(node: Optional[ET.Element]) -> str:
+    def _text(node: ET.Element | None) -> str:
         if node is None or node.text is None:
             return ""
         return " ".join(node.text.split())
 
     @classmethod
-    def _collect_text(cls, node: Optional[ET.Element]) -> str:
+    def _collect_text(cls, node: ET.Element | None) -> str:
         if node is None:
             return ""
         return " ".join(" ".join(node.itertext()).split())
 
     @classmethod
-    def _parse_article(cls, article: ET.Element, pmid: str) -> Dict:
+    def _parse_article(cls, article: ET.Element, pmid: str) -> dict:
         medline = article.find("MedlineCitation")
         pubmed_data = article.find("PubmedData")
         article_node = medline.find("Article") if medline is not None else None
@@ -886,7 +885,7 @@ class PubmedFetcher:
         """Redact api_key query params so keys never leak via printed errors."""
         return re.sub(r'(api_key=)[^&\s]+', r'\1[REDACTED]', message)
 
-    def search(self, query: str, max_results: int = 5) -> List[Dict]:
+    def search(self, query: str, max_results: int = 5) -> list[dict]:
         params = {
             "db": "pubmed",
             "term": query,
@@ -922,7 +921,7 @@ class PubmedFetcher:
             print(f"PubMed error: {self._scrub_api_key(str(e))}")
             return []
 
-def format_markdown(paper: Dict, index: int) -> str:
+def format_markdown(paper: dict, index: int) -> str:
     metrics = paper.get('journal_metrics', get_journal_metrics(paper.get('journal', '')))
 
     status_icon = ""
@@ -964,7 +963,7 @@ def format_markdown(paper: Dict, index: int) -> str:
     return "\n".join(lines)
 
 
-def dedupe_results(results: List[Dict]) -> List[Dict]:
+def dedupe_results(results: list[dict]) -> list[dict]:
     """Deduplicate cross-source results while keeping first-seen order."""
     seen = set()
     deduped = []

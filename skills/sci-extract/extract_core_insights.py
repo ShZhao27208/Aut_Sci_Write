@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 Core Insights Extractor - Extract 6 core insights from academic papers
 Version: 1.0
 """
 
-import sys
+import argparse
+import csv
 import json
 import re
-import csv
-from pathlib import Path
+import sys
 from datetime import datetime
-import argparse
+from pathlib import Path
 
 # Fix encoding for Windows
 if sys.platform == 'win32':
@@ -801,8 +800,8 @@ class CoreInsightsExtractor:
         parsing), so 4 threads typically cuts wall-clock time by ~3-4x
         versus serial execution without overwhelming the machine.
         """
-        from concurrent.futures import ThreadPoolExecutor, as_completed
         import threading
+        from concurrent.futures import ThreadPoolExecutor, as_completed
 
         folder = Path(folder_path)
         pdf_files = list(folder.glob('*.pdf'))

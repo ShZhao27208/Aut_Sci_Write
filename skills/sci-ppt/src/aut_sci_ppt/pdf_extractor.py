@@ -6,8 +6,8 @@ PDF 图片抓取器 - 智能裁切版
 from __future__ import annotations
 
 import os
-from typing import List, Dict, Optional, TYPE_CHECKING
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import fitz
@@ -33,7 +33,7 @@ class PDFFigureExtractor:
     # ─────────────────────────────────────────────
     #  核心：检测页面中图表区域的 bbox
     # ─────────────────────────────────────────────
-    def _detect_figure_bbox(self, page) -> Optional["fitz.Rect"]:
+    def _detect_figure_bbox(self, page) -> fitz.Rect | None:
         """
         策略：
         1. 获取页面所有图片的位置 → 合并为图片区域
@@ -106,8 +106,8 @@ class PDFFigureExtractor:
     #  按名称+页码截取图表区域
     # ─────────────────────────────────────────────
     def extract_named_figures(
-        self, fig_map: Dict[str, int], dpi: int = 180
-    ) -> List[ExtractedFigure]:
+        self, fig_map: dict[str, int], dpi: int = 180
+    ) -> list[ExtractedFigure]:
         """
         fig_map: {"图1": 4, "图2": 5, ...}  (1-indexed 页码)
         只截取图表区域，不包含正文
@@ -162,8 +162,8 @@ class PDFFigureExtractor:
         return path
 
     def extract_figures_by_pages(
-        self, page_nums: List[int], dpi: int = 150
-    ) -> List[ExtractedFigure]:
+        self, page_nums: list[int], dpi: int = 150
+    ) -> list[ExtractedFigure]:
         figures = []
         for pn in page_nums:
             if 0 <= pn < len(self.doc):
@@ -178,7 +178,7 @@ class PDFFigureExtractor:
                 )
         return figures
 
-    def extract_all_figures(self, dpi: int = 150) -> List[ExtractedFigure]:
+    def extract_all_figures(self, dpi: int = 150) -> list[ExtractedFigure]:
         figures = []
         fig_count = 0
         for page_num in range(len(self.doc)):
@@ -217,7 +217,7 @@ class PDFFigureExtractor:
 
 def get_figure_extractor(
     pdf_path: str, output_dir: str, use_skill: bool = True, skill_script: str = None
-) -> List[ExtractedFigure]:
+) -> list[ExtractedFigure]:
     """
     统一图片提取入口：使用内置 PDFFigureExtractor (180 DPI)。
 

@@ -7,7 +7,7 @@ never leak into an error message or a saved log.
 from __future__ import annotations
 
 import time
-from typing import Any, Dict, Optional
+from typing import Any
 
 import requests
 
@@ -37,7 +37,7 @@ _HOST_INTERVALS = {
     "api.unpaywall.org": 0.2,
 }
 
-_last_request_at: Dict[str, float] = {}
+_last_request_at: dict[str, float] = {}
 
 
 class FetchError(RuntimeError):
@@ -77,12 +77,12 @@ _SHARED = _session()
 def request(
     url: str,
     *,
-    params: Optional[Dict[str, Any]] = None,
-    headers: Optional[Dict[str, str]] = None,
+    params: dict[str, Any] | None = None,
+    headers: dict[str, str] | None = None,
     accept: str = "",
     timeout: int = DEFAULT_TIMEOUT,
     allow_404: bool = True,
-) -> Optional[requests.Response]:
+) -> requests.Response | None:
     """GET a URL with retry and throttling.
 
     Returns None for 401/403/404 (missing or gated content, an expected outcome)
@@ -139,7 +139,7 @@ def request(
     raise FetchError(f"request failed after {MAX_RETRIES} attempts: {last_error}")
 
 
-def get_json(url: str, **kwargs) -> Optional[dict]:
+def get_json(url: str, **kwargs) -> dict | None:
     """GET and parse JSON, tolerating a non-JSON body by returning None."""
     kwargs.setdefault("accept", "application/json")
     response = request(url, **kwargs)
@@ -151,7 +151,7 @@ def get_json(url: str, **kwargs) -> Optional[dict]:
         return None
 
 
-def get_text(url: str, **kwargs) -> Optional[str]:
+def get_text(url: str, **kwargs) -> str | None:
     response = request(url, **kwargs)
     if response is None:
         return None
@@ -159,7 +159,7 @@ def get_text(url: str, **kwargs) -> Optional[str]:
     return response.text
 
 
-def get_bytes(url: str, **kwargs) -> Optional[bytes]:
+def get_bytes(url: str, **kwargs) -> bytes | None:
     response = request(url, **kwargs)
     return response.content if response is not None else None
 

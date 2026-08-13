@@ -10,7 +10,6 @@ from __future__ import annotations
 import re
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
 
 # Elsevier XML mixes several namespaces; JATS is mostly namespace-free.
 NS = {
@@ -44,8 +43,8 @@ class Section:
 
     title: str = ""
     level: int = 1
-    paragraphs: List[str] = field(default_factory=list)
-    subsections: List["Section"] = field(default_factory=list)
+    paragraphs: list[str] = field(default_factory=list)
+    subsections: list[Section] = field(default_factory=list)
     section_type: str = ""
 
     def word_count(self) -> int:
@@ -59,19 +58,19 @@ class Document:
 
     title: str = ""
     abstract: str = ""
-    structured_abstract: Dict[str, str] = field(default_factory=dict)
-    keywords: List[str] = field(default_factory=list)
-    sections: List[Section] = field(default_factory=list)
-    figures: List[Figure] = field(default_factory=list)
-    tables: List[Figure] = field(default_factory=list)
-    references: List[str] = field(default_factory=list)
+    structured_abstract: dict[str, str] = field(default_factory=dict)
+    keywords: list[str] = field(default_factory=list)
+    sections: list[Section] = field(default_factory=list)
+    figures: list[Figure] = field(default_factory=list)
+    tables: list[Figure] = field(default_factory=list)
+    references: list[str] = field(default_factory=list)
     acknowledgements: str = ""
     funding_statement: str = ""
     conflict_statement: str = ""
     data_availability: str = ""
-    supplementary: List[str] = field(default_factory=list)
+    supplementary: list[str] = field(default_factory=list)
     schema: str = ""
-    parse_errors: List[str] = field(default_factory=list)
+    parse_errors: list[str] = field(default_factory=list)
 
     def body_word_count(self) -> int:
         return sum(s.word_count() for s in self.sections)
@@ -100,11 +99,11 @@ def parse(xml_text: str, schema: str) -> Document:
 
 def _strip_doctype(xml_text: str) -> str:
     """External DTDs make ElementTree attempt network fetches; drop them."""
-    cleaned = re.sub(r"<!DOCTYPE[^>[]*(\[[^\]]*\])?[^>]*>", "", xml_text, count=1, flags=re.S)
+    cleaned = re.sub(r"<!DOCTYPE[^>[]*(\[[^\]]*\])?[^>]*>", "", xml_text, count=1, flags=re.DOTALL)
     return cleaned.lstrip("﻿ \n\r\t")
 
 
-def _text_of(node: Optional[ET.Element], *, keep_math: bool = True) -> str:
+def _text_of(node: ET.Element | None, *, keep_math: bool = True) -> str:
     """Flatten an element's mixed content to plain text.
 
     Inline math is preserved as a LaTeX-ish placeholder because the analysis
@@ -112,7 +111,7 @@ def _text_of(node: Optional[ET.Element], *, keep_math: bool = True) -> str:
     """
     if node is None:
         return ""
-    parts: List[str] = []
+    parts: list[str] = []
     _collect_text(node, parts)
     text = "".join(parts)
     if keep_math:
@@ -145,7 +144,7 @@ _BLOCK_TAGS = frozenset(
 )
 
 
-def _collect_text(node: ET.Element, parts: List[str]) -> None:
+def _collect_text(node: ET.Element, parts: list[str]) -> None:
     """Flatten mixed content, inserting spaces at block boundaries."""
     if node.text:
         parts.append(node.text)
@@ -247,9 +246,9 @@ def _jats_front(article: ET.Element, doc: Document) -> None:
                 doc.keywords.append(text)
 
 
-def _jats_sections(parent: ET.Element, level: int, doc: Document) -> List[Section]:
+def _jats_sections(parent: ET.Element, level: int, doc: Document) -> list[Section]:
     """Recursively read `<sec>` trees, diverting back matter out of the body."""
-    sections: List[Section] = []
+    sections: list[Section] = []
 
     # Paragraphs sitting directly under <body> with no wrapping <sec>.
     loose = [_text_of(p) for p in parent.findall("p")]
@@ -276,9 +275,9 @@ def _jats_sections(parent: ET.Element, level: int, doc: Document) -> List[Sectio
     return sections
 
 
-def _jats_paragraphs(node: ET.Element) -> List[str]:
+def _jats_paragraphs(node: ET.Element) -> list[str]:
     """Direct paragraphs plus display equations, in document order."""
-    out: List[str] = []
+    out: list[str] = []
     for child in node:
         tag = _local(child.tag)
         if tag == "p":
@@ -346,7 +345,7 @@ def _jats_figures(article: ET.Element, doc: Document) -> None:
 
 def _table_to_markdown(table: ET.Element) -> str:
     """Render a JATS/XHTML table as markdown so it survives into raw.md."""
-    rows: List[List[str]] = []
+    rows: list[list[str]] = []
     for row in table.findall(".//tr"):
         cells = [_text_of(c) for c in row if _local(c.tag) in ("td", "th")]
         if cells:
@@ -432,7 +431,7 @@ def _parse_elsevier(root: ET.Element, doc: Document) -> None:
             doc.references.append(text)
 
 
-def _find_any(node: ET.Element, local_name: str) -> Optional[ET.Element]:
+def _find_any(node: ET.Element, local_name: str) -> ET.Element | None:
     """Find the first descendant with this local tag name, any namespace."""
     target = local_name.rsplit(":", 1)[-1]
     for child in node.iter():
@@ -441,7 +440,7 @@ def _find_any(node: ET.Element, local_name: str) -> Optional[ET.Element]:
     return None
 
 
-def _findall_any(node: ET.Element, local_name: str) -> List[ET.Element]:
+def _findall_any(node: ET.Element, local_name: str) -> list[ET.Element]:
     target = local_name.rsplit(":", 1)[-1]
     return [c for c in node.iter() if _local(c.tag) == target]
 
@@ -467,9 +466,9 @@ def _elsevier_keywords(root: ET.Element, doc: Document) -> None:
             doc.keywords.append(text)
 
 
-def _elsevier_sections(node: ET.Element, level: int) -> List[Section]:
+def _elsevier_sections(node: ET.Element, level: int) -> list[Section]:
     """Elsevier nests `<ce:section>` with `<ce:section-title>` and `<ce:para>`."""
-    sections: List[Section] = []
+    sections: list[Section] = []
     for child in node:
         if _local(child.tag) != "section":
             if level == 1:
@@ -490,7 +489,7 @@ def _elsevier_sections(node: ET.Element, level: int) -> List[Section]:
     return sections
 
 
-def _direct_child(node: ET.Element, local_name: str) -> Optional[ET.Element]:
+def _direct_child(node: ET.Element, local_name: str) -> ET.Element | None:
     for child in node:
         if _local(child.tag) == local_name:
             return child

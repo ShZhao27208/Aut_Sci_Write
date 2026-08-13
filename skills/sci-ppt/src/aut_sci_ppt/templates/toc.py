@@ -1,9 +1,11 @@
 """
 目录页 - 无导航栏版，全页宽布局，章节标题 >= 28pt
 """
-from .base import BaseTemplate, hex_to_rgb
-from pptx.util import Inches, Pt
 from pptx.enum.text import PP_ALIGN
+from pptx.util import Inches, Pt
+
+from .base import BaseTemplate, hex_to_rgb
+
 
 class TOCTemplate(BaseTemplate):
     def render(self, data):

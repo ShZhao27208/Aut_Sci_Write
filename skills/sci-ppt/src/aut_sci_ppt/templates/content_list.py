@@ -2,11 +2,13 @@
 内容列表页 - 终版：溢出保护 + 填满页面
 算法：二分法找最大字号，使总高度 <= FOOT_Y，再均匀分配间距
 """
-from .base import BaseTemplate, hex_to_rgb
-from pptx.util import Inches, Pt
-from pptx.oxml.ns import qn
-from lxml import etree
 import re
+
+from lxml import etree
+from pptx.oxml.ns import qn
+from pptx.util import Inches, Pt
+
+from .base import BaseTemplate, hex_to_rgb
 
 
 def _set_lnsp(tf, pt_val):

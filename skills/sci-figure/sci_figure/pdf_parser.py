@@ -8,11 +8,13 @@ pdfplumber (text extraction) with coordinate conversion utilities.
 from __future__ import annotations
 
 import os
-import numpy as np
+
 import fitz
+import numpy as np
 import pdfplumber
+
+from sci_figure.exceptions import PDFCorruptError, PDFEncryptedError, PDFNotFoundError
 from sci_figure.utils import get_logger
-from sci_figure.exceptions import PDFNotFoundError, PDFCorruptError, PDFEncryptedError
 
 logger = get_logger()
 

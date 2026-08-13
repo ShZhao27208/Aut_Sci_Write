@@ -32,7 +32,6 @@ import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
 
 from harvester import env, figures, fulltext, identify, jats, metadata, render
 
@@ -47,7 +46,7 @@ class HarvestOutcome:
     """What one paper's harvest produced."""
 
     query: str
-    directory: Optional[Path] = None
+    directory: Path | None = None
     title: str = ""
     doi: str = ""
     figures_saved: int = 0
@@ -68,7 +67,7 @@ def harvest(
     raw_input: str,
     output_root: Path,
     *,
-    pick: Optional[int] = None,
+    pick: int | None = None,
     limit: int = 10,
     skip_pdf: bool = False,
     skip_figures: bool = False,
@@ -120,7 +119,7 @@ def harvest(
     directory = output_root / render.paper_dirname(meta)
     directory.mkdir(parents=True, exist_ok=True)
 
-    pdf_path: Optional[Path] = None
+    pdf_path: Path | None = None
     if not skip_pdf:
         for pdf_url in fulltext.resolve_pdf_urls(meta):
             pdf_path = figures.download_pdf(pdf_url, directory / render.PDF_NAME)
@@ -169,10 +168,10 @@ def _resolve_by_search(
     ref: identify.PaperRef,
     *,
     limit: int,
-    pick: Optional[int],
+    pick: int | None,
     assume_yes: bool,
     verbose: bool,
-) -> Optional[identify.PaperRef]:
+) -> identify.PaperRef | None:
     """Turn a title or query into a concrete identifier, confirming the choice."""
     exact = ref.kind == "title"
     results = metadata.search(ref.value, limit=limit, exact_title=exact)
@@ -225,7 +224,7 @@ def _title_overlap(requested: str, chosen: str) -> float:
     return len(want & got) / len(want)
 
 
-def _print_candidates(results: List[dict]) -> None:
+def _print_candidates(results: list[dict]) -> None:
     print(f"\n{len(results)} candidates:\n")
     for index, item in enumerate(results, start=1):
         print(f"  [{index}] {_describe(item)}")
@@ -248,7 +247,7 @@ def _describe(item: dict) -> str:
     return " ".join(bits)
 
 
-def _prompt_for_choice(results: List[dict]) -> Optional[dict]:
+def _prompt_for_choice(results: list[dict]) -> dict | None:
     """Ask which candidate to harvest. Non-interactive callers should use --pick."""
     if not sys.stdin.isatty():
         print(
@@ -275,8 +274,8 @@ def _prompt_for_choice(results: List[dict]) -> Optional[dict]:
     return results[index - 1]
 
 
-def _read_batch(path: Path) -> List[str]:
-    entries: List[str] = []
+def _read_batch(path: Path) -> list[str]:
+    entries: list[str] = []
     for line in path.read_text(encoding="utf-8").splitlines():
         stripped = line.strip()
         if stripped and not stripped.startswith("#"):
@@ -354,7 +353,7 @@ def main() -> int:
     output_root = Path(args.output_dir).expanduser().resolve()
     output_root.mkdir(parents=True, exist_ok=True)
 
-    outcomes: List[HarvestOutcome] = []
+    outcomes: list[HarvestOutcome] = []
     for index, query in enumerate(queries, start=1):
         if len(queries) > 1:
             print(f"\n=== [{index}/{len(queries)}] {query} ===")

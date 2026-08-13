@@ -1,7 +1,9 @@
 """封面页 - 信息区均匀分布版"""
-from .base import BaseTemplate, hex_to_rgb
-from pptx.util import Inches, Pt
 from pptx.enum.text import PP_ALIGN
+from pptx.util import Inches, Pt
+
+from .base import BaseTemplate, hex_to_rgb
+
 
 class CoverTemplate(BaseTemplate):
     def render(self, data):

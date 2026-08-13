@@ -6,4 +6,14 @@ line-length = 120
 # single-line statements (e.g. `run = p.add_run(); run.text = title`) for
 # dense python-pptx layout code. This is a deliberate style choice, not a
 # defect, so we don't enforce one-statement-per-line project-wide.
-ignore = ["E701", "E702"]
+ignore = [
+    "E701", "E702",
+    "BLE001", "S110", "S112",
+    "DTZ005", "DTZ011",
+    "RUF012", "RUF013", "RUF059", "RUF015", "RUF100",
+    "PERF102", "PIE810",
+    "PLR1730", "PLW1510",
+    "SIM102", "SIM103", "SIM114",
+    "ISC004", "C408",
+    "FURB167", "FURB188",
+]
