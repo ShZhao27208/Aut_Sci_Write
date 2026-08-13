@@ -8,90 +8,7 @@ Step3: build_from_outline() - 根据提纲+已提取图片生成最终PPT
 import os
 import re
 from typing import List, Dict, Tuple
-from .config import get_config_value
 from .pdf_extractor import PDFFigureExtractor, ExtractedFigure
-
-
-def _call_llm(prompt: str) -> str:
-    """通过 Moonshot API 调用 LLM"""
-    import json
-    import urllib.request
-
-    api_key = get_config_value("MOONSHOT_API_KEY")
-    if not api_key:
-        raise ValueError(
-            "MOONSHOT_API_KEY is not configured. Add it to ~/.aut_sci_write/.env "
-            "to enable translation."
-        )
-    payload = json.dumps(
-        {
-            "model": "moonshot-v1-8k",
-            "max_tokens": 4096,
-            "messages": [{"role": "user", "content": prompt}],
-        }
-    ).encode()
-    req = urllib.request.Request(
-        "https://api.moonshot.cn/v1/chat/completions",
-        data=payload,
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        },
-    )
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        r = json.loads(resp.read())
-        return r["choices"][0]["message"]["content"].strip()
-
-
-def _translate_to_chinese(text: str) -> str:
-    """调用 LLM 将英文学术内容翻译为中文，失败时返回原文。"""
-    try:
-        return _call_llm(
-            "请将以下英文学术内容翻译成简洁的中文，直接输出译文，不要任何解释：\n\n"
-            + text
-        )
-    except Exception as e:
-        print(f"  ⚠️  翻译失败（{e}），保留原文")
-        return text
-
-
-def _translate_sections(sections: List[Dict]) -> List[Dict]:
-    """将章节标题和要点批量翻译为中文（一次 API 调用）"""
-    try:
-        lines = []
-        for i, sec in enumerate(sections):
-            lines.append(f"[SEC{i}]{sec['title']}")
-            for j, item in enumerate(sec.get("items", [])):
-                lines.append(f"[S{i}I{j}]{item}")
-
-        batch = "\n".join(lines)
-        translated = _call_llm(
-            "请将以下英文学术内容翻译成中文，保留每行的标签前缀（如[SEC0]、[S0I0]），直接输出，不要解释：\n\n"
-            + batch
-        )
-
-        result_sections = [dict(s) for s in sections]
-        for s in result_sections:
-            s["items"] = list(s.get("items", []))
-
-        for line in translated.splitlines():
-            m = re.match(r"\[SEC(\d+)\](.+)", line.strip())
-            if m:
-                idx = int(m.group(1))
-                if idx < len(result_sections):
-                    result_sections[idx]["title"] = m.group(2).strip()
-                continue
-            m2 = re.match(r"\[S(\d+)I(\d+)\](.+)", line.strip())
-            if m2:
-                si, ii = int(m2.group(1)), int(m2.group(2))
-                if si < len(result_sections):
-                    items = result_sections[si].get("items", [])
-                    if ii < len(items):
-                        result_sections[si]["items"][ii] = m2.group(3).strip()
-        return result_sections
-    except Exception as e:
-        print(f"  ⚠️  批量翻译失败（{e}），保留原文")
-        return sections
 
 
 # ══════════════════════════════════════════════
@@ -99,7 +16,7 @@ def _translate_sections(sections: List[Dict]) -> List[Dict]:
 # ══════════════════════════════════════════════
 
 
-def generate_outline(pdf_path: str, output_dir: str = None, translate: bool = False) -> str:
+def generate_outline(pdf_path: str, output_dir: str = None) -> str:
     """
     读取 PDF，提取全文关键信息，同步提取所有图片，
     生成标准提纲 Markdown 文件（含图片预览）。
@@ -177,12 +94,6 @@ def generate_outline(pdf_path: str, output_dir: str = None, translate: bool = Fa
 
     # ── 4. 检测论文章节结构 ──────────────────────────
     sections = _detect_paper_sections(full_text, page_texts)
-
-    # ── 4.5 翻译章节标题和要点为中文 ─────────────────
-    # Optional translation is disabled by default so PDF-to-PPT does not require an API key.
-    if translate:
-        print("  Translating outline content to Chinese...")
-        sections = _translate_sections(sections)
 
     # ── 5. 将图片分配到各章节 ─────────────────────────
     _assign_figures_to_sections(sections, fig_page_map, len(doc))
@@ -526,7 +437,6 @@ def auto_generate_ppt(
     advisor: str = "",
     date: str = "",
     direction: str = "",
-    translate: bool = False,
 ) -> str:
     """
     全自动：PDF → PPT，跳过用户编辑提纲步骤。
@@ -548,9 +458,9 @@ def auto_generate_ppt(
     if not os.path.exists(pdf_path):
         raise FileNotFoundError(f"PDF 文件不存在: {pdf_path}")
 
-    # Step 1: 生成提纲（自动提取内容+图片+翻译）
+    # Step 1: 生成提纲（自动提取内容+图片）
     print("  ⏳ Step 1/3: 从 PDF 提取内容和图片...")
-    md_path = generate_outline(pdf_path, translate=translate)
+    md_path = generate_outline(pdf_path)
     print(f"  ✅ 提纲已生成: {md_path}")
 
     # Step 2: 读取提纲并补充用户信息（不等用户编辑）

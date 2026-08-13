@@ -43,7 +43,8 @@ Professional extraction of core insights and figures from scientific PDF papers.
 ## Features
 - **Core Insights**: Automatically identify research problem, methodology, key results, innovations, applications, and limitations.
 - **Review Literature Extraction**: For reviews, surveys, systematic reviews, scoping reviews, and meta-analyses, extract the field scope, taxonomy, evidence base, consensus, disagreements, evidence quality, research gaps, and future directions.
-- **Figure Detection**: Locate figure captions and crop the corresponding figure regions from PDF pages.
+- **Paper Harvesting**: Given a DOI, PMID, PMCID, arXiv ID, title, or search query, pull complete metadata from every configured database, the native publisher XML, the full body text, and the figures, then write an agent-readable `raw.md` instead of leaving you to read a PDF.
+- **Figure Detection**: Fetch publication-resolution figures from the publisher, or crop figure regions from PDF pages when the publisher ships none.
 - **Metadata Extraction**: Parse title, authors, DOI, journal, and year.
 
 ## Steps：
@@ -52,12 +53,13 @@ Professional extraction of core insights and figures from scientific PDF papers.
 
 Always read the paper fresh. Never rely on memory of the paper, even if the title looks familiar.
 
-| Input type                       | Action                                                       |
-| -------------------------------- | ------------------------------------------------------------ |
-| PDF in `/mnt/user-data/uploads/` | Read it via the appropriate tool (see the `pdf-reading` skill if available). |
-| arXiv link, arXiv ID, or DOI     | Use `web_fetch` on the arXiv abstract page, then on the PDF/HTML version for full text. |
-| Pasted text in the chat          | Use directly.                                                |
-| Just a title with no link        | Ask the user for a link or upload before proceeding. Do not guess the paper. |
+| Input type                                  | Action                                                       |
+| ------------------------------------------- | ------------------------------------------------------------ |
+| DOI, PMID, PMCID, arXiv ID, title, or query | Run the harvester (Mode 3 below). It writes `raw.md` with the full text and figures embedded, which you then read instead of a PDF. |
+| PDF in `/mnt/user-data/uploads/`            | Read it via the appropriate tool (see the `pdf-reading` skill if available). |
+| arXiv link                                  | Extract the arXiv ID and run the harvester. Fall back to `web_fetch` on the abstract page if the harvester returns no full text. |
+| Pasted text in the chat                     | Use directly.                                                |
+| Just a title with no link                   | Run the harvester with the title; it lists candidates and confirms the match before fetching. Do not guess the paper. |
 
 If the paper is long, first classify the paper type, then prioritize the sections relevant to that type. For original research, prioritize abstract, introduction, method/theory, experiments, conclusion. For review literature, prioritize abstract, introduction, search/selection methods, taxonomy/classification sections, major thematic sections, summary tables, limitations, and future perspectives.
 
@@ -213,7 +215,7 @@ Return everything as a single inline markdown response. Use one top-level header
 
 ## Usage
 
-This skill has two independent modes:
+This skill has three independent modes:
 
 Mode 1 now starts by classifying the paper type. Original research papers use the modified Heilmeier framework. Review literature uses the Review Literature Extraction Mode, which is designed for review papers, surveys, systematic reviews, scoping reviews, and meta-analyses.
 
@@ -244,10 +246,57 @@ python extract_core_insights.py papers/ --batch
 python extract_core_insights.py paper.pdf --output results.json
 ```
 
-The two modes are independent: Mode 1 produces a narrative Heilmeier analysis; Mode 2 produces structured data fields. Use Mode 2 when you need machine-readable output or batch processing.
+**Mode 3 — Paper Harvester (Python CLI + your own analysis)**
+
+Fetches a paper from the academic databases and lays it out on disk as markdown, so you read text and images rather than a PDF. Run from the `skills/sci-extract/` directory:
+
+```bash
+# By identifier: DOI, PMID, PMCID, or arXiv ID
+python harvest_paper.py 10.1038/s41586-020-2649-2
+python harvest_paper.py PMC7759461
+python harvest_paper.py 2006.10256
+
+# By title or search query: lists candidates and asks before fetching
+python harvest_paper.py "array programming with numpy"
+python harvest_paper.py "array programming with numpy" --pick 1   # non-interactive
+
+# Where to write, and what to skip
+python harvest_paper.py 10.1038/s41586-020-2649-2 --output-dir ./papers
+python harvest_paper.py 10.1038/s41586-020-2649-2 --skip-pdf --skip-figures
+
+# Several papers, one identifier per line
+python harvest_paper.py --batch dois.txt
+
+# Which databases are configured
+python harvest_paper.py --sources
+```
+
+Each paper lands in its own directory under `./sci_extract_out/` (override with `--output-dir`):
+
+```
+2020_harris_array-programming-numpy/
+├── raw.md                # complete capture in English, figures embedded inline
+├── analysis.md           # YOU write this; see below
+├── metadata.json         # merged record from every database, plus an audit trail
+├── fulltext.xml          # publisher XML exactly as received
+├── figures/              # publication-resolution images
+├── paper.pdf             # kept for reference
+└── _analysis_prompt.md   # instructions for writing analysis.md
+```
+
+**After the harvester finishes, you write `analysis.md`.** The script deliberately does not call any language model: you are the model, so read `_analysis_prompt.md`, read `raw.md` in full, apply the Mode 1 template that matches the paper type, and write `analysis.md` into the same directory in Chinese. No LLM API key is involved, and none should be requested from the user.
+
+Two markdown files per paper is the point of this mode: `raw.md` is the faithful source you read, `analysis.md` is your judgment of it, and keeping them separate means the analysis never quietly rewrites the evidence.
+
+Coverage is honest about its limits. Full text and figures require the paper to be open access; for paywalled papers the harvester still writes complete metadata, the abstract, and the PDF when one is reachable, and `raw.md` states plainly which parts were unavailable. Check the Provenance section at the bottom of `raw.md` before treating a gap as an absence in the paper itself.
+
+The three modes are independent: Mode 1 produces a narrative analysis from a paper you already have; Mode 2 produces structured data fields from a local PDF; Mode 3 fetches the paper and prepares it for Mode 1. A common chain is Mode 3 then Mode 1.
 
 ## Configuration
-Requires `PyMuPDF`, `pdfplumber`, and `numpy`.
+
+Mode 2 requires `PyMuPDF`, `pdfplumber`, and `numpy`.
+
+Mode 3 requires `requests`, and uses `PyMuPDF` when it needs to crop figures out of a PDF. Database credentials are read from the suite-wide `.env` at `~/.aut_sci_write/.env`; run `python harvest_paper.py --sources` to see what is configured. Crossref, OpenAlex, Semantic Scholar, PubMed, Europe PMC, and arXiv need no key, so the harvester is useful with an empty `.env`. Adding keys for Web of Science, Scopus, Springer, Elsevier, or IEEE widens metadata coverage and, for entitled Elsevier and Springer keys, full text.
 
 
 

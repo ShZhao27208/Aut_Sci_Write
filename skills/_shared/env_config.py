@@ -57,9 +57,6 @@ ZOTERO_USER_ID=
 # Numeric group ID (for group library, use instead of USER_ID)
 ZOTERO_GROUP_ID=
 
-# ─── sci-ppt (optional translation) ──────────────────────────
-# Moonshot API (only needed for --translate): https://platform.moonshot.cn/
-MOONSHOT_API_KEY=
 """
 
 

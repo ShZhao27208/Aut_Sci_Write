@@ -29,9 +29,8 @@ export const SKILL_ENV_SPEC = {
     }
   },
   'sci-ppt': {
-    description: 'Academic PPT generation with optional AI parsing and translation.',
+    description: 'Academic PPT generation with optional AI parsing.',
     vars: {
-      MOONSHOT_API_KEY: 'Moonshot API key. Optional; used for translation in PDF-to-PPT workflow.',
       ANTHROPIC_API_KEY: 'Anthropic API key. Optional; used by the AI parser when available.',
       OPENAI_API_KEY: 'OpenAI API key. Optional fallback for the AI parser.'
     }

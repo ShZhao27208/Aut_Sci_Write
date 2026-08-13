@@ -56,6 +56,8 @@ IEEE_API_KEY=
 UNPAYWALL_EMAIL=
 # NCBI/PubMed: https://www.ncbi.nlm.nih.gov/account/settings/ (free)
 NCBI_API_KEY=
+# Semantic Scholar (optional, for higher rate limits): https://www.semanticscholar.org/product/api#api-key
+SEMANTIC_SCHOLAR_API_KEY=
 """
 
 WEBVPN_DEFAULT_KEY = "wrdvpnisthebest!"

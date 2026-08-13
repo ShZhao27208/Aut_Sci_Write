@@ -41,11 +41,14 @@ def _get_session(config: dict[str, Any]) -> requests.Session:
 
 
 def _ncbi_params(config: dict[str, Any], extra: dict | None = None) -> dict[str, str]:
-    """Build NCBI API params with api_key if available."""
-    params: dict[str, str] = {}
+    """Build NCBI API params with api_key, tool, and email per NCBI policy."""
+    params: dict[str, str] = {"tool": "sci-download"}
     api_key = config.get("ncbi_api_key", "")
     if api_key:
         params["api_key"] = api_key
+    email = config.get("ncbi_email", "")
+    if email:
+        params["email"] = email
     if extra:
         params.update(extra)
     return params

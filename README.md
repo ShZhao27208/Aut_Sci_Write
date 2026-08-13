@@ -7,7 +7,7 @@
 
 *A modular Agent Skills suite for the full academic research lifecycle*
 
-[![Version](https://img.shields.io/badge/version-1.7.0-2563eb.svg)](package.json)
+[![Version](https://img.shields.io/badge/version-1.8.0-2563eb.svg)](package.json)
 [![Skills](https://img.shields.io/badge/skills-9-0f766e.svg)](#-what-it-does)
 [![Academic Workflow](https://img.shields.io/badge/workflow-search%20%E2%86%92%20download%20%E2%86%92%20extract%20%E2%86%92%20review%20%E2%86%92%20slides-c2410c.svg)](#-what-it-does)
 [![Paper Types](https://img.shields.io/badge/papers-research%20%7C%20review%20%7C%20meta--analysis-7c3aed.svg)](#-what-it-does)
@@ -37,7 +37,7 @@
 |:------|:------------|:----------------|
 | `sci-search` | Search arXiv + PubMed + **Web of Science** + **Elsevier** +**Springer** +  Semantic Scholar + OpenAlex simultaneously with JCR tier & impact factor data | /sci-search *Find high-IF papers on perovskite solar cells* |
 | `sci-download` | Download paper PDFs with intelligent DOI routing across 8 sources:  **Elsevier**, **Springer**, IEEE, arXiv, Unpaywall, Semantic Scholar, PubMed Central, CNKI | /sci-download *Download 10.1038/s41586-023-06600-9* |
-| `sci-extract` | Extract core insights, experimental parameters, and conclusions from PDFs | /sci-extract  *Analyze the key findings of paper.pdf* |
+| `sci-extract` | Extract core insights from PDFs; **Paper Harvester** fetches full text + figures from DOI/PMID/arXiv with multi-source fallthrough, degraded capture handling, and extraction status badges | /sci-extract  *Analyze the key findings of paper.pdf* |
 | `sci-figure` | Auto-detect and crop figures from PDFs at 600 DPI, with subfigure splitting | /sci-figure *Extract Figure 3c from this paper* |
 | `sci-review` | Draft literature reviews and professional peer-review rebuttals (NeurIPS/ICLR standard) | /sci-figure *Write a literature review on GNNs for drug discovery* |
 | `sci-zotero` | Sync Zotero library, add citations by DOI/ISBN/PMID, fetch open-access PDFs | /sci-zotero *Connect to my Zotero database* |
@@ -47,15 +47,22 @@
 
 #### 🔌 API 
 
-| Data Source | API Endpoint | Auth |
-|:------------|:-------------|:-----|
-| Web of Science | `https://developer.clarivate.com/apis/wos` | `WOS_API_KEY` |
-| Springer (Meta) | `https://dev.springernature.com/#api` | `SPRINGER_API_KEY` |
-| Springer (OA) | `https://dev.springernature.com/#api` | `SPRINGER_OA_API_KEY` |
-| Scopus (Elsevier) | `https://api.elsevier.com/content/search/scopus` | `SCOPUS_API_KEY` |
-| Semantic Scholar | `https://www.semanticscholar.org/product/api` | Optional |
-| PubMed (E-utilities) | `https://pmc.ncbi.nlm.nih.gov/tools/developers/` | Optional `NCBI_API_KEY` |
-| Zotero | `https://www.zotero.org/settings/keys` | `ZOTERO_API_KEY` |
+| Data Source | API Endpoint | Auth | Doc |
+|:------------|:-------------|:-----|:----|
+| Web of Science | `https://api.clarivate.com/apis/wos-starter/v1/documents` | `WOS_API_KEY` (header `X-ApiKey`) | [developer.clarivate.com](https://developer.clarivate.com/apis/wos-starter) |
+| Springer Nature (Meta) | `https://api.springernature.com/meta/v2/json` | `SPRINGER_API_KEY` (query param `api_key`) | [dev.springernature.com](https://dev.springernature.com/) |
+| Springer Nature (OA) | `https://api.springernature.com/openaccess/json` | `SPRINGER_OA_API_KEY` (query param `api_key`) | [dev.springernature.com](https://dev.springernature.com/) |
+| Scopus (Elsevier) | `https://api.elsevier.com/content/search/scopus` | `SCOPUS_API_KEY` (header `X-ELS-APIKey`) | [dev.elsevier.com](https://dev.elsevier.com/) |
+| Elsevier Article | `https://api.elsevier.com/content/article/doi/{doi}` | `ELSEVIER_API_KEY` + optional `ELSEVIER_INSTTOKEN` | [dev.elsevier.com](https://dev.elsevier.com/) |
+| Semantic Scholar | `https://api.semanticscholar.org/graph/v1/paper/search` | Optional `SEMANTIC_SCHOLAR_API_KEY` (header `x-api-key`) | [semanticscholar.org/product/api](https://www.semanticscholar.org/product/api) |
+| OpenAlex | `https://api.openalex.org/works` | Optional `OPENALEX_EMAIL` (query param `mailto`) | [docs.openalex.org](https://docs.openalex.org/) |
+| PubMed (NCBI E-utils) | `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi` | Optional `NCBI_API_KEY` + `NCBI_EMAIL` | [ncbi.nlm.nih.gov](https://www.ncbi.nlm.nih.gov/books/NBK25497/) |
+| Europe PMC | `https://www.ebi.ac.uk/europepmc/webservices/rest/search` | None | [europepmc.org/RestfulWebService](https://europepmc.org/RestfulWebService) |
+| CrossRef | `https://api.crossref.org/works` | None (optional `mailto` for polite pool) | [crossref.org/documentation](https://www.crossref.org/documentation/retrieve-metadata/rest-api/) |
+| Unpaywall | `https://api.unpaywall.org/v2/{doi}` | `UNPAYWALL_EMAIL` (query param `email`) | [unpaywall.org/products/api](https://unpaywall.org/products/api) |
+| IEEE Xplore | `https://ieeexploreapi.ieee.org/api/v1/search/articles` | `IEEE_API_KEY` (query param `apikey`) | [developer.ieee.org](https://developer.ieee.org/) |
+| arXiv | `https://export.arxiv.org/api/query` | None | [info.arxiv.org/help/api](https://info.arxiv.org/help/api/) |
+| Zotero | `https://api.zotero.org` | `ZOTERO_API_KEY` (header `Zotero-API-Key`, v3) | [zotero.org/support/dev/web_api](https://www.zotero.org/support/dev/web_api/v3/start) |
 
 ### 🚀 Installation
 
@@ -150,21 +157,51 @@ On first use, any skill will automatically create `~/.aut_sci_write/.env` with a
 ```bash
 # ~/.aut_sci_write/.env — unified config for all skills
 
-# For sci-zotero (optional)
-ZOTERO_API_KEY=your_personal_api_key
-ZOTERO_USER_ID=your_numeric_user_id
+# ─── sci-search ───────────────────────────────────────────────
+# Web of Science Starter API (free): https://developer.clarivate.com/apis/wos-starter
+WOS_API_KEY=
+# Elsevier Scopus API (free): https://dev.elsevier.com/
+SCOPUS_API_KEY=
+# Springer Nature Metadata API (free): https://dev.springernature.com/
+SPRINGER_API_KEY=
+# Springer Nature Open Access API (falls back to SPRINGER_API_KEY)
+SPRINGER_OA_API_KEY=
+# Semantic Scholar (optional, for higher rate limits): https://www.semanticscholar.org/product/api#api-key
+SEMANTIC_SCHOLAR_API_KEY=
+# OpenAlex polite pool (optional, just your email)
+OPENALEX_EMAIL=
 
-# For sci-search — Web of Science (optional but recommended)
-# Apply for a free key at: https://developer.clarivate.com/apis/wos-starter
-WOS_API_KEY=your_wos_api_key
+# ─── sci-download ─────────────────────────────────────────────
+# Elsevier Article Retrieval API (free): https://dev.elsevier.com/
+ELSEVIER_API_KEY=
+ELSEVIER_INSTTOKEN=
+# IEEE Xplore API (free tier): https://developer.ieee.org/
+IEEE_API_KEY=
+# Unpaywall (just your email): https://unpaywall.org/products/api
+UNPAYWALL_EMAIL=
 
-# For sci-ppt PDF workflow (choose one)
+# ─── sci-search & sci-download (shared) ──────────────────────
+# NCBI/PubMed E-utilities (free): https://www.ncbi.nlm.nih.gov/account/settings/
+NCBI_API_KEY=
+NCBI_EMAIL=
+
+# ─── sci-zotero ──────────────────────────────────────────────
+# Zotero API key: https://www.zotero.org/settings/keys/new
+ZOTERO_API_KEY=
+# Numeric user ID (for personal library)
+ZOTERO_USER_ID=
+# Numeric group ID (for group library, use instead of USER_ID)
+ZOTERO_GROUP_ID=
+
+# ─── sci-ppt (optional AI parser) ────────────────────────────
 ANTHROPIC_API_KEY=sk-ant-...    # Claude API
-MOONSHOT_API_KEY=sk-...         # Moonshot API
+OPENAI_API_KEY=sk-...           # OpenAI fallback
 
-# For sci-figure subfigure OCR (optional, Windows example)
+# ─── sci-figure (optional subfigure OCR, Windows example) ────
 TESSERACT_CMD="C:\Program Files\Tesseract-OCR\tesseract.exe"
 ```
+
+Everything except `sci-ppt` and `sci-figure` works without any key — CrossRef, OpenAlex, Europe PMC, arXiv, and Semantic Scholar's anonymous tier need no credentials. Keys mainly unlock publisher-side full text and raise rate limits.
 
 All skills share this single `.env` file — fill a key once, every skill that needs it will read from here. Do not commit or publish this file.
 
@@ -257,7 +294,7 @@ Contributions welcome! Priority areas:
 |------|----------|:----------|
 | `sci-search` | arXiv + PubMed + **Web of Science** + **Elsevier** +**Springer**  + Semantic Scholar + OpenAlex 七源检索，自动附加 JCR 分区和影响因子 | /sci-search *搜索钙钛矿太阳能电池最新论文* |
 | `sci-download` | 论文 PDF 智能下载，根据 DOI 前缀自动路由到 **Elsevier**、**Springer**、IEEE、arXiv、Unpaywall、Semantic Scholar、PubMed Central,、知网 8 个数据源 | /sci-download *下载 10.1038/s41586-023-06600-9* |
-| `sci-extract` | 从 PDF 提取核心发现、实验参数、数值对比和主要结论 | /sci-extract *分析 paper.pdf 的核心结论* |
+| `sci-extract` | 从 PDF 提取核心发现、实验参数和结论；**Paper Harvester** 支持通过 DOI/PMID/arXiv 自动抓取全文+图片，多源 PDF 候选回退、降级抓取、提取状态标记 | /sci-extract *分析 paper.pdf 的核心结论* |
 | `sci-figure` | 自动检测并裁剪论文图片（600 DPI），支持复合图拆分为子图 | /sci-figure *提取论文第3张图的子图* |
 | `sci-review` | 文献综述写作 + 专业审稿回复，对标 NeurIPS/ICLR 标准 | /sci-review *帮我写图神经网络在药物发现中的综述* |
 | `sci-zotero` | Zotero 文献库同步，支持 DOI/ISBN/PMID 添加引用，自动获取 PDF | /sci-zotero *连接我的zotero数据库* |
@@ -267,15 +304,22 @@ Contributions welcome! Priority areas:
 
 #### 🔌 API 
 
-| 数据源               | API 地址                                         | 认证方式                |
-| :------------------- | :----------------------------------------------- | :---------------------- |
-| Web of Science       | `https://developer.clarivate.com/apis/wos`       | `WOS_API_KEY`           |
-| Springer (Meta)      | `https://dev.springernature.com/#api`            | `SPRINGER_API_KEY`      |
-| Springer (OA)        | `https://dev.springernature.com/#api`            | `SPRINGER_OA_API_KEY`   |
-| Scopus (Elsevier)    | `https://api.elsevier.com/content/search/scopus` | `SCOPUS_API_KEY`        |
-| Semantic Scholar     | `https://www.semanticscholar.org/product/api`    | Optional                |
-| PubMed (E-utilities) | `https://pmc.ncbi.nlm.nih.gov/tools/developers/` | Optional `NCBI_API_KEY` |
-| Zotero               | `https://www.zotero.org/settings/keys`           | `ZOTERO_API_KEY`        |
+| 数据源               | API 接口地址                                              | 认证方式                                          | 文档 |
+| :------------------- | :-------------------------------------------------------- | :------------------------------------------------ | :--- |
+| Web of Science       | `https://api.clarivate.com/apis/wos-starter/v1/documents` | `WOS_API_KEY`（header `X-ApiKey`）                | [developer.clarivate.com](https://developer.clarivate.com/apis/wos-starter) |
+| Springer Nature (Meta) | `https://api.springernature.com/meta/v2/json`          | `SPRINGER_API_KEY`（query `api_key`）             | [dev.springernature.com](https://dev.springernature.com/) |
+| Springer Nature (OA) | `https://api.springernature.com/openaccess/json`         | `SPRINGER_OA_API_KEY`（query `api_key`）          | [dev.springernature.com](https://dev.springernature.com/) |
+| Scopus (Elsevier)    | `https://api.elsevier.com/content/search/scopus`         | `SCOPUS_API_KEY`（header `X-ELS-APIKey`）         | [dev.elsevier.com](https://dev.elsevier.com/) |
+| Elsevier 全文        | `https://api.elsevier.com/content/article/doi/{doi}`     | `ELSEVIER_API_KEY` + 可选 `ELSEVIER_INSTTOKEN`   | [dev.elsevier.com](https://dev.elsevier.com/) |
+| Semantic Scholar     | `https://api.semanticscholar.org/graph/v1/paper/search`  | 可选 `SEMANTIC_SCHOLAR_API_KEY`（header `x-api-key`） | [semanticscholar.org/product/api](https://www.semanticscholar.org/product/api) |
+| OpenAlex             | `https://api.openalex.org/works`                         | 可选 `OPENALEX_EMAIL`（query `mailto`）           | [docs.openalex.org](https://docs.openalex.org/) |
+| PubMed (NCBI E-utils)| `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi` | 可选 `NCBI_API_KEY` + `NCBI_EMAIL`           | [ncbi.nlm.nih.gov](https://www.ncbi.nlm.nih.gov/books/NBK25497/) |
+| Europe PMC           | `https://www.ebi.ac.uk/europepmc/webservices/rest/search`| 无需                                              | [europepmc.org/RestfulWebService](https://europepmc.org/RestfulWebService) |
+| CrossRef             | `https://api.crossref.org/works`                         | 无需（可选 `mailto` 加速）                        | [crossref.org](https://www.crossref.org/documentation/retrieve-metadata/rest-api/) |
+| Unpaywall            | `https://api.unpaywall.org/v2/{doi}`                     | `UNPAYWALL_EMAIL`（query `email`）                | [unpaywall.org/products/api](https://unpaywall.org/products/api) |
+| IEEE Xplore          | `https://ieeexploreapi.ieee.org/api/v1/search/articles`  | `IEEE_API_KEY`（query `apikey`）                  | [developer.ieee.org](https://developer.ieee.org/) |
+| arXiv                | `https://export.arxiv.org/api/query`                     | 无需                                              | [info.arxiv.org/help/api](https://info.arxiv.org/help/api/) |
+| Zotero               | `https://api.zotero.org`                                 | `ZOTERO_API_KEY`（header `Zotero-API-Key`，v3）   | [zotero.org/support/dev/web_api](https://www.zotero.org/support/dev/web_api/v3/start) |
 
 ### 🚀 安装方法
 
@@ -370,24 +414,64 @@ docker-compose up -d
 ```bash
 # ~/.aut_sci_write/.env — 所有技能共用的统一配置文件
 
-# sci-zotero 文献管理（可选）
-ZOTERO_API_KEY=你的个人API密钥
-ZOTERO_USER_ID=你的Zotero数字用户ID
+# ─── sci-search ───────────────────────────────────────────────
+# Web of Science Starter API（免费）：https://developer.clarivate.com/apis/wos-starter
+WOS_API_KEY=
+# Elsevier Scopus API（免费）：https://dev.elsevier.com/
+SCOPUS_API_KEY=
+# Springer Nature Metadata API（免费）：https://dev.springernature.com/
+SPRINGER_API_KEY=
+# Springer Nature Open Access API（留空则回退到 SPRINGER_API_KEY）
+SPRINGER_OA_API_KEY=
+# Semantic Scholar（可选，提升速率限制）：https://www.semanticscholar.org/product/api#api-key
+SEMANTIC_SCHOLAR_API_KEY=
+# OpenAlex 礼貌池（可选，填邮箱即可）
+OPENALEX_EMAIL=
 
-# sci-search Web of Science 检索（可选，强烈推荐）
-# 免费申请地址：https://developer.clarivate.com/apis/wos-starter
-WOS_API_KEY=你的WoS_API密钥
+# ─── sci-download ─────────────────────────────────────────────
+# Elsevier 全文检索 API（免费）：https://dev.elsevier.com/
+ELSEVIER_API_KEY=
+ELSEVIER_INSTTOKEN=
+# IEEE Xplore API（免费 tier）：https://developer.ieee.org/
+IEEE_API_KEY=
+# Unpaywall（填邮箱即可）：https://unpaywall.org/products/api
+UNPAYWALL_EMAIL=
 
-# sci-ppt 论文工作流（选择其一）
+# ─── sci-search & sci-download（共用）────────────────────────
+# NCBI/PubMed E-utilities（免费）：https://www.ncbi.nlm.nih.gov/account/settings/
+NCBI_API_KEY=
+NCBI_EMAIL=
+
+# ─── sci-zotero ──────────────────────────────────────────────
+# Zotero API key：https://www.zotero.org/settings/keys/new
+ZOTERO_API_KEY=
+# 个人库数字 ID
+ZOTERO_USER_ID=
+# 群组库 ID（与 USER_ID 二选一）
+ZOTERO_GROUP_ID=
+
+# ─── sci-ppt（可选 AI 解析）──────────────────────────────────
 ANTHROPIC_API_KEY=sk-ant-...    # Claude API
-MOONSHOT_API_KEY=sk-...         # Moonshot API（国内推荐）
+OPENAI_API_KEY=sk-...           # OpenAI 备选
 
-# sci-figure 子图 OCR 识别（可选）
-# Windows 示例：
+# ─── sci-figure（可选子图 OCR，Windows 示例）─────────────────
 TESSERACT_CMD="C:\Program Files\Tesseract-OCR\tesseract.exe"
 ```
 
+除 `sci-ppt` 和 `sci-figure` 外，大部分功能无需任何密钥即可使用 — CrossRef、OpenAlex、Europe PMC、arXiv 及 Semantic Scholar 匿名层均免配置。密钥主要用于解锁出版商全文和提升速率限制。
+
 所有技能共享这一个 `.env` 文件 — 填写一次，所有需要该密钥的技能都会自动读取。请勿提交或公开此文件。
+
+```bash
+# 通过 DOI 抓取
+python skills/sci-extract/harvest_paper.py 10.1016/j.mattod.2017.11.002
+
+# 批量抓取
+python skills/sci-extract/harvest_paper.py --batch dois.txt --output-dir ./papers
+
+# 仅抓取元数据，跳过图片
+python skills/sci-extract/harvest_paper.py 10.1038/nmat3173 --skip-figures
+```
 
 ### 💬 使用示例
 

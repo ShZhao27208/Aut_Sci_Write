@@ -1,12 +1,12 @@
 {
   "name": "sci-extract",
-  "version": "1.0.0",
-  "description": "Scientific paper insight and figure extraction",
-  "author": "Shuo Zhao",       
+  "version": "1.1.0",
+  "description": "Scientific paper harvesting, insight extraction, and figure extraction",
+  "author": "Shuo Zhao",
   "contributor": "Zhiyao Zhang",
   "dependencies": {
     "python": ">=3.10",
-    "pip": ["pymupdf", "pdfplumber", "numpy"]
+    "pip": ["requests", "pymupdf", "pdfplumber", "numpy"]
   },
-  "tags": ["scientific", "pdf", "extraction", "figures", "insights"]
+  "tags": ["scientific", "pdf", "xml", "metadata", "extraction", "figures", "insights"]
 }

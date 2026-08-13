@@ -318,7 +318,7 @@ class WoSFetcher:
         params = {
             "q": f"TS=({query})",
             "db": "WOS",
-            "limit": min(max_results, 10),
+            "limit": min(max_results, 50),
             "page": 1,
         }
         url = f"{self.API_URL}?{urllib.parse.urlencode(params)}"
@@ -549,6 +549,7 @@ class ScopusFetcher:
 
     def __init__(self):
         self.api_key = get_config_value("SCOPUS_API_KEY")
+        self.insttoken = get_config_value("ELSEVIER_INSTTOKEN")
 
     def is_available(self) -> bool:
         return bool(self.api_key)
@@ -564,10 +565,14 @@ class ScopusFetcher:
             "sort": "-relevancy",
         }
         url = f"{self.API_URL}?{urllib.parse.urlencode(params)}"
-        req = urllib.request.Request(url, headers={
+        headers = {
             "X-ELS-APIKey": self.api_key,
             "Accept": "application/json",
-        })
+        }
+        # Institutional token unlocks subscribed content outside the campus network.
+        if self.insttoken:
+            headers["X-ELS-Insttoken"] = self.insttoken
+        req = urllib.request.Request(url, headers=headers)
         try:
             with urllib.request.urlopen(req, timeout=15) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
@@ -644,35 +649,47 @@ class SemanticScholarFetcher:
             headers["x-api-key"] = self.api_key
 
         req = urllib.request.Request(url, headers=headers)
-        try:
-            with urllib.request.urlopen(req, timeout=15) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-
-            papers = []
-            for item in data.get("data", []):
-                authors = [a.get("name", "") for a in item.get("authors", []) if a.get("name")]
-
-                ext_ids = item.get("externalIds") or {}
-                doi = ext_ids.get("DOI", "")
-                doi_url = f"https://doi.org/{doi}" if doi else ""
-                s2_url = item.get("url", "")
-
-                paper = {
-                    "source": "semantic_scholar",
-                    "title": item.get("title", "Unknown"),
-                    "authors": authors,
-                    "year": str(item.get("year", "")) if item.get("year") else "",
-                    "journal": item.get("venue", ""),
-                    "url": s2_url or doi_url,
-                    "doi": doi,
-                    "abstract": item.get("abstract") or "",
-                    "times_cited": item.get("citationCount", ""),
-                }
-                papers.append(paper)
-            return papers
-        except Exception as e:
-            print(f"Semantic Scholar error: {e}")
+        # Retry once on 429 (S2 anonymous tier is heavily rate-limited)
+        for attempt in range(2):
+            try:
+                with urllib.request.urlopen(req, timeout=15) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                break
+            except urllib.error.HTTPError as e:
+                if e.code == 429 and attempt == 0:
+                    time.sleep(3)
+                    continue
+                print(f"Semantic Scholar error: HTTP {e.code}")
+                return []
+            except Exception as e:
+                print(f"Semantic Scholar error: {e}")
+                return []
+        else:
+            print("Semantic Scholar error: rate limited after retry")
             return []
+
+        papers = []
+        for item in data.get("data", []):
+            authors = [a.get("name", "") for a in item.get("authors", []) if a.get("name")]
+
+            ext_ids = item.get("externalIds") or {}
+            doi = ext_ids.get("DOI", "")
+            doi_url = f"https://doi.org/{doi}" if doi else ""
+            s2_url = item.get("url", "")
+
+            paper = {
+                "source": "semantic_scholar",
+                "title": item.get("title", "Unknown"),
+                "authors": authors,
+                "year": str(item.get("year", "")) if item.get("year") else "",
+                "journal": item.get("venue", ""),
+                "url": s2_url or doi_url,
+                "doi": doi,
+                "abstract": item.get("abstract") or "",
+                "times_cited": item.get("citationCount", ""),
+            }
+            papers.append(paper)
+        return papers
 
 
 class OpenAlexFetcher:
